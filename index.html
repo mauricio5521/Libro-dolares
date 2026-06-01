@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
+<!-- saved from url=(0045)https://mauricio5521.github.io/Libro-dolares/ -->
+<html lang="es"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Libro de Dólares</title>
 <style>
@@ -628,14 +628,14 @@ body{
 .text-red{ color:var(--red); }
 .text-muted{ color:var(--ink-3); }
 </style>
-</head>
-<body>
+<script src="chrome-extension://liecbddmkiiihnedobmlmillhodjkdmb/js/recordConsoleEvents.js"></script></head>
+<body><div style="display: contents;"><template shadowrootmode="closed"><div style="display: contents;"></div></template></div>
 <div class="shell">
 
 <!-- ══════════════════════════════════════════
      TAB: DASHBOARD
 ══════════════════════════════════════════ -->
-<div id="v-dashboard" class="view on">
+<div id="v-dashboard" class="view">
 
   <header class="app-header">
     <div class="app-logo">
@@ -643,7 +643,7 @@ body{
       <span class="app-logo-name">Libro de Dólares</span>
     </div>
     <div style="display:flex;align-items:center;gap:8px">
-      <span class="app-date" id="hdr-date"></span>
+      <span class="app-date" id="hdr-date">lun, 1 jun.</span>
       <button class="btn-header-action" onclick="abrirModalCapital()" title="Configurar capital inicial">⚙️ Capital</button>
     </div>
   </header>
@@ -665,24 +665,24 @@ body{
   <!-- Hero card -->
   <div class="hero-card">
     <div class="hero-eyebrow">Capital actual</div>
-    <div class="hero-capital" id="dash-capital-actual">US$60,000.00</div>
-    <div class="hero-gain-pill neu" id="dash-gain-pill">Sin operaciones aún</div>
+    <div class="hero-capital" id="dash-capital-actual">US$60,005.81</div>
+    <div class="hero-gain-pill pos" id="dash-gain-pill">+US$5.81  (+0.01%)</div>
     <div class="hero-grid">
       <div class="hero-tile">
         <div class="hero-tile-label">Capital inicial</div>
-        <div class="hero-tile-value" id="dash-capital-inicial">—</div>
+        <div class="hero-tile-value" id="dash-capital-inicial">US$60,000.00</div>
       </div>
       <div class="hero-tile">
         <div class="hero-tile-label">Ganancia USD</div>
-        <div class="hero-tile-value" id="dash-ganancia-usd">—</div>
+        <div class="hero-tile-value pos-light" id="dash-ganancia-usd">+US$5.81</div>
       </div>
       <div class="hero-tile">
         <div class="hero-tile-label">Ganancia PEN</div>
-        <div class="hero-tile-value" id="dash-ganancia-pen">—</div>
+        <div class="hero-tile-value pos-light" id="dash-ganancia-pen">+S/ 5,439.81</div>
       </div>
       <div class="hero-tile">
         <div class="hero-tile-label">Operaciones</div>
-        <div class="hero-tile-value" id="dash-num-ops">0</div>
+        <div class="hero-tile-value" id="dash-num-ops">4</div>
       </div>
     </div>
   </div>
@@ -692,8 +692,8 @@ body{
     <div class="card-inner">
       <div class="card-title">Evolución del capital</div>
       <div id="dash-chart-wrap">
-        <div class="chart-empty" id="dash-chart-empty">Registra operaciones para ver la evolución de tu capital</div>
-        <svg id="dash-chart-svg" class="chart-svg" style="display:none"></svg>
+        <div class="chart-empty" id="dash-chart-empty" style="display: none;">Registra operaciones para ver la evolución de tu capital</div>
+        <svg id="dash-chart-svg" class="chart-svg" style="" viewBox="0 0 400 220"><defs><lineargradient id="gradFilldash-chart-svg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2E9E6E" stop-opacity="0.18"></stop><stop offset="100%" stop-color="#2E9E6E" stop-opacity="0.01"></stop></lineargradient></defs><path d="M50.0 16.0 L135.5 119.2 L221.0 188.0 L306.5 84.8 L392.0 16.0 L392.0 220 L50.0 220 Z" fill="url(#gradFilldash-chart-svg)"></path><path d="M50.0 16.0 L135.5 119.2 L221.0 188.0 L306.5 84.8 L392.0 16.0" fill="none" stroke="var(--green-2)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"></path><text x="44" y="192" text-anchor="end" font-size="9" fill="#8A8780">-40000</text><text x="44" y="106" text-anchor="end" font-size="9" fill="#8A8780">10.0k</text><text x="44" y="20" text-anchor="end" font-size="9" fill="#8A8780">60.0k</text><circle cx="50" cy="16.009990706319698" r="3" fill="var(--green-2)" stroke="white" stroke-width="1.5"></circle><circle cx="135.5" cy="119.20399628252787" r="3" fill="var(--green-2)" stroke="white" stroke-width="1.5"></circle><circle cx="221" cy="188" r="3" fill="var(--green-2)" stroke="white" stroke-width="1.5"></circle><circle cx="306.5" cy="84.7960037174721" r="3" fill="var(--green-2)" stroke="white" stroke-width="1.5"></circle><circle cx="392" cy="16" r="3" fill="var(--green-2)" stroke="white" stroke-width="1.5"></circle><text x="50" y="216" text-anchor="middle" font-size="8" fill="#8A8780">Inicio</text><text x="135.5" y="216" text-anchor="middle" font-size="8" fill="#8A8780">27 abr.</text><text x="221" y="216" text-anchor="middle" font-size="8" fill="#8A8780">6 may.</text><text x="306.5" y="216" text-anchor="middle" font-size="8" fill="#8A8780">22 may.</text><text x="392" y="216" text-anchor="middle" font-size="8" fill="#8A8780">22 may.</text></svg>
       </div>
     </div>
   </div>
@@ -704,31 +704,31 @@ body{
       <div class="card-title">Indicadores clave</div>
       <div class="info-row">
         <span class="info-label">Rentabilidad acumulada</span>
-        <span class="info-value" id="dash-rentab">—</span>
+        <span class="info-value pos" id="dash-rentab">+0.01%</span>
       </div>
       <div class="info-row">
         <span class="info-label">Rentabilidad anualizada</span>
-        <span class="info-value" id="dash-rentab-anual">—</span>
+        <span class="info-value pos" id="dash-rentab-anual">+0.10%/año</span>
       </div>
       <div class="info-row">
         <span class="info-label">Promedio por operación</span>
-        <span class="info-value" id="dash-prom-op">—</span>
+        <span class="info-value" id="dash-prom-op">+US$1.45 / op.</span>
       </div>
       <div class="info-row">
         <span class="info-label">Mejor operación</span>
-        <span class="info-value pos" id="dash-mejor-op">—</span>
+        <span class="info-value pos" id="dash-mejor-op">+US$939.15</span>
       </div>
       <div class="info-row">
         <span class="info-label">Peor operación</span>
-        <span class="info-value neg" id="dash-peor-op">—</span>
+        <span class="info-value" id="dash-peor-op">+US$0.08</span>
       </div>
       <div class="info-row">
         <span class="info-label">Máximo histórico</span>
-        <span class="info-value" id="dash-max-hist">—</span>
+        <span class="info-value" id="dash-max-hist">US$60,005.81 · 22 may. 2026</span>
       </div>
       <div class="info-row">
         <span class="info-label">Mínimo histórico</span>
-        <span class="info-value" id="dash-min-hist">—</span>
+        <span class="info-value" id="dash-min-hist">US$-40,000.00 · 6 may. 2026</span>
       </div>
     </div>
   </div>
@@ -736,7 +736,7 @@ body{
   <!-- Acciones datos -->
   <div class="export-row">
     <button class="export-btn" onclick="exportarJSON()">⬇ Exportar JSON</button>
-    <button class="export-btn" onclick="document.getElementById('import-file').click()">⬆ Importar JSON</button>
+    <button class="export-btn" onclick="document.getElementById(&#39;import-file&#39;).click()">⬆ Importar JSON</button>
     <button class="export-btn" onclick="exportarExcel()">📊 Excel</button>
     <input type="file" id="import-file" accept=".json" style="display:none" onchange="importarJSON(event)">
   </div>
@@ -754,18 +754,18 @@ body{
       <div class="app-logo-mark">💵</div>
       <span class="app-logo-name">Registrar operación</span>
     </div>
-    <span class="app-date" id="hdr-date-reg"></span>
+    <span class="app-date" id="hdr-date-reg">lun, 1 jun.</span>
   </header>
 
   <div class="card" style="margin-top:16px">
     <!-- Tipo de operación -->
     <div class="type-row">
-      <button class="type-btn active-buy" id="btn-buy" onclick="setTipo('buy')">
+      <button class="type-btn active-buy" id="btn-buy" onclick="setTipo(&#39;buy&#39;)">
         <div class="tb-icon">🟢</div>
         <span class="tb-label">Compra USD</span>
         <span class="tb-sub">Entrego soles</span>
       </button>
-      <button class="type-btn" id="btn-sell" onclick="setTipo('sell')">
+      <button class="type-btn" id="btn-sell" onclick="setTipo(&#39;sell&#39;)">
         <div class="tb-icon">🔴</div>
         <span class="tb-label">Venta USD</span>
         <span class="tb-sub">Recibo soles</span>
@@ -784,13 +784,11 @@ body{
     <div class="field-row">
       <div class="field-group">
         <div class="field-label" id="form-monto-label">Soles entregados (PEN)</div>
-        <input type="number" id="form-monto" class="field-input field-input-serif"
-               placeholder="0.00" step="0.01" min="0" inputmode="decimal">
+        <input type="number" id="form-monto" class="field-input field-input-serif" placeholder="0.00" step="0.01" min="0" inputmode="decimal">
       </div>
       <div class="field-group">
         <div class="field-label">Tipo de cambio</div>
-        <input type="number" id="form-tc" class="field-input field-input-serif"
-               placeholder="3.7500" step="0.0001" min="2.5" max="6" inputmode="decimal">
+        <input type="number" id="form-tc" class="field-input field-input-serif" placeholder="3.7500" step="0.0001" min="2.5" max="6" inputmode="decimal">
       </div>
     </div>
 
@@ -823,7 +821,7 @@ body{
 <!-- ══════════════════════════════════════════
      TAB: HISTORIAL
 ══════════════════════════════════════════ -->
-<div id="v-historial" class="view">
+<div id="v-historial" class="view on">
 
   <div class="page-header">
     <div class="page-title">Historial</div>
@@ -850,22 +848,22 @@ body{
     </div>
   </div>
 
-  <div class="hist-stats-strip" id="hist-stats-strip" style="display:none">
+  <div class="hist-stats-strip" id="hist-stats-strip" style="display: flex;">
     <div class="hist-stat-chip">
       <div class="lbl">Compras</div>
-      <div class="val" id="hstat-compras">0</div>
+      <div class="val" id="hstat-compras">2</div>
     </div>
     <div class="hist-stat-chip">
       <div class="lbl">Ventas</div>
-      <div class="val" id="hstat-ventas">0</div>
+      <div class="val" id="hstat-ventas">2</div>
     </div>
     <div class="hist-stat-chip">
       <div class="lbl">USD neto</div>
-      <div class="val" id="hstat-neto">—</div>
+      <div class="val pos" id="hstat-neto">+US$5.81</div>
     </div>
   </div>
 
-  <div class="hist-list" id="hist-list"></div>
+  <div class="hist-list" id="hist-list"><div class="group-label">Mayo de 2026<span style="font-weight:400;opacity:.7;margin-left:4px"> · +US$100,005.81 · −US$40,000.00</span></div><div class="op-card" id="opcard-mpvo2glwivbs"><div class="op-icon buy">🟢</div><div class="op-body"><div class="op-type">Compra · 22 may. 2026</div><div class="op-meta">TC: 3.4430  ·  S/ 206,600.00 → US$60,005.8089</div><div class="op-note">💬 2</div></div><div class="op-right"><div class="op-amount buy">US$60,005.81</div><div class="op-result-lbl">USD obtenidos</div></div><div class="op-actions"><button class="op-btn edit" onclick="abrirModalEditar(&#39;mpvo2glwivbs&#39;)" title="Editar">✏️</button><button class="op-btn del" onclick="confirmarEliminar(&#39;mpvo2glwivbs&#39;)" title="Eliminar">🗑</button></div></div><div class="op-card" id="opcard-mpvosv7qklei"><div class="op-icon buy">🟢</div><div class="op-body"><div class="op-type">Compra · 22 may. 2026</div><div class="op-meta">TC: 3.4100  ·  S/ 136,400.00 → US$40,000.0000</div><div class="op-note">💬 CAPITAL 2_1</div></div><div class="op-right"><div class="op-amount buy">US$40,000.00</div><div class="op-result-lbl">USD obtenidos</div></div><div class="op-actions"><button class="op-btn edit" onclick="abrirModalEditar(&#39;mpvosv7qklei&#39;)" title="Editar">✏️</button><button class="op-btn del" onclick="confirmarEliminar(&#39;mpvosv7qklei&#39;)" title="Eliminar">🗑</button></div></div><div class="op-card" id="opcard-mpvoih2c0ecu"><div class="op-icon sell">🔴</div><div class="op-body"><div class="op-type">Venta · 6 may. 2026</div><div class="op-meta">TC: 3.4920  ·  US$40,000.00 → S/ 139,680.00</div><div class="op-note">💬 CAPITAL 2</div></div><div class="op-right"><div class="op-amount sell">S/ 139,680.00</div><div class="op-result-lbl">Soles recibidos</div></div><div class="op-actions"><button class="op-btn edit" onclick="abrirModalEditar(&#39;mpvoih2c0ecu&#39;)" title="Editar">✏️</button><button class="op-btn del" onclick="confirmarEliminar(&#39;mpvoih2c0ecu&#39;)" title="Eliminar">🗑</button></div></div><div class="group-label">Abril de 2026<span style="font-weight:400;opacity:.7;margin-left:4px"> · −US$60,000.00</span></div><div class="op-card" id="opcard-mpvo0k3gyeth"><div class="op-icon sell">🔴</div><div class="op-body"><div class="op-type">Venta · 27 abr. 2026</div><div class="op-meta">TC: 3.4790  ·  US$60,000.00 → S/ 208,740.00</div><div class="op-note">💬 1er cambio</div></div><div class="op-right"><div class="op-amount sell">S/ 208,740.00</div><div class="op-result-lbl">Soles recibidos</div></div><div class="op-actions"><button class="op-btn edit" onclick="abrirModalEditar(&#39;mpvo0k3gyeth&#39;)" title="Editar">✏️</button><button class="op-btn del" onclick="confirmarEliminar(&#39;mpvo0k3gyeth&#39;)" title="Eliminar">🗑</button></div></div></div>
 
 </div><!-- /v-historial -->
 
@@ -944,23 +942,23 @@ body{
 ══════════════════════════════════════════ -->
 <nav class="tab-bar">
   <div class="tab-bar-inner">
-    <button class="tab-item on" id="tab-dashboard" onclick="setTab('dashboard',this)">
+    <button class="tab-item" id="tab-dashboard" onclick="setTab(&#39;dashboard&#39;,this)">
       <span class="tab-icon">📊</span>
       <span class="tab-label">Resumen</span>
     </button>
-    <button class="tab-item" id="tab-registrar" onclick="setTab('registrar',this)">
+    <button class="tab-item" id="tab-registrar" onclick="setTab(&#39;registrar&#39;,this)">
       <span class="tab-icon">➕</span>
       <span class="tab-label">Registrar</span>
     </button>
-    <button class="tab-item" id="tab-historial" onclick="setTab('historial',this)">
+    <button class="tab-item on" id="tab-historial" onclick="setTab(&#39;historial&#39;,this)">
       <span class="tab-icon">📋</span>
       <span class="tab-label">Historial</span>
     </button>
-    <button class="tab-item" id="tab-cerradas" onclick="setTab('cerradas',this)">
+    <button class="tab-item" id="tab-cerradas" onclick="setTab(&#39;cerradas&#39;,this)">
       <span class="tab-icon">⚖️</span>
       <span class="tab-label">Ciclos</span>
     </button>
-    <button class="tab-item" id="tab-evolucion" onclick="setTab('evolucion',this)">
+    <button class="tab-item" id="tab-evolucion" onclick="setTab(&#39;evolucion&#39;,this)">
       <span class="tab-icon">📈</span>
       <span class="tab-label">Evolución</span>
     </button>
@@ -1026,8 +1024,7 @@ body{
     </p>
     <div class="field-group" style="padding:0">
       <div class="field-label">Capital inicial en USD</div>
-      <input type="number" id="capital-input" class="field-input field-input-serif"
-             placeholder="60000" step="0.01" min="0" inputmode="decimal">
+      <input type="number" id="capital-input" class="field-input field-input-serif" placeholder="60000" step="0.01" min="0" inputmode="decimal">
     </div>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="cerrarModalCapital()">Cancelar</button>
@@ -2158,5 +2155,6 @@ function sembrarDemoSiVacio() {
   renderAll();
 })();
 </script>
-</body>
-</html>
+
+
+<div style="display: contents;"><template shadowrootmode="closed"><div style="display: none; x: initial; y: initial; z-index: 2147483647; text-align: center; border-radius: 6px; box-shadow: rgba(10, 10, 10, 0.1) 0px 0.5em 1em -0.125em, rgba(10, 10, 10, 0.02) 0px 0px 0px 1px; color: rgb(74, 74, 74); overflow: auto; position: fixed; right: 20px; top: 20px; line-height: 0px; transition: height 0.25s ease-in;"><iframe height="429" width="300" srcdoc="&lt;!DOCTYPE html&gt;&lt;html&gt;&lt;head&gt;&lt;/head&gt;&lt;body&gt;&lt;div class=&quot;frame-root&quot;&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;" style="border: 0px;"></iframe></div></template></div></body></html>
