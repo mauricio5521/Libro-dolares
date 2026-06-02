@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<!-- saved from url=(0045)https://mauricio5521.github.io/Libro-dolares/ -->
-<html lang="es"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
+<html lang="es">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Libro de Dólares</title>
 <style>
@@ -56,6 +56,70 @@ body{
 }
 
 /* ══════════════════════════════════════════════
+   PANTALLA DE LOGIN
+══════════════════════════════════════════════ */
+#login-screen{
+  position:fixed;inset:0;z-index:999;
+  background:var(--ink);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:32px 24px;
+  transition:opacity .35s var(--ease);
+}
+#login-screen.hidden{ opacity:0;pointer-events:none; }
+
+.login-logo-mark{
+  width:64px;height:64px;border-radius:20px;
+  background:rgba(255,255,255,.08);
+  display:flex;align-items:center;justify-content:center;
+  font-size:30px;margin-bottom:20px;
+  border:1px solid rgba(255,255,255,.1);
+}
+.login-title{
+  font-family:var(--f-serif);
+  font-size:28px;letter-spacing:-.8px;color:var(--white);
+  margin-bottom:8px;text-align:center;
+}
+.login-sub{
+  font-size:14px;color:rgba(255,255,255,.45);
+  text-align:center;margin-bottom:40px;line-height:1.6;
+}
+.btn-google{
+  display:flex;align-items:center;gap:12px;
+  padding:14px 24px;
+  background:var(--white);color:var(--ink);
+  border:none;border-radius:var(--r-lg);
+  font-size:15px;font-weight:600;font-family:var(--f-sans);
+  cursor:pointer;width:100%;max-width:320px;justify-content:center;
+  box-shadow:0 4px 20px rgba(0,0,0,.3);
+  transition:opacity .15s,transform .12s;
+}
+.btn-google:hover{ opacity:.92; }
+.btn-google:active{ transform:scale(.975); }
+.btn-google svg{ flex-shrink:0; }
+
+.login-notice{
+  margin-top:24px;font-size:12px;
+  color:rgba(255,255,255,.25);text-align:center;line-height:1.6;
+}
+
+/* LOADING SPINNER */
+#auth-loading{
+  position:fixed;inset:0;z-index:998;
+  background:var(--sand);
+  display:flex;align-items:center;justify-content:center;
+  transition:opacity .3s;
+}
+#auth-loading.hidden{ opacity:0;pointer-events:none; }
+.spinner{
+  width:32px;height:32px;
+  border:3px solid var(--sand-3);
+  border-top-color:var(--ink);
+  border-radius:50%;
+  animation:spin .7s linear infinite;
+}
+@keyframes spin{ to{ transform:rotate(360deg); } }
+
+/* ══════════════════════════════════════════════
    SHELL
 ══════════════════════════════════════════════ */
 .shell{
@@ -63,7 +127,9 @@ body{
   margin:0 auto;
   min-height:100dvh;
   padding-bottom:88px;
+  opacity:0;transition:opacity .3s;
 }
+.shell.visible{ opacity:1; }
 
 .view{ display:none; animation:fadeSlide .22s var(--ease) both; }
 .view.on{ display:block; }
@@ -89,6 +155,26 @@ body{
 }
 .app-logo-name{ font-size:15px;font-weight:700;color:var(--ink);letter-spacing:-.3px; }
 .app-date{ font-size:12px;color:var(--ink-3); }
+
+/* ══════════════════════════════════════════════
+   USER CHIP (esquina superior)
+══════════════════════════════════════════════ */
+.user-chip{
+  display:flex;align-items:center;gap:8px;
+}
+.user-avatar{
+  width:28px;height:28px;border-radius:50%;
+  background:var(--sand-3);overflow:hidden;
+  flex-shrink:0;border:1.5px solid var(--sand-3);
+}
+.user-avatar img{ width:100%;height:100%;object-fit:cover; }
+.btn-signout{
+  padding:5px 10px;border-radius:var(--r-sm);
+  background:var(--sand-2);border:1px solid var(--sand-3);
+  font-size:11px;font-weight:600;color:var(--ink-3);
+  cursor:pointer;transition:all .15s;white-space:nowrap;
+}
+.btn-signout:hover{ background:var(--red-bg);color:var(--red);border-color:var(--red-bg); }
 
 /* ══════════════════════════════════════════════
    PAGE HEADER
@@ -167,7 +253,7 @@ body{
 .hero-tile-value.neg-light{ color:#F8948A; }
 
 /* ══════════════════════════════════════════════
-   STAT GRID (dashboard info rows)
+   STAT GRID
 ══════════════════════════════════════════════ */
 .info-row{
   display:flex;justify-content:space-between;align-items:center;
@@ -179,19 +265,6 @@ body{
 .info-value{ font-weight:600;color:var(--ink); }
 .info-value.pos{ color:var(--green); }
 .info-value.neg{ color:var(--red); }
-
-/* ══════════════════════════════════════════════
-   MINI CHART (Capital evolution)
-══════════════════════════════════════════════ */
-.chart-wrap{
-  padding:0 20px 20px;
-  position:relative;
-}
-.chart-svg{ width:100%;overflow:visible; }
-.chart-empty{
-  text-align:center;padding:32px 20px;
-  color:var(--ink-3);font-size:13px;
-}
 
 /* ══════════════════════════════════════════════
    OPERATION FORM
@@ -372,7 +445,7 @@ body{
 .cerrada-field-value{ font-size:13px;color:var(--ink);font-weight:600;margin-top:2px; }
 
 /* ══════════════════════════════════════════════
-   EVOLUCIÓN (chart view)
+   EVOLUCIÓN
 ══════════════════════════════════════════════ */
 .evol-stats{
   display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;
@@ -415,18 +488,7 @@ body{
 }
 .btn-icon:hover{ background:var(--sand-2); }
 
-.btn-outline{
-  padding:9px 14px;border:1.5px solid var(--sand-3);
-  border-radius:var(--r);background:transparent;
-  font-size:12px;font-weight:600;color:var(--ink-2);
-  cursor:pointer;display:inline-flex;align-items:center;
-  gap:5px;transition:all .15s;
-}
-.btn-outline:hover{ background:var(--sand-2);border-color:var(--stone); }
-
-/* ══════════════════════════════════════════════
-   EXPORT/IMPORT ROW
-══════════════════════════════════════════════ */
+/* EXPORT/IMPORT ROW */
 .export-row{
   display:flex;gap:8px;flex-wrap:wrap;padding:0 14px 16px;
 }
@@ -511,9 +573,7 @@ body{
 }
 .btn-danger:hover{ opacity:.85; }
 
-/* ══════════════════════════════════════════════
-   CAPITAL INICIAL BADGE (dashboard)
-══════════════════════════════════════════════ */
+/* CAPITAL INICIAL NOTIFICATION */
 .capital-setup-notice{
   margin:0 14px 12px;
   background:var(--amber-bg);border-radius:var(--r-lg);
@@ -556,627 +616,445 @@ body{
 .tab-item.on .tab-label{ color:var(--ink);font-weight:700; }
 .tab-item.on .tab-icon{ transform:scale(1.1); }
 
-/* ══════════════════════════════════════════════
-   RESPONSIVE
-══════════════════════════════════════════════ */
 @media(min-width:600px){
-  .hero-grid{ grid-template-columns:1fr 1fr 1fr; }
+  .hero-grid{ grid-template-columns:1fr 1fr; }
   .evol-stats{ grid-template-columns:repeat(3,1fr); }
 }
 
-/* ══════════════════════════════════════════════
-   DATE FILTERS
-══════════════════════════════════════════════ */
-.hist-date-filters{
-  padding:0 14px 12px;
-}
-.date-filter-label{
-  font-size:10px;font-weight:700;color:var(--ink-3);
-  text-transform:uppercase;letter-spacing:.08em;
-  margin-bottom:6px;
-}
-.date-filter-row{
-  display:flex;align-items:center;gap:6px;
-}
-.date-input{
-  flex:1;padding:8px 10px;
-  font-size:12px;font-family:var(--f-sans);
-  background:var(--white);color:var(--ink);
-  border:1.5px solid var(--sand-3);border-radius:var(--r);
-  outline:none;transition:border-color var(--dur);
-  min-width:0;
-}
+/* DATE FILTERS */
+.hist-date-filters{ padding:0 14px 12px; }
+.date-filter-label{ font-size:10px;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px; }
+.date-filter-row{ display:flex;align-items:center;gap:6px; }
+.date-input{ flex:1;padding:8px 10px;font-size:12px;font-family:var(--f-sans);background:var(--white);color:var(--ink);border:1.5px solid var(--sand-3);border-radius:var(--r);outline:none;transition:border-color var(--dur);min-width:0; }
 .date-input:focus{ border-color:var(--stone); }
 .date-sep{ font-size:12px;color:var(--stone);flex-shrink:0; }
-.btn-clear-dates{
-  width:30px;height:30px;border-radius:var(--r-sm);
-  background:var(--sand-2);border:none;
-  color:var(--ink-3);font-size:12px;cursor:pointer;
-  flex-shrink:0;transition:all .15s;
-}
+.btn-clear-dates{ width:30px;height:30px;border-radius:var(--r-sm);background:var(--sand-2);border:none;color:var(--ink-3);font-size:12px;cursor:pointer;flex-shrink:0;transition:all .15s; }
 .btn-clear-dates:hover{ background:var(--red-bg);color:var(--red); }
 
-/* Btn capital en header */
-.btn-header-action{
-  display:flex;align-items:center;gap:5px;
-  padding:6px 10px;border-radius:var(--r);
-  background:var(--sand-2);border:1px solid var(--sand-3);
-  font-size:11px;font-weight:700;color:var(--ink-2);
-  cursor:pointer;transition:all .15s;
-}
+.btn-header-action{ display:flex;align-items:center;gap:5px;padding:6px 10px;border-radius:var(--r);background:var(--sand-2);border:1px solid var(--sand-3);font-size:11px;font-weight:700;color:var(--ink-2);cursor:pointer;transition:all .15s; }
 .btn-header-action:hover{ background:var(--sand-3);color:var(--ink); }
 
-/* Hist stats strip */
-.hist-stats-strip{
-  display:flex;gap:8px;padding:0 14px 10px;
-}
-.hist-stat-chip{
-  flex:1;padding:10px 12px;
-  background:var(--white);border-radius:var(--r-lg);
-  box-shadow:var(--sh-sm);text-align:center;
-}
+.hist-stats-strip{ display:flex;gap:8px;padding:0 14px 10px; }
+.hist-stat-chip{ flex:1;padding:10px 12px;background:var(--white);border-radius:var(--r-lg);box-shadow:var(--sh-sm);text-align:center; }
 .hist-stat-chip .lbl{ font-size:10px;color:var(--ink-3);font-weight:700;text-transform:uppercase;letter-spacing:.06em; }
 .hist-stat-chip .val{ font-size:14px;font-weight:700;color:var(--ink);margin-top:3px; }
 .hist-stat-chip .val.pos{ color:var(--green); }
 .hist-stat-chip .val.neg{ color:var(--red); }
 
-/* ══════════════════════════════════════════════
-   UTILS
-══════════════════════════════════════════════ */
 .hidden{ display:none!important; }
 .text-green{ color:var(--green); }
 .text-red{ color:var(--red); }
 .text-muted{ color:var(--ink-3); }
 </style>
-<script src="chrome-extension://liecbddmkiiihnedobmlmillhodjkdmb/js/recordConsoleEvents.js"></script></head>
-<body><div style="display: contents;"><template shadowrootmode="closed"><div style="display: contents;"></div></template></div>
-<div class="shell">
 
 <!-- ══════════════════════════════════════════
-     TAB: DASHBOARD
+     FIREBASE SDKs  (compat v10)
 ══════════════════════════════════════════ -->
-<div id="v-dashboard" class="view">
-
-  <header class="app-header">
-    <div class="app-logo">
-      <div class="app-logo-mark">💵</div>
-      <span class="app-logo-name">Libro de Dólares</span>
-    </div>
-    <div style="display:flex;align-items:center;gap:8px">
-      <span class="app-date" id="hdr-date">lun, 1 jun.</span>
-      <button class="btn-header-action" onclick="abrirModalCapital()" title="Configurar capital inicial">⚙️ Capital</button>
-    </div>
-  </header>
-
-  <!-- Capital inicial no configurado -->
-  <div id="notice-capital" class="capital-setup-notice hidden">
-    <span class="capital-setup-icon">⚙️</span>
-    <div class="capital-setup-text"><strong>Configura tu capital inicial</strong> para ver tu rentabilidad real.</div>
-    <button class="btn-setup-capital" onclick="abrirModalCapital()">Configurar</button>
-  </div>
-
-  <!-- Banner demo -->
-  <div id="demo-banner" class="hidden" style="margin:0 14px 10px;background:var(--amber-bg);border-radius:var(--r-lg);padding:12px 16px;display:flex;align-items:center;gap:10px">
-    <span style="font-size:16px">🧪</span>
-    <span style="flex:1;font-size:12px;color:var(--amber);line-height:1.4"><strong>Datos de ejemplo activos.</strong> Bórralos para empezar con tus operaciones reales.</span>
-    <button onclick="limpiarDemo()" style="padding:6px 12px;background:var(--amber);color:white;border:none;border-radius:var(--r-sm);font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">Limpiar</button>
-  </div>
-
-  <!-- Hero card -->
-  <div class="hero-card">
-    <div class="hero-eyebrow">Capital actual</div>
-    <div class="hero-capital" id="dash-capital-actual">US$60,005.81</div>
-    <div class="hero-gain-pill pos" id="dash-gain-pill">+US$5.81  (+0.01%)</div>
-    <div class="hero-grid">
-      <div class="hero-tile">
-        <div class="hero-tile-label">Capital inicial</div>
-        <div class="hero-tile-value" id="dash-capital-inicial">US$60,000.00</div>
-      </div>
-      <div class="hero-tile">
-        <div class="hero-tile-label">Ganancia USD</div>
-        <div class="hero-tile-value pos-light" id="dash-ganancia-usd">+US$5.81</div>
-      </div>
-      <div class="hero-tile">
-        <div class="hero-tile-label">Ganancia PEN</div>
-        <div class="hero-tile-value pos-light" id="dash-ganancia-pen">+S/ 5,439.81</div>
-      </div>
-      <div class="hero-tile">
-        <div class="hero-tile-label">Operaciones</div>
-        <div class="hero-tile-value" id="dash-num-ops">4</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Gráfico rápido -->
-  <div class="card">
-    <div class="card-inner">
-      <div class="card-title">Evolución del capital</div>
-      <div id="dash-chart-wrap">
-        <div class="chart-empty" id="dash-chart-empty" style="display: none;">Registra operaciones para ver la evolución de tu capital</div>
-        <svg id="dash-chart-svg" class="chart-svg" style="" viewBox="0 0 400 220"><defs><lineargradient id="gradFilldash-chart-svg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2E9E6E" stop-opacity="0.18"></stop><stop offset="100%" stop-color="#2E9E6E" stop-opacity="0.01"></stop></lineargradient></defs><path d="M50.0 16.0 L135.5 119.2 L221.0 188.0 L306.5 84.8 L392.0 16.0 L392.0 220 L50.0 220 Z" fill="url(#gradFilldash-chart-svg)"></path><path d="M50.0 16.0 L135.5 119.2 L221.0 188.0 L306.5 84.8 L392.0 16.0" fill="none" stroke="var(--green-2)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"></path><text x="44" y="192" text-anchor="end" font-size="9" fill="#8A8780">-40000</text><text x="44" y="106" text-anchor="end" font-size="9" fill="#8A8780">10.0k</text><text x="44" y="20" text-anchor="end" font-size="9" fill="#8A8780">60.0k</text><circle cx="50" cy="16.009990706319698" r="3" fill="var(--green-2)" stroke="white" stroke-width="1.5"></circle><circle cx="135.5" cy="119.20399628252787" r="3" fill="var(--green-2)" stroke="white" stroke-width="1.5"></circle><circle cx="221" cy="188" r="3" fill="var(--green-2)" stroke="white" stroke-width="1.5"></circle><circle cx="306.5" cy="84.7960037174721" r="3" fill="var(--green-2)" stroke="white" stroke-width="1.5"></circle><circle cx="392" cy="16" r="3" fill="var(--green-2)" stroke="white" stroke-width="1.5"></circle><text x="50" y="216" text-anchor="middle" font-size="8" fill="#8A8780">Inicio</text><text x="135.5" y="216" text-anchor="middle" font-size="8" fill="#8A8780">27 abr.</text><text x="221" y="216" text-anchor="middle" font-size="8" fill="#8A8780">6 may.</text><text x="306.5" y="216" text-anchor="middle" font-size="8" fill="#8A8780">22 may.</text><text x="392" y="216" text-anchor="middle" font-size="8" fill="#8A8780">22 may.</text></svg>
-      </div>
-    </div>
-  </div>
-
-  <!-- Indicadores clave -->
-  <div class="card">
-    <div class="card-inner">
-      <div class="card-title">Indicadores clave</div>
-      <div class="info-row">
-        <span class="info-label">Rentabilidad acumulada</span>
-        <span class="info-value pos" id="dash-rentab">+0.01%</span>
-      </div>
-      <div class="info-row">
-        <span class="info-label">Rentabilidad anualizada</span>
-        <span class="info-value pos" id="dash-rentab-anual">+0.10%/año</span>
-      </div>
-      <div class="info-row">
-        <span class="info-label">Promedio por operación</span>
-        <span class="info-value" id="dash-prom-op">+US$1.45 / op.</span>
-      </div>
-      <div class="info-row">
-        <span class="info-label">Mejor operación</span>
-        <span class="info-value pos" id="dash-mejor-op">+US$939.15</span>
-      </div>
-      <div class="info-row">
-        <span class="info-label">Peor operación</span>
-        <span class="info-value" id="dash-peor-op">+US$0.08</span>
-      </div>
-      <div class="info-row">
-        <span class="info-label">Máximo histórico</span>
-        <span class="info-value" id="dash-max-hist">US$60,005.81 · 22 may. 2026</span>
-      </div>
-      <div class="info-row">
-        <span class="info-label">Mínimo histórico</span>
-        <span class="info-value" id="dash-min-hist">US$-40,000.00 · 6 may. 2026</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Acciones datos -->
-  <div class="export-row">
-    <button class="export-btn" onclick="exportarJSON()">⬇ Exportar JSON</button>
-    <button class="export-btn" onclick="document.getElementById(&#39;import-file&#39;).click()">⬆ Importar JSON</button>
-    <button class="export-btn" onclick="exportarExcel()">📊 Excel</button>
-    <input type="file" id="import-file" accept=".json" style="display:none" onchange="importarJSON(event)">
-  </div>
-
-</div><!-- /v-dashboard -->
-
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
 
 <!-- ══════════════════════════════════════════
-     TAB: REGISTRAR OPERACIÓN
+     PANTALLA DE CARGA (mientras verifica auth)
 ══════════════════════════════════════════ -->
-<div id="v-registrar" class="view">
+<div id="auth-loading">
+  <div class="spinner"></div>
+</div>
 
-  <header class="app-header">
-    <div class="app-logo">
-      <div class="app-logo-mark">💵</div>
-      <span class="app-logo-name">Registrar operación</span>
+<!-- ══════════════════════════════════════════
+     PANTALLA DE LOGIN
+══════════════════════════════════════════ -->
+<div id="login-screen" class="hidden">
+  <div class="login-logo-mark">💵</div>
+  <div class="login-title">Libro de Dólares</div>
+  <div class="login-sub">Tu registro personal de operaciones<br>USD/PEN siempre sincronizado.</div>
+  <button class="btn-google" id="btn-login-google">
+    <!-- Logo Google SVG -->
+    <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+      <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
+      <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/>
+      <path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
+      <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
+    </svg>
+    Continuar con Google
+  </button>
+  <div class="login-notice">Solo tú verás tus datos.<br>Funciona en cualquier dispositivo.</div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     APP PRINCIPAL
+══════════════════════════════════════════ -->
+<div class="shell" id="app-shell">
+
+  <div id="v-dashboard" class="view on">
+    <header class="app-header">
+      <div class="app-logo">
+        <div class="app-logo-mark">💵</div>
+        <span class="app-logo-name">Libro de Dólares</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="app-date" id="hdr-date">—</span>
+        <button class="btn-header-action" onclick="abrirModalCapital()" title="Configurar capital inicial">⚙️ Capital</button>
+        <div class="user-chip">
+          <div class="user-avatar" id="user-avatar-wrap">
+            <img id="user-avatar-img" src="" alt="" style="display:none">
+          </div>
+          <button class="btn-signout" id="btn-signout" onclick="cerrarSesion()">Salir</button>
+        </div>
+      </div>
+    </header>
+
+    <div id="notice-capital" class="capital-setup-notice hidden">
+      <span class="capital-setup-icon">⚙️</span>
+      <div class="capital-setup-text"><strong>Configura tu capital inicial</strong> para ver tu rentabilidad real.</div>
+      <button class="btn-setup-capital" onclick="abrirModalCapital()">Configurar</button>
     </div>
-    <span class="app-date" id="hdr-date-reg">lun, 1 jun.</span>
-  </header>
 
-  <div class="card" style="margin-top:16px">
-    <!-- Tipo de operación -->
-    <div class="type-row">
-      <button class="type-btn active-buy" id="btn-buy" onclick="setTipo(&#39;buy&#39;)">
-        <div class="tb-icon">🟢</div>
-        <span class="tb-label">Compra USD</span>
-        <span class="tb-sub">Entrego soles</span>
-      </button>
-      <button class="type-btn" id="btn-sell" onclick="setTipo(&#39;sell&#39;)">
-        <div class="tb-icon">🔴</div>
-        <span class="tb-label">Venta USD</span>
-        <span class="tb-sub">Recibo soles</span>
-      </button>
+    <div class="hero-card">
+      <div class="hero-eyebrow">Capital actual</div>
+      <div class="hero-capital" id="dash-capital-actual">US$0.00</div>
+      <div class="hero-gain-pill neu" id="dash-gain-pill">Cargando...</div>
+      <div class="hero-grid">
+        <div class="hero-tile">
+          <div class="hero-tile-label">Capital inicial</div>
+          <div class="hero-tile-value" id="dash-capital-inicial">US$0.00</div>
+        </div>
+        <div class="hero-tile">
+          <div class="hero-tile-label">Ganancia USD</div>
+          <div class="hero-tile-value" id="dash-ganancia-usd">US$0.00</div>
+        </div>
+        <div class="hero-tile">
+          <div class="hero-tile-label">Ganancia PEN</div>
+          <div class="hero-tile-value" id="dash-ganancia-pen">S/ 0.00</div>
+        </div>
+        <div class="hero-tile">
+          <div class="hero-tile-label">Operaciones</div>
+          <div class="hero-tile-value" id="dash-num-ops">0</div>
+        </div>
+      </div>
     </div>
 
-    <div class="divider"></div>
-
-    <!-- Fecha -->
-    <div class="field-group" style="padding-top:14px">
-      <div class="field-label">Fecha de operación</div>
-      <input type="date" id="form-fecha" class="field-input">
+    <div class="card">
+      <div class="card-inner">
+        <div class="card-title">Indicadores clave</div>
+        <div class="info-row"><span class="info-label">Rentabilidad acumulada</span><span class="info-value" id="dash-rentab">—</span></div>
+        <div class="info-row"><span class="info-label">Rentabilidad anualizada</span><span class="info-value" id="dash-rentab-anual">—</span></div>
+        <div class="info-row"><span class="info-label">Promedio por operación</span><span class="info-value" id="dash-prom-op">—</span></div>
+        <div class="info-row"><span class="info-label">Mejor operación</span><span class="info-value" id="dash-mejor-op">—</span></div>
+        <div class="info-row"><span class="info-label">Peor operación</span><span class="info-value" id="dash-peor-op">—</span></div>
+        <div class="info-row"><span class="info-label">Máximo histórico</span><span class="info-value" id="dash-max-hist">—</span></div>
+        <div class="info-row"><span class="info-label">Mínimo histórico</span><span class="info-value" id="dash-min-hist">—</span></div>
+      </div>
     </div>
 
-    <!-- Montos -->
-    <div class="field-row">
-      <div class="field-group">
-        <div class="field-label" id="form-monto-label">Soles entregados (PEN)</div>
-        <input type="number" id="form-monto" class="field-input field-input-serif" placeholder="0.00" step="0.01" min="0" inputmode="decimal">
+    <div class="export-row">
+      <button class="export-btn" onclick="exportarJSON()">⬇ Exportar JSON</button>
+      <button class="export-btn" onclick="document.getElementById('import-file').click()">⬆ Importar JSON</button>
+      <button class="export-btn" onclick="exportarExcel()">📊 Excel</button>
+      <input type="file" id="import-file" accept=".json" style="display:none" onchange="importarJSON(event)">
+    </div>
+  </div>
+
+  <div id="v-registrar" class="view">
+    <header class="app-header">
+      <div class="app-logo"><div class="app-logo-mark">💵</div><span class="app-logo-name">Registrar operación</span></div>
+      <span class="app-date" id="hdr-date-reg">—</span>
+    </header>
+
+    <div class="card" style="margin-top:16px">
+      <div class="type-row">
+        <button class="type-btn active-buy" id="btn-buy" onclick="setTipo('buy')">
+          <div class="tb-icon">🟢</div><span class="tb-label">Compra USD</span><span class="tb-sub">Entrego soles</span>
+        </button>
+        <button class="type-btn" id="btn-sell" onclick="setTipo('sell')">
+          <div class="tb-icon">🔴</div><span class="tb-label">Venta USD</span><span class="tb-sub">Recibo soles</span>
+        </button>
+      </div>
+      <div class="divider"></div>
+      <div class="field-group" style="padding-top:14px">
+        <div class="field-label">Fecha de operación</div>
+        <input type="date" id="form-fecha" class="field-input">
+      </div>
+      <div class="field-row">
+        <div class="field-group">
+          <div class="field-label" id="form-monto-label">Soles entregados (PEN)</div>
+          <input type="number" id="form-monto" class="field-input field-input-serif" placeholder="0.00" step="0.01" min="0" inputmode="decimal">
+        </div>
+        <div class="field-group">
+          <div class="field-label">Tipo de cambio</div>
+          <input type="number" id="form-tc" class="field-input field-input-serif" placeholder="3.7500" step="0.0001" min="2.5" max="6" inputmode="decimal">
+        </div>
       </div>
       <div class="field-group">
-        <div class="field-label">Tipo de cambio</div>
-        <input type="number" id="form-tc" class="field-input field-input-serif" placeholder="3.7500" step="0.0001" min="2.5" max="6" inputmode="decimal">
+        <div class="field-label">Notas <span class="text-muted">(opcional)</span></div>
+        <input type="text" id="form-nota" class="field-input" placeholder="Ej: Casa de cambio, banco…">
       </div>
     </div>
 
-    <!-- Notas -->
-    <div class="field-group">
-      <div class="field-label">Notas <span class="text-muted">(opcional)</span></div>
-      <input type="text" id="form-nota" class="field-input" placeholder="Ej: Casa de cambio Ransa, feria, banco…">
+    <div class="result-box" id="result-box">
+      <div class="result-box-label" id="result-label">USD que recibirás</div>
+      <div class="result-box-value empty" id="result-value">—</div>
+      <div class="field-hint" id="result-hint"></div>
     </div>
 
-  </div>
-
-  <!-- Resultado calculado -->
-  <div class="result-box" id="result-box">
-    <div class="result-box-label" id="result-label">USD que recibirás</div>
-    <div class="result-box-value empty" id="result-value">—</div>
-    <div class="field-hint" id="result-hint"></div>
-  </div>
-
-  <!-- Guardar -->
-  <div class="save-wrap">
-    <button class="btn-primary" id="btn-guardar" onclick="guardarOperacion()">
-      <span>💾</span> Guardar operación
-    </button>
-    <div class="save-feedback" id="save-feedback"></div>
-  </div>
-
-</div><!-- /v-registrar -->
-
-
-<!-- ══════════════════════════════════════════
-     TAB: HISTORIAL
-══════════════════════════════════════════ -->
-<div id="v-historial" class="view on">
-
-  <div class="page-header">
-    <div class="page-title">Historial</div>
-    <div class="page-actions">
-      <button class="btn-icon" title="Eliminar todo" onclick="confirmarEliminarTodo()">🗑</button>
+    <div class="save-wrap">
+      <button class="btn-primary" id="btn-guardar" onclick="guardarOperacion()"><span>💾</span> Guardar operación</button>
+      <div class="save-feedback" id="save-feedback"></div>
     </div>
   </div>
 
-  <div class="hist-filters">
-    <input type="search" id="hist-search" class="search-input" placeholder="Buscar…" oninput="renderHistorial()">
-    <select id="hist-filter" class="filter-select" onchange="renderHistorial()">
-      <option value="all">Todas</option>
-      <option value="buy">Compras</option>
-      <option value="sell">Ventas</option>
-    </select>
+  <div id="v-historial" class="view">
+    <div class="page-header">
+      <div class="page-title">Historial</div>
+      <div class="page-actions"><button class="btn-icon" title="Eliminar todo" onclick="confirmarEliminarTodo()">🗑</button></div>
+    </div>
+    <div class="hist-filters">
+      <input type="search" id="hist-search" class="search-input" placeholder="Buscar…" oninput="renderHistorial()">
+      <select id="hist-filter" class="filter-select" onchange="renderHistorial()">
+        <option value="all">Todas</option><option value="buy">Compras</option><option value="sell">Ventas</option>
+      </select>
+    </div>
+    <div class="hist-date-filters">
+      <div class="date-filter-label">Filtrar por fecha</div>
+      <div class="date-filter-row">
+        <input type="date" id="hist-desde" class="date-input" onchange="renderHistorial()"><span class="date-sep">→</span>
+        <input type="date" id="hist-hasta" class="date-input" onchange="renderHistorial()">
+        <button class="btn-clear-dates" onclick="limpiarFiltroFechas()">✕</button>
+      </div>
+    </div>
+    <div class="hist-stats-strip" id="hist-stats-strip">
+      <div class="hist-stat-chip"><div class="lbl">Compras</div><div class="val" id="hstat-compras">0</div></div>
+      <div class="hist-stat-chip"><div class="lbl">Ventas</div><div class="val" id="hstat-ventas">0</div></div>
+      <div class="hist-stat-chip"><div class="lbl">USD neto</div><div class="val" id="hstat-neto">+US$0.00</div></div>
+    </div>
+    <div class="hist-list" id="hist-list"></div>
   </div>
-  <div class="hist-date-filters">
-    <div class="date-filter-label">Filtrar por fecha</div>
-    <div class="date-filter-row">
-      <input type="date" id="hist-desde" class="date-input" onchange="renderHistorial()" placeholder="Desde">
-      <span class="date-sep">→</span>
-      <input type="date" id="hist-hasta" class="date-input" onchange="renderHistorial()" placeholder="Hasta">
-      <button class="btn-clear-dates" onclick="limpiarFiltroFechas()" title="Limpiar fechas">✕</button>
+
+  <div id="v-cerradas" class="view">
+    <div class="page-header"><div class="page-title">Ciclos cerrados</div></div>
+    <div style="padding:0 14px 8px">
+      <div class="info-row" style="padding:8px 0 12px; border:none">
+        <span class="info-label" style="font-size:13px; color:var(--ink-3); line-height:1.5">Cada ciclo empareja una compra con su venta posterior FIFO, mostrando la ganancia real.</span>
+      </div>
+    </div>
+    <div id="cerradas-list"></div>
+    <div class="empty-state hidden" id="cerradas-empty">
+      <div class="empty-icon">⚖️</div><div class="empty-text">Aún no hay ciclos cerrados.</div>
     </div>
   </div>
 
-  <div class="hist-stats-strip" id="hist-stats-strip" style="display: flex;">
-    <div class="hist-stat-chip">
-      <div class="lbl">Compras</div>
-      <div class="val" id="hstat-compras">2</div>
+  <div id="v-evolucion" class="view">
+    <div class="page-header"><div class="page-title">Evolución</div></div>
+    <div class="evol-stats">
+      <div class="evol-stat"><div class="evol-stat-label">Crecimiento</div><div class="evol-stat-value" id="evol-crec">—</div></div>
+      <div class="evol-stat"><div class="evol-stat-label">Rentab.</div><div class="evol-stat-value" id="evol-rentab">—</div></div>
+      <div class="evol-stat"><div class="evol-stat-label">Anualiz.</div><div class="evol-stat-value" id="evol-anual">—</div></div>
     </div>
-    <div class="hist-stat-chip">
-      <div class="lbl">Ventas</div>
-      <div class="val" id="hstat-ventas">2</div>
-    </div>
-    <div class="hist-stat-chip">
-      <div class="lbl">USD neto</div>
-      <div class="val pos" id="hstat-neto">+US$5.81</div>
-    </div>
+    <div class="card"><div class="card-inner"><div class="card-title">Puntos de capital</div><div id="evol-table"></div></div></div>
   </div>
-
-  <div class="hist-list" id="hist-list"><div class="group-label">Mayo de 2026<span style="font-weight:400;opacity:.7;margin-left:4px"> · +US$100,005.81 · −US$40,000.00</span></div><div class="op-card" id="opcard-mpvo2glwivbs"><div class="op-icon buy">🟢</div><div class="op-body"><div class="op-type">Compra · 22 may. 2026</div><div class="op-meta">TC: 3.4430  ·  S/ 206,600.00 → US$60,005.8089</div><div class="op-note">💬 2</div></div><div class="op-right"><div class="op-amount buy">US$60,005.81</div><div class="op-result-lbl">USD obtenidos</div></div><div class="op-actions"><button class="op-btn edit" onclick="abrirModalEditar(&#39;mpvo2glwivbs&#39;)" title="Editar">✏️</button><button class="op-btn del" onclick="confirmarEliminar(&#39;mpvo2glwivbs&#39;)" title="Eliminar">🗑</button></div></div><div class="op-card" id="opcard-mpvosv7qklei"><div class="op-icon buy">🟢</div><div class="op-body"><div class="op-type">Compra · 22 may. 2026</div><div class="op-meta">TC: 3.4100  ·  S/ 136,400.00 → US$40,000.0000</div><div class="op-note">💬 CAPITAL 2_1</div></div><div class="op-right"><div class="op-amount buy">US$40,000.00</div><div class="op-result-lbl">USD obtenidos</div></div><div class="op-actions"><button class="op-btn edit" onclick="abrirModalEditar(&#39;mpvosv7qklei&#39;)" title="Editar">✏️</button><button class="op-btn del" onclick="confirmarEliminar(&#39;mpvosv7qklei&#39;)" title="Eliminar">🗑</button></div></div><div class="op-card" id="opcard-mpvoih2c0ecu"><div class="op-icon sell">🔴</div><div class="op-body"><div class="op-type">Venta · 6 may. 2026</div><div class="op-meta">TC: 3.4920  ·  US$40,000.00 → S/ 139,680.00</div><div class="op-note">💬 CAPITAL 2</div></div><div class="op-right"><div class="op-amount sell">S/ 139,680.00</div><div class="op-result-lbl">Soles recibidos</div></div><div class="op-actions"><button class="op-btn edit" onclick="abrirModalEditar(&#39;mpvoih2c0ecu&#39;)" title="Editar">✏️</button><button class="op-btn del" onclick="confirmarEliminar(&#39;mpvoih2c0ecu&#39;)" title="Eliminar">🗑</button></div></div><div class="group-label">Abril de 2026<span style="font-weight:400;opacity:.7;margin-left:4px"> · −US$60,000.00</span></div><div class="op-card" id="opcard-mpvo0k3gyeth"><div class="op-icon sell">🔴</div><div class="op-body"><div class="op-type">Venta · 27 abr. 2026</div><div class="op-meta">TC: 3.4790  ·  US$60,000.00 → S/ 208,740.00</div><div class="op-note">💬 1er cambio</div></div><div class="op-right"><div class="op-amount sell">S/ 208,740.00</div><div class="op-result-lbl">Soles recibidos</div></div><div class="op-actions"><button class="op-btn edit" onclick="abrirModalEditar(&#39;mpvo0k3gyeth&#39;)" title="Editar">✏️</button><button class="op-btn del" onclick="confirmarEliminar(&#39;mpvo0k3gyeth&#39;)" title="Eliminar">🗑</button></div></div></div>
-
-</div><!-- /v-historial -->
-
-
-<!-- ══════════════════════════════════════════
-     TAB: OPERACIONES CERRADAS
-══════════════════════════════════════════ -->
-<div id="v-cerradas" class="view">
-
-  <div class="page-header">
-    <div class="page-title">Ciclos cerrados</div>
-  </div>
-
-  <div style="padding:0 14px 8px">
-    <div class="info-row" style="padding:8px 0 12px; border:none">
-      <span class="info-label" style="font-size:13px; color:var(--ink-3); line-height:1.5">Cada ciclo empareja una compra con su venta posterior, mostrando la ganancia real de la operación.</span>
-    </div>
-  </div>
-
-  <div id="cerradas-list"></div>
-  <div class="empty-state hidden" id="cerradas-empty">
-    <div class="empty-icon">⚖️</div>
-    <div class="empty-text">Aún no hay ciclos cerrados.<br>Registra una compra y luego una venta.</div>
-  </div>
-
-</div><!-- /v-cerradas -->
-
-
-<!-- ══════════════════════════════════════════
-     TAB: EVOLUCIÓN
-══════════════════════════════════════════ -->
-<div id="v-evolucion" class="view">
-
-  <div class="page-header">
-    <div class="page-title">Evolución</div>
-  </div>
-
-  <div class="evol-stats">
-    <div class="evol-stat">
-      <div class="evol-stat-label">Crecimiento</div>
-      <div class="evol-stat-value" id="evol-crec">—</div>
-    </div>
-    <div class="evol-stat">
-      <div class="evol-stat-label">Rentab.</div>
-      <div class="evol-stat-value" id="evol-rentab">—</div>
-    </div>
-    <div class="evol-stat">
-      <div class="evol-stat-label">Anualiz.</div>
-      <div class="evol-stat-value" id="evol-anual">—</div>
-    </div>
-  </div>
-
-  <div class="chart-main-wrap">
-    <div class="chart-main-title">Capital en USD por operación</div>
-    <div id="evol-chart-wrap">
-      <div class="chart-empty" id="evol-chart-empty">Sin datos suficientes para graficar</div>
-      <svg id="evol-chart-svg" class="chart-svg" style="display:none"></svg>
-    </div>
-  </div>
-
-  <!-- Tabla de puntos -->
-  <div class="card">
-    <div class="card-inner">
-      <div class="card-title">Puntos de capital</div>
-      <div id="evol-table"></div>
-    </div>
-  </div>
-
-</div><!-- /v-evolucion -->
 
 </div><!-- /shell -->
 
-
-<!-- ══════════════════════════════════════════
-     TAB BAR
-══════════════════════════════════════════ -->
 <nav class="tab-bar">
   <div class="tab-bar-inner">
-    <button class="tab-item" id="tab-dashboard" onclick="setTab(&#39;dashboard&#39;,this)">
-      <span class="tab-icon">📊</span>
-      <span class="tab-label">Resumen</span>
-    </button>
-    <button class="tab-item" id="tab-registrar" onclick="setTab(&#39;registrar&#39;,this)">
-      <span class="tab-icon">➕</span>
-      <span class="tab-label">Registrar</span>
-    </button>
-    <button class="tab-item on" id="tab-historial" onclick="setTab(&#39;historial&#39;,this)">
-      <span class="tab-icon">📋</span>
-      <span class="tab-label">Historial</span>
-    </button>
-    <button class="tab-item" id="tab-cerradas" onclick="setTab(&#39;cerradas&#39;,this)">
-      <span class="tab-icon">⚖️</span>
-      <span class="tab-label">Ciclos</span>
-    </button>
-    <button class="tab-item" id="tab-evolucion" onclick="setTab(&#39;evolucion&#39;,this)">
-      <span class="tab-icon">📈</span>
-      <span class="tab-label">Evolución</span>
-    </button>
+    <button class="tab-item on" id="tab-dashboard" onclick="setTab('dashboard',this)"><span class="tab-icon">📊</span><span class="tab-label">Resumen</span></button>
+    <button class="tab-item" id="tab-registrar" onclick="setTab('registrar',this)"><span class="tab-icon">➕</span><span class="tab-label">Registrar</span></button>
+    <button class="tab-item" id="tab-historial" onclick="setTab('historial',this)"><span class="tab-icon">📋</span><span class="tab-label">Historial</span></button>
+    <button class="tab-item" id="tab-cerradas" onclick="setTab('cerradas',this)"><span class="tab-icon">⚖️</span><span class="tab-label">Ciclos</span></button>
+    <button class="tab-item" id="tab-evolucion" onclick="setTab('evolucion',this)"><span class="tab-icon">📈</span><span class="tab-label">Evolución</span></button>
   </div>
 </nav>
 
-
-<!-- ══════════════════════════════════════════
-     MODAL: EDITAR OPERACIÓN
-══════════════════════════════════════════ -->
+<!-- MODALES -->
 <div class="modal-backdrop" id="modal-editar" onclick="cerrarModalEditar(event)">
   <div class="modal-sheet">
-    <div class="modal-handle"></div>
-    <div class="modal-title">Editar operación</div>
-
-    <div class="field-group" style="padding:0 0 12px">
-      <div class="field-label">Tipo</div>
-      <select id="edit-tipo" class="field-input" onchange="calcularEdit()">
-        <option value="buy">Compra USD (entrego soles)</option>
-        <option value="sell">Venta USD (recibo soles)</option>
-      </select>
-    </div>
-    <div class="field-group" style="padding:0 0 12px">
-      <div class="field-label">Fecha</div>
-      <input type="date" id="edit-fecha" class="field-input">
-    </div>
-    <div class="field-row" style="padding:0">
-      <div class="field-group" style="padding:0 0 12px">
-        <div class="field-label" id="edit-monto-label">Monto PEN</div>
-        <input type="number" id="edit-monto" class="field-input" step="0.01" min="0" inputmode="decimal" oninput="calcularEdit()">
-      </div>
-      <div class="field-group" style="padding:0 0 12px">
-        <div class="field-label">Tipo de cambio</div>
-        <input type="number" id="edit-tc" class="field-input" step="0.0001" min="2.5" max="6" inputmode="decimal" oninput="calcularEdit()">
-      </div>
-    </div>
-    <div class="field-group" style="padding:0 0 12px">
-      <div class="field-label">USD calculados</div>
-      <div id="edit-result" style="font-size:15px;font-weight:600;color:var(--ink-2);padding:4px 0;">—</div>
-    </div>
-    <div class="field-group" style="padding:0 0 0">
-      <div class="field-label">Notas</div>
-      <input type="text" id="edit-nota" class="field-input" placeholder="Opcional…">
-    </div>
-
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="cerrarModalEditar()">Cancelar</button>
-      <button class="btn-confirm" onclick="guardarEdicion()">Guardar cambios</button>
-    </div>
+    <div class="modal-handle"></div><div class="modal-title">Editar operación</div>
+    <div class="field-group" style="padding:0 0 12px"><div class="field-label">Tipo</div><select id="edit-tipo" class="field-input" onchange="calcularEdit()"><option value="buy">Compra USD</option><option value="sell">Venta USD</option></select></div>
+    <div class="field-group" style="padding:0 0 12px"><div class="field-label">Fecha</div><input type="date" id="edit-fecha" class="field-input"></div>
+    <div class="field-row" style="padding:0"><div class="field-group" style="padding:0 0 12px"><div class="field-label" id="edit-monto-label">Monto</div><input type="number" id="edit-monto" class="field-input" step="0.01" oninput="calcularEdit()"></div><div class="field-group" style="padding:0 0 12px"><div class="field-label">Tipo de cambio</div><input type="number" id="edit-tc" class="field-input" step="0.0001" oninput="calcularEdit()"></div></div>
+    <div class="field-group" style="padding:0 0 12px"><div class="field-label">Calculado</div><div id="edit-result" style="font-size:15px;font-weight:600;color:var(--ink-2);">—</div></div>
+    <div class="field-group" style="padding:0"><div class="field-label">Notas</div><input type="text" id="edit-nota" class="field-input"></div>
+    <div class="modal-actions"><button class="btn-cancel" onclick="cerrarModalEditar()">Cancelar</button><button class="btn-confirm" onclick="guardarEdicion()">Guardar</button></div>
   </div>
 </div>
 
-
-<!-- ══════════════════════════════════════════
-     MODAL: CAPITAL INICIAL
-══════════════════════════════════════════ -->
 <div class="modal-backdrop" id="modal-capital" onclick="cerrarModalCapital(event)">
   <div class="modal-sheet">
-    <div class="modal-handle"></div>
-    <div class="modal-title">Capital inicial</div>
-    <p style="font-size:14px;color:var(--ink-2);line-height:1.6;margin-bottom:16px">
-      ¿Con cuántos dólares comenzaste? Este número es la base de tu rentabilidad.
-    </p>
-    <div class="field-group" style="padding:0">
-      <div class="field-label">Capital inicial en USD</div>
-      <input type="number" id="capital-input" class="field-input field-input-serif" placeholder="60000" step="0.01" min="0" inputmode="decimal">
-    </div>
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="cerrarModalCapital()">Cancelar</button>
-      <button class="btn-confirm" onclick="guardarCapital()">Guardar</button>
-    </div>
+    <div class="modal-handle"></div><div class="modal-title">Capital inicial</div>
+    <p style="font-size:14px;color:var(--ink-2);margin-bottom:16px">¿Con cuántos dólares comenzaste?</p>
+    <div class="field-group" style="padding:0"><input type="number" id="capital-input" class="field-input field-input-serif" placeholder="0.00" step="0.01"></div>
+    <div class="modal-actions"><button class="btn-cancel" onclick="cerrarModalCapital()">Cancelar</button><button class="btn-confirm" onclick="guardarCapital()">Guardar</button></div>
   </div>
 </div>
 
-
-<!-- ══════════════════════════════════════════
-     MODAL: CONFIRMAR ELIMINAR
-══════════════════════════════════════════ -->
 <div class="confirm-modal" id="modal-confirm">
   <div class="confirm-box">
-    <div class="confirm-title" id="confirm-title">¿Eliminar operación?</div>
-    <div class="confirm-text" id="confirm-text">Esta acción no se puede deshacer.</div>
-    <div class="confirm-btns">
-      <button class="btn-cancel" style="flex:1" onclick="cerrarConfirm()">Cancelar</button>
-      <button class="btn-danger" id="confirm-ok-btn">Eliminar</button>
-    </div>
+    <div class="confirm-title" id="confirm-title">¿Eliminar?</div><div class="confirm-text" id="confirm-text">Esta acción no se puede deshacer.</div>
+    <div class="confirm-btns"><button class="btn-cancel" style="flex:1" onclick="cerrarConfirm()">Cancelar</button><button class="btn-danger" id="confirm-ok-btn">Eliminar</button></div>
   </div>
 </div>
-
 
 <script>
 /* ══════════════════════════════════════════════
-   ESTADO GLOBAL
+   ① PEGA AQUÍ TUS CREDENCIALES DE FIREBASE
+   (Ver instrucciones al pie del archivo)
 ══════════════════════════════════════════════ */
-var STATE = {
-  ops: [],             // Array de operaciones
-  capitalInicial: 0,   // USD
-  tipo: 'buy',
-  editId: null,
-  confirmCallback: null
+const firebaseConfig = {
+  apiKey:            "AIzaSyBJt47-8m9jZy-12cqagxLYSbS270AD4Fw",
+  authDomain:        "dollars-familia.firebaseapp.com",
+  projectId:         "dollars-familia",
+  storageBucket:     "dollars-familia.firebasestorage.app",
+  messagingSenderId: "605144845585",
+  appId:             "1:605144845585:web:0248aec153dff875bf50b0"
 };
 
-var LS_OPS     = 'librodolares_ops_v1';
-var LS_CAPITAL = 'librodolares_capital_v1';
+/* ══════════════════════════════════════════════
+   INICIALIZACIÓN FIREBASE
+══════════════════════════════════════════════ */
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db   = firebase.firestore();
+const googleProvider = new firebase.auth.GoogleAuthProvider();
 
 /* ══════════════════════════════════════════════
-   PERSISTENCIA
+   STATE GLOBAL
 ══════════════════════════════════════════════ */
-function cargarOps() {
-  try {
-    return JSON.parse(localStorage.getItem(LS_OPS)) || [];
-  } catch(e) { return []; }
+var STATE = {
+  ops: [],
+  capitalInicial: 0,
+  tipo: 'buy',
+  editId: null,
+  confirmCallback: null,
+  currentUser: null,
+  unsubscribeFirestore: null   // para detener el listener al cerrar sesión
+};
+
+/* ══════════════════════════════════════════════
+   REFERENCIA A DOCUMENTO DEL USUARIO
+   Cada usuario tiene su propio doc en Firestore
+══════════════════════════════════════════════ */
+function getUserDocRef(uid) {
+  return db.collection('librodolares_usuarios').doc(uid);
 }
-function guardarOps() {
-  localStorage.setItem(LS_OPS, JSON.stringify(STATE.ops));
+
+/* ══════════════════════════════════════════════
+   SINCRONIZACIÓN CON FIRESTORE
+══════════════════════════════════════════════ */
+function sincronizarConFirestore() {
+  if (!STATE.currentUser) return;
+  getUserDocRef(STATE.currentUser.uid).set({
+    capitalInicial: STATE.capitalInicial,
+    ops: STATE.ops,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  }).catch(e => console.error('Error al sincronizar:', e));
 }
-function cargarCapital() {
-  var v = parseFloat(localStorage.getItem(LS_CAPITAL));
-  return isNaN(v) ? 0 : v;
+
+/* ══════════════════════════════════════════════
+   AUTENTICACIÓN
+══════════════════════════════════════════════ */
+document.getElementById('btn-login-google').addEventListener('click', function() {
+  auth.signInWithPopup(googleProvider).catch(function(err) {
+    console.error('Error al iniciar sesión:', err);
+    alert('No se pudo iniciar sesión. Intenta de nuevo.');
+  });
+});
+
+function cerrarSesion() {
+  if (STATE.unsubscribeFirestore) {
+    STATE.unsubscribeFirestore();
+    STATE.unsubscribeFirestore = null;
+  }
+  auth.signOut();
 }
-function guardarCapitalLS() {
-  localStorage.setItem(LS_CAPITAL, STATE.capitalInicial.toString());
-}
+
+/* Escucha el estado de autenticación */
+auth.onAuthStateChanged(function(user) {
+  var loading  = document.getElementById('auth-loading');
+  var loginScr = document.getElementById('login-screen');
+  var shell    = document.getElementById('app-shell');
+
+  if (user) {
+    /* ── Usuario autenticado ── */
+    STATE.currentUser = user;
+
+    // Avatar
+    var img = document.getElementById('user-avatar-img');
+    if (user.photoURL) { img.src = user.photoURL; img.style.display = 'block'; }
+
+    // Ocultar pantallas de auth, mostrar app
+    loading.classList.add('hidden');
+    loginScr.classList.add('hidden');
+    shell.classList.add('visible');
+
+    // Iniciar listener en tiempo real para ESTE usuario
+    if (STATE.unsubscribeFirestore) STATE.unsubscribeFirestore();
+    STATE.unsubscribeFirestore = getUserDocRef(user.uid).onSnapshot(function(doc) {
+      if (doc.exists) {
+        var data = doc.data();
+        STATE.ops = data.ops || [];
+        STATE.capitalInicial = data.capitalInicial || 0;
+      } else {
+        STATE.ops = [];
+        STATE.capitalInicial = 0;
+      }
+      renderAll();
+    }, function(error) {
+      console.error('Error en listener Firestore:', error);
+    });
+
+  } else {
+    /* ── No hay usuario ── */
+    STATE.currentUser = null;
+    STATE.ops = [];
+    STATE.capitalInicial = 0;
+
+    loading.classList.add('hidden');
+    loginScr.classList.remove('hidden');
+    shell.classList.remove('visible');
+  }
+});
 
 /* ══════════════════════════════════════════════
    HELPERS
 ══════════════════════════════════════════════ */
 function fmt(n, dec) {
   if (n === null || n === undefined || isNaN(n)) return '—';
-  return n.toLocaleString('es-PE', {
-    minimumFractionDigits: dec,
-    maximumFractionDigits: dec
-  });
+  return n.toLocaleString('es-PE', { minimumFractionDigits: dec, maximumFractionDigits: dec });
 }
 function fmtUSD(n, dec) { return 'US$' + fmt(n, dec === undefined ? 2 : dec); }
 function fmtPEN(n, dec) { return 'S/ ' + fmt(n, dec === undefined ? 2 : dec); }
-function sign(n) { return n >= 0 ? '+' : ''; }
-
-function genId() {
-  return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-}
-function todayISO() {
-  var d = new Date();
-  return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate());
-}
+function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+function todayISO() { var d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()); }
 function pad(n) { return String(n).padStart(2,'0'); }
-
-function fmtFecha(ts) {
-  return new Date(ts).toLocaleDateString('es-PE', {
-    day:'numeric', month:'short', year:'numeric'
-  });
-}
-function fmtFechaShort(ts) {
-  return new Date(ts).toLocaleDateString('es-PE', {
-    day:'numeric', month:'short'
-  });
-}
+function fmtFecha(ts) { return new Date(ts).toLocaleDateString('es-PE', { day:'numeric', month:'short', year:'numeric' }); }
+function fmtFechaShort(ts) { return new Date(ts).toLocaleDateString('es-PE', { day:'numeric', month:'short' }); }
 
 /* ══════════════════════════════════════════════
-   CÁLCULO DE POSICIÓN
-   Devuelve el capital actual en USD partiendo
-   del capitalInicial y aplicando todas las ops.
+   LÓGICA DE NEGOCIO
 ══════════════════════════════════════════════ */
 function calcularCapital() {
-  // Simulamos el flujo de caja:
-  // - Empezamos con capitalInicial USD
-  // - Compra: gastamos PEN (de las ventas o de saldo externo), obtenemos USD
-  // - Venta: gastamos USD, obtenemos PEN
-  //
-  // Lo que rastreamos es el saldo neto de USD:
-  // buy  → +usd obtenidos
-  // sell → -usd vendidos
-  // El "ganado" es la diferencia vs el capital inicial.
-  //
-  // Para capital "actual" en USD, tomamos:
-  //   capitalInicial + Σ(usd de compras) - Σ(usd de ventas)
-  //   Pero eso no refleja que al vender obtenemos más PEN y podemos recomprar.
-  //
-  // La lógica real es:
-  //   Partimos con capitalInicial USD.
-  //   Cada venta reduce USD, pero obtenemos PEN.
-  //   Cada compra aumenta USD, gastando PEN acumulados.
-  //   Capital actual = capitalInicial + ganancia acumulada en USD
-  //
-  // Ganancia en USD = totalPEN_recibidos / TC_promedio_recompra - totalUSD_vendidos
-  // Pero es más simple y fiel: rastrear el capital USD neto.
-
-  var ops = STATE.ops.slice().sort(function(a,b){ return a.ts - b.ts; });
+  var ops = STATE.ops.slice().sort((a,b) => a.ts - b.ts);
   var capitalUSD = STATE.capitalInicial;
-  var capitalPEN = 0; // PEN en caja (producto de ventas)
+  var capitalPEN = 0;
   var puntos = [];
 
-  // Punto inicial
   if (STATE.capitalInicial > 0) {
     puntos.push({ ts: ops.length > 0 ? ops[0].ts - 1 : Date.now(), usd: STATE.capitalInicial, label: 'Inicio' });
   }
-
   ops.forEach(function(op) {
-    if (op.tipo === 'sell') {
-      // Vendemos USD, recibimos PEN
-      capitalUSD -= op.usd;
-      capitalPEN += op.pen;
-    } else {
-      // Compramos USD, gastamos PEN
-      capitalUSD += op.usd;
-      capitalPEN -= op.pen;
-    }
+    if (op.tipo === 'sell') { capitalUSD -= op.usd; capitalPEN += op.pen; }
+    else { capitalUSD += op.usd; capitalPEN -= op.pen; }
     puntos.push({ ts: op.ts, usd: capitalUSD, penCaja: capitalPEN, label: fmtFechaShort(op.ts) });
   });
-
   return { capitalUSD: capitalUSD, capitalPEN: capitalPEN, puntos: puntos };
 }
 
-/* Calcula los ciclos cerrados (compra → venta emparejada FIFO) */
 function calcularCiclos() {
-  var ops = STATE.ops.slice().sort(function(a,b){ return a.ts - b.ts; });
-  var compras = ops.filter(function(o){ return o.tipo === 'buy'; }).slice();
-  var ventas  = ops.filter(function(o){ return o.tipo === 'sell'; });
+  var ops = STATE.ops.slice().sort((a,b) => a.ts - b.ts);
+  var compras = ops.filter(o => o.tipo === 'buy').slice();
+  var ventas  = ops.filter(o => o.tipo === 'sell');
   var ciclos  = [];
 
   ventas.forEach(function(venta) {
@@ -1185,79 +1063,43 @@ function calcularCiclos() {
       var compra = compras[0];
       var usdUsado = Math.min(compra.usd, usdPendiente);
       var fraccion = usdUsado / compra.usd;
-
-      var penPagado   = compra.pen * fraccion;
-      var penRecibido = venta.pen * (usdUsado / venta.usd);
-
-      var gananciaUSD = usdUsado * (1/compra.tc - 1/venta.tc) * venta.tc;
-      // Más directo: compramos usdUsado a compra.tc → pagamos usdUsado*compra.tc PEN
-      //              vendemos usdUsado a venta.tc   → recibimos usdUsado*venta.tc PEN
       var gananciaPEN = usdUsado * (venta.tc - compra.tc);
       var gananciaUSD2 = gananciaPEN / venta.tc;
       var rentab = (venta.tc / compra.tc - 1) * 100;
-
       ciclos.push({
-        id: genId(),
-        compraTc:    compra.tc,
-        ventaTc:     venta.tc,
-        usd:         usdUsado,
-        gananciaPEN: gananciaPEN,
-        gananciaUSD: gananciaUSD2,
-        rentab:      rentab,
-        compraFecha: compra.ts,
-        ventaFecha:  venta.ts,
-        compraId:    compra.id,
-        ventaId:     venta.id
+        compraTc: compra.tc, ventaTc: venta.tc, usd: usdUsado,
+        gananciaPEN: gananciaPEN, gananciaUSD: gananciaUSD2, rentab: rentab,
+        compraFecha: compra.ts, ventaFecha: venta.ts
       });
-
       usdPendiente -= usdUsado;
-      if (usdUsado >= compra.usd - 0.00001) {
-        compras.shift();
-      } else {
-        compras[0] = Object.assign({}, compra, { usd: compra.usd - usdUsado, pen: compra.pen * (1 - fraccion) });
-      }
+      if (usdUsado >= compra.usd - 0.00001) compras.shift();
+      else compras[0] = Object.assign({}, compra, { usd: compra.usd - usdUsado, pen: compra.pen * (1 - fraccion) });
     }
   });
-
   return ciclos;
 }
 
 /* ══════════════════════════════════════════════
-   GUARDAR OPERACIÓN (formulario)
+   GUARDAR OPERACIÓN
 ══════════════════════════════════════════════ */
 function guardarOperacion() {
-  var fecha  = document.getElementById('form-fecha').value;
-  var monto  = parseFloat(document.getElementById('form-monto').value);
-  var tc     = parseFloat(document.getElementById('form-tc').value);
-  var nota   = document.getElementById('form-nota').value.trim();
+  var fecha = document.getElementById('form-fecha').value;
+  var monto = parseFloat(document.getElementById('form-monto').value);
+  var tc    = parseFloat(document.getElementById('form-tc').value);
+  var nota  = document.getElementById('form-nota').value.trim();
 
   if (!fecha || isNaN(monto) || monto <= 0 || isNaN(tc) || tc <= 0) {
-    flashFeedback('⚠ Completa todos los campos', 'var(--amber)');
-    return;
+    flashFeedback('⚠ Completa todos los campos', 'var(--amber)'); return;
   }
-
   var tipo = STATE.tipo;
-  var usd, pen;
+  var usd  = (tipo === 'buy') ? monto / tc : monto;
+  var pen  = (tipo === 'buy') ? monto : monto * tc;
+  var ts   = new Date(fecha + 'T12:00:00').getTime();
 
-  if (tipo === 'buy') {
-    pen = monto;
-    usd = pen / tc;
-  } else {
-    usd = monto;
-    pen = usd * tc;
-  }
+  STATE.ops.push({ id: genId(), ts: ts, tipo: tipo, usd: usd, pen: pen, tc: tc, nota: nota });
+  sincronizarConFirestore();
+  flashFeedback('✓ Guardado en la nube', 'var(--green)');
 
-  var ts = new Date(fecha + 'T12:00:00').getTime();
-
-  var op = { id: genId(), ts: ts, tipo: tipo, usd: usd, pen: pen, tc: tc, nota: nota };
-  STATE.ops.push(op);
-  STATE.ops.sort(function(a,b){ return a.ts - b.ts; });
-  guardarOps();
-  renderAll();
-
-  flashFeedback('✓ Operación guardada', 'var(--green)');
-
-  // Reset form
   document.getElementById('form-monto').value = '';
   document.getElementById('form-nota').value  = '';
   document.getElementById('result-value').textContent = '—';
@@ -1268,43 +1110,29 @@ function guardarOperacion() {
 
 function flashFeedback(msg, color) {
   var el = document.getElementById('save-feedback');
-  el.textContent = msg;
-  el.style.color = color;
-  el.style.opacity = '1';
-  setTimeout(function(){ el.style.opacity = '0'; }, 2500);
+  el.textContent = msg; el.style.color = color; el.style.opacity = '1';
+  setTimeout(() => el.style.opacity = '0', 2500);
 }
 
-/* ══════════════════════════════════════════════
-   CÁLCULO EN TIEMPO REAL (formulario)
-══════════════════════════════════════════════ */
 function calcularFormulario() {
-  var monto = parseFloat(document.getElementById('form-monto').value);
-  var tc    = parseFloat(document.getElementById('form-tc').value);
-  var tipo  = STATE.tipo;
-
-  var valEl   = document.getElementById('result-value');
-  var hintEl  = document.getElementById('result-hint');
+  var monto  = parseFloat(document.getElementById('form-monto').value);
+  var tc     = parseFloat(document.getElementById('form-tc').value);
+  var tipo   = STATE.tipo;
+  var valEl  = document.getElementById('result-value');
+  var hintEl = document.getElementById('result-hint');
   var labelEl = document.getElementById('result-label');
 
   if (isNaN(monto) || isNaN(tc) || monto <= 0 || tc <= 0) {
-    valEl.textContent = '—';
-    valEl.className   = 'result-box-value empty';
-    hintEl.textContent = '';
-    return;
+    valEl.textContent = '—'; valEl.className = 'result-box-value empty'; hintEl.textContent = ''; return;
   }
-
   if (tipo === 'buy') {
-    var usd = monto / tc;
-    labelEl.textContent  = 'USD que recibirás';
-    valEl.textContent    = fmtUSD(usd, 2);
-    valEl.className      = 'result-box-value buy';
-    hintEl.textContent   = fmtPEN(monto, 2) + ' ÷ ' + tc.toFixed(4) + ' = ' + fmtUSD(usd, 4);
+    var usd = monto / tc; labelEl.textContent = 'USD que recibirás';
+    valEl.textContent = fmtUSD(usd, 2); valEl.className = 'result-box-value buy';
+    hintEl.textContent = fmtPEN(monto, 2) + ' ÷ ' + tc.toFixed(4) + ' = ' + fmtUSD(usd, 4);
   } else {
-    var pen = monto * tc;
-    labelEl.textContent  = 'Soles que recibirás';
-    valEl.textContent    = fmtPEN(pen, 2);
-    valEl.className      = 'result-box-value sell';
-    hintEl.textContent   = fmtUSD(monto, 2) + ' × ' + tc.toFixed(4) + ' = ' + fmtPEN(pen, 4);
+    var pen = monto * tc; labelEl.textContent = 'Soles que recibirás';
+    valEl.textContent = fmtPEN(pen, 2); valEl.className = 'result-box-value sell';
+    hintEl.textContent = fmtUSD(monto, 2) + ' × ' + tc.toFixed(4) + ' = ' + fmtPEN(pen, 4);
   }
 }
 
@@ -1312,192 +1140,191 @@ function setTipo(t) {
   STATE.tipo = t;
   document.getElementById('btn-buy').className  = t === 'buy'  ? 'type-btn active-buy'  : 'type-btn';
   document.getElementById('btn-sell').className = t === 'sell' ? 'type-btn active-sell' : 'type-btn';
-
-  var lbl = document.getElementById('form-monto-label');
-  lbl.textContent = t === 'buy' ? 'Soles entregados (PEN)' : 'USD a vender';
-  document.getElementById('form-monto').placeholder = t === 'buy' ? '0.00' : '0.00';
+  document.getElementById('form-monto-label').textContent = t === 'buy' ? 'Soles entregados (PEN)' : 'USD a vender';
   calcularFormulario();
 }
 
-function limpiarDemo() {
-  if (!confirm('¿Eliminar los datos de ejemplo y empezar desde cero?')) return;
-  STATE.ops = [];
-  STATE.capitalInicial = 0;
-  guardarOps();
-  guardarCapitalLS();
-  renderAll();
-  setTimeout(abrirModalCapital, 400);
-}
-
 /* ══════════════════════════════════════════════
-   RENDER DASHBOARD
+   RENDERIZADO
 ══════════════════════════════════════════════ */
 function renderDashboard() {
   var ci = STATE.capitalInicial;
   var pos = calcularCapital();
   var capitalActual = pos.capitalUSD;
   var gananciaUSD   = capitalActual - ci;
-  var gananciaUSD_abs = Math.abs(gananciaUSD);
   var numOps = STATE.ops.length;
 
-  // Capital inicial
   document.getElementById('dash-capital-inicial').textContent = ci > 0 ? fmtUSD(ci, 2) : '—';
-
-  // Capital actual
   document.getElementById('dash-capital-actual').textContent  = fmtUSD(capitalActual, 2);
 
-  // Ganancia pill
   var pill = document.getElementById('dash-gain-pill');
   if (ci <= 0 || numOps === 0) {
-    pill.className = 'hero-gain-pill neu';
-    pill.textContent = 'Sin operaciones aún';
+    pill.className = 'hero-gain-pill neu'; pill.textContent = 'Sin operaciones';
   } else {
-    var rentab = ci > 0 ? (gananciaUSD / ci * 100) : 0;
-    var cls = gananciaUSD >= 0 ? 'pos' : 'neg';
-    pill.className = 'hero-gain-pill ' + cls;
-    pill.textContent = (gananciaUSD >= 0 ? '+' : '') + fmtUSD(gananciaUSD, 2) + '  (' + (gananciaUSD >= 0 ? '+' : '') + fmt(rentab, 2) + '%)';
+    var rentab = (gananciaUSD / ci * 100);
+    pill.className = 'hero-gain-pill ' + (gananciaUSD >= 0 ? 'pos' : 'neg');
+    pill.textContent = (gananciaUSD >= 0 ? '+' : '') + fmtUSD(gananciaUSD, 2) + ' (' + (gananciaUSD >= 0 ? '+' : '') + fmt(rentab, 2) + '%)';
   }
 
-  // Tiles hero
   document.getElementById('dash-ganancia-usd').textContent = ci > 0 ? ((gananciaUSD >= 0 ? '+' : '') + fmtUSD(gananciaUSD, 2)) : '—';
   document.getElementById('dash-ganancia-usd').className = 'hero-tile-value ' + (gananciaUSD >= 0 ? 'pos-light' : 'neg-light');
 
-  // Ganancia en PEN acumulada (suma de ciclos cerrados)
   var ciclos = calcularCiclos();
-  var totalGanPEN = ciclos.reduce(function(s,c){ return s + c.gananciaPEN; }, 0);
+  var totalGanPEN = ciclos.reduce((s,c) => s + c.gananciaPEN, 0);
   document.getElementById('dash-ganancia-pen').textContent = ci > 0 ? ((totalGanPEN >= 0 ? '+' : '') + fmtPEN(totalGanPEN, 2)) : '—';
   document.getElementById('dash-ganancia-pen').className = 'hero-tile-value ' + (totalGanPEN >= 0 ? 'pos-light' : 'neg-light');
-
   document.getElementById('dash-num-ops').textContent = numOps;
 
-  // Indicadores
   var rentab = ci > 0 && numOps > 0 ? (gananciaUSD / ci * 100) : null;
-
-  // Rentabilidad anualizada
   var rentabAnual = null;
-  if (ci > 0 && numOps > 0 && STATE.ops.length >= 1) {
-    var firstTs = STATE.ops.reduce(function(m,o){ return Math.min(m,o.ts); }, Infinity);
+  if (ci > 0 && numOps > 0) {
+    var firstTs = STATE.ops.reduce((m,o) => Math.min(m,o.ts), Infinity);
     var diasTrans = Math.max(1, (Date.now() - firstTs) / 86400000);
     rentabAnual = (Math.pow(1 + gananciaUSD / ci, 365 / diasTrans) - 1) * 100;
   }
-
   var promOp = numOps > 0 && ci > 0 ? gananciaUSD / numOps : null;
-
-  // Mejor y peor ciclo
   var mejorCiclo = null, peorCiclo = null;
   ciclos.forEach(function(c) {
     if (!mejorCiclo || c.gananciaUSD > mejorCiclo.gananciaUSD) mejorCiclo = c;
     if (!peorCiclo  || c.gananciaUSD < peorCiclo.gananciaUSD)  peorCiclo  = c;
   });
-
-  // Max y min históricos de capital
   var maxHist = null, minHist = null;
   pos.puntos.forEach(function(p) {
     if (!maxHist || p.usd > maxHist.usd) maxHist = p;
     if (!minHist || p.usd < minHist.usd) minHist = p;
   });
 
-  setInfoRow('dash-rentab', rentab !== null ? ((rentab >= 0 ? '+' : '') + fmt(rentab,2) + '%') : '—', rentab !== null && rentab >= 0 ? 'pos' : (rentab !== null ? 'neg' : ''));
-  setInfoRow('dash-rentab-anual', rentabAnual !== null ? ((rentabAnual >= 0 ? '+' : '') + fmt(rentabAnual,2) + '%/año') : '—', rentabAnual !== null && rentabAnual >= 0 ? 'pos' : (rentabAnual !== null ? 'neg' : ''));
+  setInfoRow('dash-rentab', rentab !== null ? ((rentab >= 0 ? '+' : '') + fmt(rentab,2) + '%') : '—', rentab !== null && rentab >= 0 ? 'pos' : 'neg');
+  setInfoRow('dash-rentab-anual', rentabAnual !== null ? ((rentabAnual >= 0 ? '+' : '') + fmt(rentabAnual,2) + '%/año') : '—', rentabAnual !== null && rentabAnual >= 0 ? 'pos' : 'neg');
   setInfoRow('dash-prom-op', promOp !== null ? ((promOp >= 0 ? '+' : '') + fmtUSD(promOp,2) + ' / op.') : '—', '');
   setInfoRow('dash-mejor-op', mejorCiclo ? ('+' + fmtUSD(mejorCiclo.gananciaUSD,2)) : '—', 'pos');
   setInfoRow('dash-peor-op',  peorCiclo  ? ((peorCiclo.gananciaUSD>=0?'+':'') + fmtUSD(peorCiclo.gananciaUSD,2)) : '—', peorCiclo && peorCiclo.gananciaUSD < 0 ? 'neg' : '');
   setInfoRow('dash-max-hist', maxHist && maxHist.ts ? fmtUSD(maxHist.usd,2) + ' · ' + fmtFecha(maxHist.ts) : '—', '');
   setInfoRow('dash-min-hist', minHist && minHist.ts ? fmtUSD(minHist.usd,2) + ' · ' + fmtFecha(minHist.ts) : '—', '');
 
-  // Notice capital
   var notice = document.getElementById('notice-capital');
-  if (ci <= 0) { notice.classList.remove('hidden'); }
-  else          { notice.classList.add('hidden'); }
-
-  // Demo banner — mostrar si todas las ops son demo
-  var demoBanner = document.getElementById('demo-banner');
-  var todasDemo = STATE.ops.length > 0 && STATE.ops.every(function(o){ return o.nota && o.nota.includes('Demo'); });
-  if (todasDemo) { demoBanner.classList.remove('hidden'); }
-  else            { demoBanner.classList.add('hidden'); }
-
-  // Chart pequeño
-  renderMiniChart(pos.puntos, 'dash-chart-svg', 'dash-chart-empty', 220);
+  if (ci <= 0) notice.classList.remove('hidden'); else notice.classList.add('hidden');
 }
 
 function setInfoRow(id, text, cls) {
-  var el = document.getElementById(id);
-  if (!el) return;
-  el.textContent = text;
-  el.className = 'info-value' + (cls ? ' ' + cls : '');
+  var el = document.getElementById(id); if (!el) return;
+  el.textContent = text; el.className = 'info-value' + (cls ? ' ' + cls : '');
 }
 
-/* ══════════════════════════════════════════════
-   MINI CHART SVG
-══════════════════════════════════════════════ */
-function renderMiniChart(puntos, svgId, emptyId, height) {
-  var svg   = document.getElementById(svgId);
-  var empty = document.getElementById(emptyId);
-  if (!svg || !empty) return;
+function renderHistorial() {
+  var list   = document.getElementById('hist-list');
+  var search = (document.getElementById('hist-search').value || '').toLowerCase();
+  var filter = document.getElementById('hist-filter').value;
+  var desde  = document.getElementById('hist-desde').value;
+  var hasta  = document.getElementById('hist-hasta').value;
 
-  if (puntos.length < 2) {
-    svg.style.display = 'none';
-    empty.style.display = '';
-    return;
-  }
+  var tsDesde = desde ? new Date(desde + 'T00:00:00').getTime() : 0;
+  var tsHasta = hasta ? new Date(hasta + 'T23:59:59').getTime() : Infinity;
+  var ops = STATE.ops.slice().sort((a,b) => b.ts - a.ts);
 
-  svg.style.display = '';
-  empty.style.display = 'none';
-
-  var W = 400, H = height || 200;
-  var pad = { top:16, right:8, bottom:32, left:50 };
-
-  var vals = puntos.map(function(p){ return p.usd; });
-  var minV = Math.min.apply(null, vals);
-  var maxV = Math.max.apply(null, vals);
-  var rangeV = maxV - minV || 1;
-
-  function xOf(i) { return pad.left + (i / (puntos.length - 1)) * (W - pad.left - pad.right); }
-  function yOf(v) { return pad.top + (1 - (v - minV) / rangeV) * (H - pad.top - pad.bottom); }
-
-  // Path
-  var d = puntos.map(function(p,i){ return (i === 0 ? 'M' : 'L') + xOf(i).toFixed(1) + ' ' + yOf(p.usd).toFixed(1); }).join(' ');
-
-  // Area fill
-  var dArea = d +
-    ' L' + xOf(puntos.length-1).toFixed(1) + ' ' + H +
-    ' L' + xOf(0).toFixed(1) + ' ' + H + ' Z';
-
-  // Y labels
-  var yLabels = [minV, (minV + maxV)/2, maxV].map(function(v, i) {
-    var y = yOf(v);
-    return '<text x="' + (pad.left - 6) + '" y="' + (y + 4) + '" text-anchor="end" font-size="9" fill="#8A8780">' +
-      (v >= 1000 ? (v/1000).toFixed(1) + 'k' : v.toFixed(0)) + '</text>';
-  }).join('');
-
-  // Dots at key changes + X labels
-  var dots = '';
-  var xLabels = '';
-  var step = Math.max(1, Math.floor(puntos.length / 5));
-  puntos.forEach(function(p, i) {
-    var x = xOf(i), y = yOf(p.usd);
-    var isFirst = i === 0, isLast = i === puntos.length - 1;
-    if (isFirst || isLast || i % step === 0) {
-      dots += '<circle cx="' + x + '" cy="' + y + '" r="3" fill="var(--green-2)" stroke="white" stroke-width="1.5"/>';
-      xLabels += '<text x="' + x + '" y="' + (H - 4) + '" text-anchor="middle" font-size="8" fill="#8A8780">' +
-        (p.label || fmtFechaShort(p.ts)) + '</text>';
+  ops = ops.filter(function(op) {
+    if (filter !== 'all' && op.tipo !== filter) return false;
+    if (op.ts < tsDesde || op.ts > tsHasta) return false;
+    if (search) {
+      var hay = fmtFecha(op.ts).toLowerCase() + ' ' + (op.nota||'').toLowerCase();
+      if (!hay.includes(search)) return false;
     }
+    return true;
   });
 
-  var isGain = vals[vals.length-1] >= vals[0];
-  var lineColor = isGain ? 'var(--green-2)' : 'var(--red-2)';
-  var fillId = 'gradFill' + svgId;
+  var strip = document.getElementById('hist-stats-strip');
+  if (ops.length > 0) {
+    strip.style.display = 'flex';
+    var numCompras  = ops.filter(o => o.tipo==='buy').length;
+    var numVentas   = ops.filter(o => o.tipo==='sell').length;
+    var usdComprado = ops.filter(o => o.tipo==='buy').reduce((s,o) => s+o.usd, 0);
+    var usdVendido  = ops.filter(o => o.tipo==='sell').reduce((s,o) => s+o.usd, 0);
+    var usdNeto = usdComprado - usdVendido;
+    document.getElementById('hstat-compras').textContent = numCompras;
+    document.getElementById('hstat-ventas').textContent  = numVentas;
+    var netoEl = document.getElementById('hstat-neto');
+    netoEl.textContent = (usdNeto >= 0 ? '+' : '') + fmtUSD(usdNeto, 2);
+    netoEl.className = 'val' + (usdNeto >= 0 ? ' pos' : ' neg');
+  } else { strip.style.display = 'none'; }
 
-  svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
-  svg.innerHTML =
-    '<defs>' +
-    '<linearGradient id="' + fillId + '" x1="0" y1="0" x2="0" y2="1">' +
-    '<stop offset="0%" stop-color="' + (isGain ? '#2E9E6E' : '#D94F40') + '" stop-opacity="0.18"/>' +
-    '<stop offset="100%" stop-color="' + (isGain ? '#2E9E6E' : '#D94F40') + '" stop-opacity="0.01"/>' +
-    '</linearGradient></defs>' +
-    '<path d="' + dArea + '" fill="url(#' + fillId + ')"/>' +
-    '<path d="' + d + '" fill="none" stroke="' + lineColor + '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>' +
-    yLabels + dots + xLabels;
+  if (!ops.length) {
+    list.innerHTML = '<div class="empty-state"><div class="empty-text">No se encontraron operaciones.</div></div>'; return;
+  }
+
+  var groups = {};
+  ops.forEach(function(op) {
+    var d = new Date(op.ts); var key = d.getFullYear() + '-' + pad(d.getMonth()+1);
+    var lbl = d.toLocaleDateString('es-PE', { month:'long', year:'numeric' });
+    lbl = lbl.charAt(0).toUpperCase() + lbl.slice(1);
+    if (!groups[key]) groups[key] = { label: lbl, ops: [] };
+    groups[key].ops.push(op);
+  });
+
+  var html = '';
+  Object.keys(groups).sort().reverse().forEach(function(key) {
+    var g = groups[key];
+    html += '<div class="group-label">' + g.label + '</div>';
+    g.ops.forEach(function(op) {
+      var esBuy = op.tipo === 'buy';
+      html += '<div class="op-card">' +
+        '<div class="op-icon ' + op.tipo + '">' + (esBuy ? '🟢' : '🔴') + '</div>' +
+        '<div class="op-body">' +
+          '<div class="op-type">' + (esBuy ? 'Compra' : 'Venta') + ' · ' + fmtFecha(op.ts) + '</div>' +
+          '<div class="op-meta">TC: ' + op.tc.toFixed(4) + ' · ' + (esBuy ? fmtPEN(op.pen,2) : fmtUSD(op.usd,2)) + ' → ' + (esBuy ? fmtUSD(op.usd,2) : fmtPEN(op.pen,2)) + '</div>' +
+          (op.nota ? '<div class="op-note">💬 ' + op.nota + '</div>' : '') +
+        '</div>' +
+        '<div class="op-right"><div class="op-amount ' + op.tipo + '">' + (esBuy ? fmtUSD(op.usd,2) : fmtPEN(op.pen,2)) + '</div></div>' +
+        '<div class="op-actions">' +
+          '<button class="op-btn edit" onclick="abrirModalEditar(\'' + op.id + '\')">✏️</button>' +
+          '<button class="op-btn del" onclick="confirmarEliminar(\'' + op.id + '\')">🗑</button>' +
+        '</div>' +
+      '</div>';
+    });
+  });
+  list.innerHTML = html;
+}
+
+function renderCerradas() {
+  var ciclos = calcularCiclos();
+  var list  = document.getElementById('cerradas-list');
+  var empty = document.getElementById('cerradas-empty');
+
+  if (!ciclos.length) { list.innerHTML = ''; empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+
+  var html = '';
+  ciclos.slice().reverse().forEach(function(c) {
+    var isWin = c.gananciaPEN >= 0; var cls = isWin ? 'win' : 'loss';
+    html += '<div class="cerrada-card">' +
+      '<div class="cerrada-header">' +
+        '<div class="cerrada-pair"><span class="cerrada-badge ' + cls + '">' + (isWin ? '✓ Ganancia' : '✗ Pérdida') + '</span><span style="font-size:12px;color:var(--ink-3)">' + fmt(c.usd, 2) + ' USD</span></div>' +
+        '<div><div class="cerrada-pnl ' + cls + '">' + (isWin ? '+' : '') + fmtPEN(c.gananciaPEN, 2) + '</div></div>' +
+      '</div>' +
+      '<div class="cerrada-details">' +
+        '<div class="cerrada-field"><div class="cerrada-field-label">Compra</div><div class="cerrada-field-value">' + fmtFecha(c.compraFecha) + ' (TC: ' + c.compraTc.toFixed(4) + ')</div></div>' +
+        '<div class="cerrada-field"><div class="cerrada-field-label">Venta</div><div class="cerrada-field-value">' + fmtFecha(c.ventaFecha) + ' (TC: ' + c.ventaTc.toFixed(4) + ')</div></div>' +
+      '</div>' +
+    '</div>';
+  });
+  list.innerHTML = html;
+}
+
+function renderEvolucion() {
+  var pos = calcularCapital(); var ci = STATE.capitalInicial; var puntos = pos.puntos;
+  var gananciaUSD = pos.capitalUSD - ci; var rentab = ci > 0 ? gananciaUSD / ci * 100 : 0;
+
+  document.getElementById('evol-crec').textContent = fmtUSD(gananciaUSD, 2);
+  document.getElementById('evol-rentab').textContent = fmt(rentab, 2) + '%';
+
+  var tableEl = document.getElementById('evol-table');
+  var html = '';
+  puntos.forEach(function(p) {
+    html += '<div class="info-row">' +
+      '<span class="info-label">' + (p.ts ? fmtFecha(p.ts) : 'Inicio') + '</span>' +
+      '<span class="info-value">' + fmtUSD(p.usd, 2) + '</span>' +
+    '</div>';
+  });
+  tableEl.innerHTML = html;
 }
 
 function limpiarFiltroFechas() {
@@ -1507,317 +1334,52 @@ function limpiarFiltroFechas() {
 }
 
 /* ══════════════════════════════════════════════
-   RENDER HISTORIAL
-══════════════════════════════════════════════ */
-function renderHistorial() {
-  var list    = document.getElementById('hist-list');
-  var search  = (document.getElementById('hist-search').value || '').toLowerCase();
-  var filter  = document.getElementById('hist-filter').value;
-  var desde   = document.getElementById('hist-desde').value;
-  var hasta   = document.getElementById('hist-hasta').value;
-
-  var tsDesde = desde ? new Date(desde + 'T00:00:00').getTime() : 0;
-  var tsHasta = hasta ? new Date(hasta + 'T23:59:59').getTime() : Infinity;
-
-  var ops = STATE.ops.slice().sort(function(a,b){ return b.ts - a.ts; });
-
-  ops = ops.filter(function(op) {
-    if (filter !== 'all' && op.tipo !== filter) return false;
-    if (op.ts < tsDesde || op.ts > tsHasta) return false;
-    if (search) {
-      var hay = fmtFecha(op.ts).toLowerCase() + ' ' + (op.nota||'').toLowerCase() +
-        ' ' + op.usd.toFixed(4) + ' ' + op.tc.toFixed(4);
-      if (!hay.includes(search)) return false;
-    }
-    return true;
-  });
-
-  // Stats strip
-  var strip = document.getElementById('hist-stats-strip');
-  if (ops.length > 0) {
-    strip.style.display = 'flex';
-    var numCompras = ops.filter(function(o){ return o.tipo==='buy'; }).length;
-    var numVentas  = ops.filter(function(o){ return o.tipo==='sell'; }).length;
-    var usdComprado = ops.filter(function(o){ return o.tipo==='buy'; }).reduce(function(s,o){ return s+o.usd; },0);
-    var usdVendido  = ops.filter(function(o){ return o.tipo==='sell'; }).reduce(function(s,o){ return s+o.usd; },0);
-    var usdNeto = usdComprado - usdVendido;
-    document.getElementById('hstat-compras').textContent = numCompras;
-    document.getElementById('hstat-ventas').textContent  = numVentas;
-    var netoEl = document.getElementById('hstat-neto');
-    netoEl.textContent = (usdNeto >= 0 ? '+' : '') + fmtUSD(usdNeto, 2);
-    netoEl.className = 'val' + (usdNeto >= 0 ? ' pos' : ' neg');
-  } else {
-    strip.style.display = 'none';
-  }
-
-  if (!ops.length) {
-    list.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div>' +
-      '<div class="empty-text">No hay operaciones' +
-      (search || filter !== 'all' || desde || hasta ? ' que coincidan con los filtros.' : ' registradas todavía.<br>Ve a <strong>Registrar</strong> para añadir la primera.') +
-      '</div></div>';
-    return;
-  }
-
-  // Agrupar por mes
-  var groups = {};
-  ops.forEach(function(op) {
-    var d   = new Date(op.ts);
-    var key = d.getFullYear() + '-' + pad(d.getMonth()+1);
-    var lbl = d.toLocaleDateString('es-PE', { month:'long', year:'numeric' });
-    lbl = lbl.charAt(0).toUpperCase() + lbl.slice(1);
-    if (!groups[key]) groups[key] = { label: lbl, ops: [], usdBuy:0, usdSell:0 };
-    groups[key].ops.push(op);
-    if (op.tipo==='buy')  groups[key].usdBuy  += op.usd;
-    if (op.tipo==='sell') groups[key].usdSell += op.usd;
-  });
-
-  var html = '';
-  Object.keys(groups).sort().reverse().forEach(function(key) {
-    var g = groups[key];
-    var monthSummary = '';
-    if (g.usdBuy > 0)  monthSummary += ' · +' + fmtUSD(g.usdBuy,2);
-    if (g.usdSell > 0) monthSummary += ' · −' + fmtUSD(g.usdSell,2);
-    html += '<div class="group-label">' + g.label +
-      '<span style="font-weight:400;opacity:.7;margin-left:4px">' + monthSummary + '</span></div>';
-    g.ops.forEach(function(op) { html += renderOpCard(op); });
-  });
-
-  list.innerHTML = html;
-}
-
-function renderOpCard(op) {
-  var esBuy  = op.tipo === 'buy';
-  var icon   = esBuy ? '🟢' : '🔴';
-  var label  = esBuy ? 'Compra' : 'Venta';
-  var montoP = esBuy ? fmtPEN(op.pen, 2) : fmtUSD(op.usd, 2);
-  var result = esBuy ? fmtUSD(op.usd, 4) : fmtPEN(op.pen, 2);
-  var resultLbl = esBuy ? 'USD obtenidos' : 'Soles recibidos';
-
-  return '<div class="op-card" id="opcard-' + op.id + '">' +
-    '<div class="op-icon ' + op.tipo + '">' + icon + '</div>' +
-    '<div class="op-body">' +
-      '<div class="op-type">' + label + ' · ' + fmtFecha(op.ts) + '</div>' +
-      '<div class="op-meta">TC: ' + op.tc.toFixed(4) + '  ·  ' + montoP + (esBuy ? ' → ' : ' → ') + result + '</div>' +
-      (op.nota ? '<div class="op-note">💬 ' + escHtml(op.nota) + '</div>' : '') +
-    '</div>' +
-    '<div class="op-right">' +
-      '<div class="op-amount ' + op.tipo + '">' + (esBuy ? fmtUSD(op.usd,2) : fmtPEN(op.pen,2)) + '</div>' +
-      '<div class="op-result-lbl">' + resultLbl + '</div>' +
-    '</div>' +
-    '<div class="op-actions">' +
-      '<button class="op-btn edit" onclick="abrirModalEditar(\'' + op.id + '\')" title="Editar">✏️</button>' +
-      '<button class="op-btn del" onclick="confirmarEliminar(\'' + op.id + '\')" title="Eliminar">🗑</button>' +
-    '</div>' +
-  '</div>';
-}
-
-function escHtml(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-/* ══════════════════════════════════════════════
-   RENDER CICLOS CERRADOS
-══════════════════════════════════════════════ */
-function renderCerradas() {
-  var ciclos = calcularCiclos();
-  var list   = document.getElementById('cerradas-list');
-  var empty  = document.getElementById('cerradas-empty');
-
-  if (!ciclos.length) {
-    list.innerHTML = '';
-    empty.classList.remove('hidden');
-    return;
-  }
-  empty.classList.add('hidden');
-
-  var ciclosDesc = ciclos.slice().reverse();
-  var html = '';
-  ciclosDesc.forEach(function(c, i) {
-    var isWin = c.gananciaPEN >= 0;
-    var cls   = isWin ? 'win' : 'loss';
-    html += '<div class="cerrada-card">' +
-      '<div class="cerrada-header">' +
-        '<div class="cerrada-pair">' +
-          '<span class="cerrada-badge ' + cls + '">' + (isWin ? '✓ Ganancia' : '✗ Pérdida') + '</span>' +
-          '<span style="font-size:12px;color:var(--ink-3)">' + fmt(c.usd, 2) + ' USD</span>' +
-        '</div>' +
-        '<div>' +
-          '<div class="cerrada-pnl ' + cls + '">' + (isWin ? '+' : '') + fmtPEN(c.gananciaPEN, 2) + '</div>' +
-          '<div class="cerrada-pnl-sub">' + (isWin?'+':'') + fmtUSD(c.gananciaUSD,2) + ' · ' + (isWin?'+':'') + fmt(c.rentab,2) + '%</div>' +
-        '</div>' +
-      '</div>' +
-      '<div class="cerrada-details">' +
-        '<div class="cerrada-field">' +
-          '<div class="cerrada-field-label">Fecha compra</div>' +
-          '<div class="cerrada-field-value">' + fmtFecha(c.compraFecha) + '</div>' +
-        '</div>' +
-        '<div class="cerrada-field">' +
-          '<div class="cerrada-field-label">Fecha venta</div>' +
-          '<div class="cerrada-field-value">' + fmtFecha(c.ventaFecha) + '</div>' +
-        '</div>' +
-        '<div class="cerrada-field">' +
-          '<div class="cerrada-field-label">TC compra</div>' +
-          '<div class="cerrada-field-value">' + c.compraTc.toFixed(4) + '</div>' +
-        '</div>' +
-        '<div class="cerrada-field">' +
-          '<div class="cerrada-field-label">TC venta</div>' +
-          '<div class="cerrada-field-value">' + c.ventaTc.toFixed(4) + '</div>' +
-        '</div>' +
-      '</div>' +
-    '</div>';
-  });
-
-  // Resumen de ciclos
-  var totalGanPEN = ciclos.reduce(function(s,c){ return s + c.gananciaPEN; }, 0);
-  var totalGanUSD = ciclos.reduce(function(s,c){ return s + c.gananciaUSD; }, 0);
-  html = '<div class="card" style="margin:0 14px 12px"><div class="card-inner">' +
-    '<div class="card-title">Resumen de ciclos</div>' +
-    '<div class="info-row"><span class="info-label">Ciclos completados</span><span class="info-value">' + ciclos.length + '</span></div>' +
-    '<div class="info-row"><span class="info-label">Ganancia total PEN</span><span class="info-value ' + (totalGanPEN>=0?'pos':'neg') + '">' + (totalGanPEN>=0?'+':'') + fmtPEN(totalGanPEN,2) + '</span></div>' +
-    '<div class="info-row" style="border:none"><span class="info-label">Ganancia total USD</span><span class="info-value ' + (totalGanUSD>=0?'pos':'neg') + '">' + (totalGanUSD>=0?'+':'') + fmtUSD(totalGanUSD,2) + '</span></div>' +
-    '</div></div>' + html;
-
-  list.innerHTML = html;
-}
-
-/* ══════════════════════════════════════════════
-   RENDER EVOLUCIÓN
-══════════════════════════════════════════════ */
-function renderEvolucion() {
-  var pos = calcularCapital();
-  var ci  = STATE.capitalInicial;
-  var puntos = pos.puntos;
-
-  // Stats
-  var capitalActual = pos.capitalUSD;
-  var gananciaUSD   = capitalActual - ci;
-  var rentab = ci > 0 ? gananciaUSD / ci * 100 : 0;
-
-  var rentabAnual = null;
-  if (ci > 0 && STATE.ops.length > 0) {
-    var firstTs = STATE.ops.reduce(function(m,o){ return Math.min(m,o.ts); }, Infinity);
-    var diasTrans = Math.max(1, (Date.now() - firstTs) / 86400000);
-    rentabAnual = (Math.pow(1 + gananciaUSD / ci, 365 / diasTrans) - 1) * 100;
-  }
-
-  var crecEl = document.getElementById('evol-crec');
-  var rentEl = document.getElementById('evol-rentab');
-  var anualEl = document.getElementById('evol-anual');
-
-  crecEl.textContent = ci > 0 ? ((gananciaUSD >= 0 ? '+' : '') + fmtUSD(gananciaUSD, 2)) : '—';
-  crecEl.className = 'evol-stat-value' + (gananciaUSD >= 0 ? ' pos' : ' neg');
-
-  rentEl.textContent = ci > 0 ? ((rentab >= 0 ? '+' : '') + fmt(rentab,2) + '%') : '—';
-  rentEl.className = 'evol-stat-value' + (rentab >= 0 ? ' pos' : ' neg');
-
-  anualEl.textContent = rentabAnual !== null ? ((rentabAnual >= 0 ? '+' : '') + fmt(rentabAnual,2) + '%') : '—';
-  anualEl.className = 'evol-stat-value' + (rentabAnual !== null && rentabAnual >= 0 ? ' pos' : ' neg');
-
-  // Chart grande
-  renderMiniChart(puntos, 'evol-chart-svg', 'evol-chart-empty', 260);
-
-  // Tabla puntos
-  var tableEl = document.getElementById('evol-table');
-  if (puntos.length < 2) {
-    tableEl.innerHTML = '<div class="empty-state" style="padding:20px 0"><div class="empty-text">Sin datos suficientes</div></div>';
-    return;
-  }
-
-  var html = '<div class="info-row" style="font-size:11px;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em">' +
-    '<span>Fecha</span><span>Capital USD</span><span>Cambio</span></div>';
-
-  puntos.forEach(function(p, i) {
-    var prev = i > 0 ? puntos[i-1].usd : p.usd;
-    var delta = p.usd - prev;
-    var deltaStr = i === 0 ? '—' : ((delta >= 0 ? '+' : '') + fmtUSD(delta, 2));
-    var deltaCls = i === 0 ? '' : (delta >= 0 ? 'text-green' : 'text-red');
-
-    html += '<div class="info-row">' +
-      '<span class="info-label">' + (p.ts ? fmtFecha(p.ts) : 'Inicio') + '</span>' +
-      '<span class="info-value">' + fmtUSD(p.usd, 2) + '</span>' +
-      '<span class="' + deltaCls + '" style="font-size:13px;font-weight:600">' + deltaStr + '</span>' +
-    '</div>';
-  });
-
-  tableEl.innerHTML = html;
-}
-
-/* ══════════════════════════════════════════════
-   MODALES: EDITAR
+   MODALES
 ══════════════════════════════════════════════ */
 function abrirModalEditar(id) {
-  var op = STATE.ops.find(function(o){ return o.id === id; });
-  if (!op) return;
+  var op = STATE.ops.find(o => o.id === id); if (!op) return;
   STATE.editId = id;
-
   document.getElementById('edit-tipo').value  = op.tipo;
   document.getElementById('edit-fecha').value = new Date(op.ts).toISOString().slice(0,10);
-  document.getElementById('edit-monto').value = op.tipo === 'buy' ? op.pen.toFixed(2) : op.usd.toFixed(4);
+  document.getElementById('edit-monto').value = op.tipo === 'buy' ? op.pen.toFixed(2) : op.usd.toFixed(2);
   document.getElementById('edit-tc').value    = op.tc.toFixed(4);
   document.getElementById('edit-nota').value  = op.nota || '';
-  document.getElementById('edit-monto-label').textContent = op.tipo === 'buy' ? 'Soles pagados (PEN)' : 'USD vendidos';
   calcularEdit();
-
   document.getElementById('modal-editar').classList.add('on');
 }
-
 function cerrarModalEditar(e) {
   if (e && e.target !== document.getElementById('modal-editar')) return;
   document.getElementById('modal-editar').classList.remove('on');
   STATE.editId = null;
 }
-
 function calcularEdit() {
   var tipo  = document.getElementById('edit-tipo').value;
   var monto = parseFloat(document.getElementById('edit-monto').value);
   var tc    = parseFloat(document.getElementById('edit-tc').value);
   var el    = document.getElementById('edit-result');
-  document.getElementById('edit-monto-label').textContent = tipo === 'buy' ? 'Soles pagados (PEN)' : 'USD vendidos';
-
   if (!isNaN(monto) && !isNaN(tc) && monto > 0 && tc > 0) {
-    if (tipo === 'buy') {
-      el.textContent = fmtUSD(monto / tc, 4) + ' USD obtenidos';
-    } else {
-      el.textContent = fmtPEN(monto * tc, 2) + ' soles recibidos';
-    }
-  } else {
-    el.textContent = '—';
-  }
+    el.textContent = (tipo === 'buy') ? fmtUSD(monto / tc, 2) + ' obtenidos' : fmtPEN(monto * tc, 2) + ' recibidos';
+  } else el.textContent = '—';
 }
-
 function guardarEdicion() {
-  var id    = STATE.editId;
-  if (!id) return;
+  var id    = STATE.editId; if (!id) return;
   var tipo  = document.getElementById('edit-tipo').value;
   var fecha = document.getElementById('edit-fecha').value;
   var monto = parseFloat(document.getElementById('edit-monto').value);
   var tc    = parseFloat(document.getElementById('edit-tc').value);
   var nota  = document.getElementById('edit-nota').value.trim();
-
-  if (!fecha || isNaN(monto) || monto <= 0 || isNaN(tc) || tc <= 0) {
-    alert('Completa todos los campos correctamente.');
-    return;
-  }
-
-  var usd, pen;
-  if (tipo === 'buy') { pen = monto; usd = pen / tc; }
-  else                { usd = monto; pen = usd * tc; }
-
-  var idx = STATE.ops.findIndex(function(o){ return o.id === id; });
+  var usd   = (tipo === 'buy') ? monto / tc : monto;
+  var pen   = (tipo === 'buy') ? monto : monto * tc;
+  var idx   = STATE.ops.findIndex(o => o.id === id);
   if (idx === -1) return;
   STATE.ops[idx] = { id: id, ts: new Date(fecha + 'T12:00:00').getTime(), tipo: tipo, usd: usd, pen: pen, tc: tc, nota: nota };
-  STATE.ops.sort(function(a,b){ return a.ts - b.ts; });
-  guardarOps();
-  renderAll();
+  sincronizarConFirestore();
   document.getElementById('modal-editar').classList.remove('on');
   STATE.editId = null;
 }
 
-/* ══════════════════════════════════════════════
-   MODALES: CAPITAL INICIAL
-══════════════════════════════════════════════ */
 function abrirModalCapital() {
-  document.getElementById('capital-input').value = STATE.capitalInicial > 0 ? STATE.capitalInicial.toFixed(2) : '';
+  document.getElementById('capital-input').value = STATE.capitalInicial > 0 ? STATE.capitalInicial : '';
   document.getElementById('modal-capital').classList.add('on');
 }
 function cerrarModalCapital(e) {
@@ -1826,204 +1388,46 @@ function cerrarModalCapital(e) {
 }
 function guardarCapital() {
   var v = parseFloat(document.getElementById('capital-input').value);
-  if (isNaN(v) || v <= 0) { alert('Ingresa un capital válido.'); return; }
+  if (isNaN(v) || v < 0) return;
   STATE.capitalInicial = v;
-  guardarCapitalLS();
-  renderAll();
+  sincronizarConFirestore();
   document.getElementById('modal-capital').classList.remove('on');
 }
 
-/* ══════════════════════════════════════════════
-   CONFIRMAR ELIMINAR
-══════════════════════════════════════════════ */
 function confirmarEliminar(id) {
-  var op = STATE.ops.find(function(o){ return o.id === id; });
-  if (!op) return;
-  document.getElementById('confirm-title').textContent = '¿Eliminar operación?';
-  document.getElementById('confirm-text').textContent  =
-    'Se eliminará la ' + (op.tipo === 'buy' ? 'compra' : 'venta') + ' del ' + fmtFecha(op.ts) + ' (' + fmtUSD(op.usd,2) + '). Esta acción no se puede deshacer.';
-  STATE.confirmCallback = function() { eliminarOp(id); };
-  document.getElementById('confirm-ok-btn').textContent = 'Eliminar';
+  STATE.confirmCallback = function() {
+    STATE.ops = STATE.ops.filter(o => o.id !== id);
+    sincronizarConFirestore();
+  };
   document.getElementById('modal-confirm').classList.add('on');
 }
-
 function confirmarEliminarTodo() {
-  if (!STATE.ops.length) return;
-  document.getElementById('confirm-title').textContent = '¿Eliminar todo?';
-  document.getElementById('confirm-text').textContent  = 'Se eliminarán las ' + STATE.ops.length + ' operaciones. Esta acción no se puede deshacer.';
   STATE.confirmCallback = function() {
     STATE.ops = [];
-    guardarOps();
-    renderAll();
+    sincronizarConFirestore();
   };
-  document.getElementById('confirm-ok-btn').textContent = 'Eliminar todo';
   document.getElementById('modal-confirm').classList.add('on');
 }
-
-function cerrarConfirm() {
-  document.getElementById('modal-confirm').classList.remove('on');
-  STATE.confirmCallback = null;
-}
+function cerrarConfirm() { document.getElementById('modal-confirm').classList.remove('on'); }
 
 document.getElementById('confirm-ok-btn').addEventListener('click', function() {
   if (STATE.confirmCallback) STATE.confirmCallback();
   cerrarConfirm();
 });
 
-document.getElementById('modal-confirm').addEventListener('click', function(e) {
-  if (e.target === this) cerrarConfirm();
-});
-
-function eliminarOp(id) {
-  STATE.ops = STATE.ops.filter(function(o){ return o.id !== id; });
-  guardarOps();
-  renderAll();
-}
-
-/* ══════════════════════════════════════════════
-   EXPORTAR / IMPORTAR
-══════════════════════════════════════════════ */
-function exportarJSON() {
-  if (!STATE.ops.length && STATE.capitalInicial <= 0) {
-    alert('No hay datos para exportar.');
-    return;
-  }
-  var payload = JSON.stringify({
-    version: '1',
-    exportado: new Date().toISOString(),
-    capitalInicial: STATE.capitalInicial,
-    ops: STATE.ops
-  }, null, 2);
-  var blob = new Blob([payload], { type: 'application/json' });
-  var url  = URL.createObjectURL(blob);
-  var a    = document.createElement('a');
-  a.href   = url;
-  a.download = 'libro-dolares-' + new Date().toISOString().slice(0,10) + '.json';
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-function importarJSON(event) {
-  var file = event.target.files[0];
-  if (!file) return;
-  var reader = new FileReader();
-  reader.onload = function(e) {
-    try {
-      var data = JSON.parse(e.target.result);
-      var ops  = data.ops || (Array.isArray(data) ? data : []);
-      if (!Array.isArray(ops)) throw new Error('Formato inválido');
-
-      var existingIds = new Set(STATE.ops.map(function(o){ return o.id; }));
-      var nuevas = ops.filter(function(o){ return !existingIds.has(o.id); });
-      STATE.ops = STATE.ops.concat(nuevas).sort(function(a,b){ return a.ts - b.ts; });
-
-      if (data.capitalInicial && !isNaN(parseFloat(data.capitalInicial))) {
-        STATE.capitalInicial = parseFloat(data.capitalInicial);
-        guardarCapitalLS();
-      }
-
-      guardarOps();
-      renderAll();
-      alert('✓ Importadas ' + nuevas.length + ' operaciones nuevas.');
-    } catch(err) {
-      alert('Error al importar. Verifica que sea un archivo válido de Libro de Dólares.');
-    }
-  };
-  reader.readAsText(file);
-  event.target.value = '';
-}
-
-function exportarExcel() {
-  if (!STATE.ops.length) { alert('No hay operaciones para exportar.'); return; }
-
-  var pos    = calcularCapital();
-  var ciclos = calcularCiclos();
-  var ci     = STATE.capitalInicial;
-  var ca     = pos.capitalUSD;
-  var ganUSD = ca - ci;
-  var rentab = ci > 0 ? (ganUSD / ci * 100).toFixed(2) : '—';
-
-  // CSV simple (compatible con Excel)
-  var lines = [
-    ['LIBRO DE DÓLARES — Reporte exportado', new Date().toLocaleDateString('es-PE')],
-    [],
-    ['Capital inicial (USD)', ci],
-    ['Capital actual (USD)', ca.toFixed(2)],
-    ['Ganancia acumulada (USD)', ganUSD.toFixed(2)],
-    ['Rentabilidad (%)', rentab],
-    [],
-    ['=== HISTORIAL DE OPERACIONES ==='],
-    ['ID', 'Fecha', 'Tipo', 'USD', 'PEN', 'TC', 'Notas']
-  ];
-
-  STATE.ops.forEach(function(op) {
-    lines.push([
-      op.id,
-      fmtFecha(op.ts),
-      op.tipo === 'buy' ? 'Compra' : 'Venta',
-      op.usd.toFixed(4),
-      op.pen.toFixed(2),
-      op.tc.toFixed(4),
-      op.nota || ''
-    ]);
-  });
-
-  lines.push([], ['=== CICLOS CERRADOS ==='],
-    ['Fecha compra', 'TC compra', 'Fecha venta', 'TC venta', 'USD', 'Ganancia PEN', 'Ganancia USD', 'Rentab %']);
-
-  ciclos.forEach(function(c) {
-    lines.push([
-      fmtFecha(c.compraFecha),
-      c.compraTc.toFixed(4),
-      fmtFecha(c.ventaFecha),
-      c.ventaTc.toFixed(4),
-      c.usd.toFixed(4),
-      c.gananciaPEN.toFixed(2),
-      c.gananciaUSD.toFixed(4),
-      c.rentab.toFixed(2)
-    ]);
-  });
-
-  var csv = lines.map(function(row) {
-    return row.map(function(cell) {
-      var s = String(cell);
-      if (s.includes(',') || s.includes('"') || s.includes('\n')) s = '"' + s.replace(/"/g,'""') + '"';
-      return s;
-    }).join(',');
-  }).join('\n');
-
-  var bom  = '\uFEFF'; // BOM for Excel UTF-8
-  var blob = new Blob([bom + csv], { type: 'text/csv;charset=utf-8;' });
-  var url  = URL.createObjectURL(blob);
-  var a    = document.createElement('a');
-  a.href   = url;
-  a.download = 'libro-dolares-' + new Date().toISOString().slice(0,10) + '.csv';
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
 /* ══════════════════════════════════════════════
    NAVEGACIÓN
 ══════════════════════════════════════════════ */
 var CURRENT_TAB = 'dashboard';
-
 function setTab(tab, btn) {
-  document.querySelectorAll('.tab-item').forEach(function(b){ b.classList.remove('on'); });
+  document.querySelectorAll('.tab-item').forEach(b => b.classList.remove('on'));
   if (btn) btn.classList.add('on');
-
-  document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('on'); });
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('on'));
   document.getElementById('v-' + tab).classList.add('on');
   CURRENT_TAB = tab;
-
-  if (tab === 'historial')  renderHistorial();
-  if (tab === 'cerradas')   renderCerradas();
-  if (tab === 'evolucion')  renderEvolucion();
-  if (tab === 'dashboard')  renderDashboard();
+  renderAll();
 }
 
-/* ══════════════════════════════════════════════
-   RENDER ALL
-══════════════════════════════════════════════ */
 function renderAll() {
   renderDashboard();
   if (CURRENT_TAB === 'historial') renderHistorial();
@@ -2032,129 +1436,109 @@ function renderAll() {
 }
 
 /* ══════════════════════════════════════════════
-   MIGRACIÓN DESDE MIS DÓLARES ANTERIOR
-   Lee datos del localStorage de la app vieja
-   y los fusiona si existen.
+   EXPORT / IMPORT
 ══════════════════════════════════════════════ */
-function migrarDatosAnteriores() {
-  var KEYS_VIEJOS = ['misdolares_ops', 'misdolares_ops_v2', 'librodolares_ops_v1'];
-  var migradas = 0;
-
-  KEYS_VIEJOS.forEach(function(k) {
-    if (k === LS_OPS) return; // No migrar desde sí mismo
+function exportarJSON() {
+  var payload = JSON.stringify({ capitalInicial: STATE.capitalInicial, ops: STATE.ops }, null, 2);
+  var blob = new Blob([payload], { type: 'application/json' });
+  var url  = URL.createObjectURL(blob);
+  var a = document.createElement('a'); a.href = url; a.download = 'libro-dolares.json'; a.click();
+}
+function importarJSON(event) {
+  var file = event.target.files[0]; if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
     try {
-      var raw = localStorage.getItem(k);
-      if (!raw) return;
-      var data = JSON.parse(raw);
-      var ops  = Array.isArray(data) ? data : (data.ops || []);
-      if (!Array.isArray(ops) || !ops.length) return;
-
-      var existingIds = new Set(STATE.ops.map(function(o){ return o.id; }));
-      ops.forEach(function(op) {
-        if (!op.id || existingIds.has(op.id)) return;
-        // Normalizar campos del formato viejo
-        var normalized = {
-          id:   op.id || genId(),
-          ts:   op.ts || Date.now(),
-          tipo: op.tipo || 'buy',
-          usd:  parseFloat(op.usd) || 0,
-          pen:  parseFloat(op.pen) || 0,
-          tc:   parseFloat(op.tc)  || 0,
-          nota: op.nota || op.notas || ''
-        };
-        if (normalized.usd > 0 && normalized.pen > 0 && normalized.tc > 0) {
-          STATE.ops.push(normalized);
-          migradas++;
-        }
-      });
-    } catch(e) {}
+      var data = JSON.parse(e.target.result);
+      if (data.ops) STATE.ops = data.ops;
+      if (data.capitalInicial !== undefined) STATE.capitalInicial = data.capitalInicial;
+      sincronizarConFirestore();
+      alert('Datos importados y sincronizados correctamente.');
+    } catch(err) { alert('Error al importar archivo.'); }
+  };
+  reader.readAsText(file);
+}
+function exportarExcel() {
+  var csv = 'Fecha,Tipo,USD,PEN,TC,Notas\n';
+  STATE.ops.forEach(function(o) {
+    csv += fmtFecha(o.ts) + ',' + (o.tipo==='buy'?'Compra':'Venta') + ',' + o.usd.toFixed(2) + ',' + o.pen.toFixed(2) + ',' + o.tc.toFixed(4) + ',' + (o.nota||'') + '\n';
   });
-
-  if (migradas > 0) {
-    STATE.ops.sort(function(a,b){ return a.ts - b.ts; });
-    guardarOps();
-    setTimeout(function() {
-      alert('✓ Se importaron ' + migradas + ' operaciones de una versión anterior de la app.');
-    }, 800);
-  }
+  var blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  var url  = URL.createObjectURL(blob);
+  var a = document.createElement('a'); a.href = url; a.download = 'libro-dolares.csv'; a.click();
 }
 
 /* ══════════════════════════════════════════════
-   LISTENERS FORMULARIO
+   INIT
 ══════════════════════════════════════════════ */
 document.getElementById('form-monto').addEventListener('input', calcularFormulario);
 document.getElementById('form-tc').addEventListener('input', calcularFormulario);
 
-/* ══════════════════════════════════════════════
-   DATOS DE EJEMPLO (solo si app está vacía)
-══════════════════════════════════════════════ */
-function sembrarDemoSiVacio() {
-  if (STATE.ops.length > 0 || STATE.capitalInicial > 0) return;
-
-  STATE.capitalInicial = 60000;
-  guardarCapitalLS();
-
-  var base = new Date('2024-07-01T12:00:00').getTime();
-  var dia  = 86400000;
-
-  var demoOps = [
-    { tipo:'sell', ts: base,          pen: 216000, usd: 60000, tc: 3.60 },
-    { tipo:'buy',  ts: base + 10*dia, pen: 216000, usd: 59016.39, tc: 3.66 },
-    { tipo:'sell', ts: base + 25*dia, pen: 221561.64, usd: 59016.39, tc: 3.754 },
-    { tipo:'buy',  ts: base + 38*dia, pen: 221561.64, usd: 60703.19, tc: 3.650 },
-    { tipo:'sell', ts: base + 62*dia, pen: 228950.42, usd: 60703.19, tc: 3.771 },
-    { tipo:'buy',  ts: base + 75*dia, pen: 228950.42, usd: 62958.35, tc: 3.637 },
-  ];
-
-  demoOps.forEach(function(o) {
-    STATE.ops.push({ id: genId(), ts: o.ts, tipo: o.tipo, usd: o.usd, pen: o.pen, tc: o.tc, nota: '📌 Demo' });
-  });
-  STATE.ops.sort(function(a,b){ return a.ts - b.ts; });
-  guardarOps();
-}
-
-/* ══════════════════════════════════════════════
-   INICIALIZACIÓN
-══════════════════════════════════════════════ */
 (function init() {
-  STATE.ops            = cargarOps();
-  STATE.capitalInicial = cargarCapital();
-
-  // Intentar migrar datos de versiones anteriores
-  migrarDatosAnteriores();
-
-  // Fecha de hoy en headers y formulario
   var d = new Date();
   var dateStr = d.toLocaleDateString('es-PE', { weekday:'short', day:'numeric', month:'short' });
   document.getElementById('hdr-date').textContent     = dateStr;
   document.getElementById('hdr-date-reg').textContent = dateStr;
-  document.getElementById('form-fecha').value         = todayISO();
-
-  // Si no hay datos, cargar demo para mostrar cómo funciona
-  sembrarDemoSiVacio();
-
-  // Si no hay capital configurado y no hay ops, abrir modal al inicio
-  if (STATE.capitalInicial <= 0 && STATE.ops.length === 0) {
-    setTimeout(abrirModalCapital, 700);
-  }
-
-  // Atajos de teclado: Escape cierra modales
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-      document.getElementById('modal-editar').classList.remove('on');
-      document.getElementById('modal-capital').classList.remove('on');
-      cerrarConfirm();
-    }
-  });
-
-  // Enter en capital input
-  document.getElementById('capital-input').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') guardarCapital();
-  });
-
-  renderAll();
+  document.getElementById('form-fecha').value = todayISO();
 })();
 </script>
 
+<!--
+════════════════════════════════════════════════════════════
+  INSTRUCCIONES: QUÉ DATOS DEBES INSERTAR
+════════════════════════════════════════════════════════════
 
-<div style="display: contents;"><template shadowrootmode="closed"><div style="display: none; x: initial; y: initial; z-index: 2147483647; text-align: center; border-radius: 6px; box-shadow: rgba(10, 10, 10, 0.1) 0px 0.5em 1em -0.125em, rgba(10, 10, 10, 0.02) 0px 0px 0px 1px; color: rgb(74, 74, 74); overflow: auto; position: fixed; right: 20px; top: 20px; line-height: 0px; transition: height 0.25s ease-in;"><iframe height="429" width="300" srcdoc="&lt;!DOCTYPE html&gt;&lt;html&gt;&lt;head&gt;&lt;/head&gt;&lt;body&gt;&lt;div class=&quot;frame-root&quot;&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;" style="border: 0px;"></iframe></div></template></div></body></html>
+PASO 1 — Crea tu proyecto en Firebase
+  → https://console.firebase.google.com
+  → "Agregar proyecto" → ponle nombre (ej: libro-dolares)
+  → Desactiva Google Analytics si no la quieres (opcional)
+
+PASO 2 — Activa Authentication con Google
+  → En el panel izquierdo: Build → Authentication
+  → Pestaña "Sign-in method"
+  → Habilita "Google" → pon tu correo de soporte → Guardar
+
+PASO 3 — Activa Firestore Database
+  → Build → Firestore Database → "Crear base de datos"
+  → Elige "Comenzar en modo producción"
+  → Selecciona región: nam5 (us-central) o southamerica-east1
+
+PASO 4 — Configura las Reglas de Firestore
+  → Firestore → pestaña "Reglas" → reemplaza con esto:
+
+    rules_version = '2';
+    service cloud.firestore {
+      match /databases/{database}/documents {
+        match /librodolares_usuarios/{userId} {
+          allow read, write: if request.auth != null && request.auth.uid == userId;
+        }
+      }
+    }
+
+  → Publicar
+
+PASO 5 — Obtén tus credenciales
+  → Configuración del proyecto (ícono ⚙️ arriba a la izquierda)
+  → "Tus apps" → agrega app Web (</>)
+  → Ponle un apodo (ej: libro-dolares-web)
+  → Copia el objeto firebaseConfig que te muestra
+
+PASO 6 — Pega las credenciales en este archivo
+  Busca el bloque que dice "PEGA TU..." y reemplaza cada valor:
+
+    apiKey:            "AIzaSy..."
+    authDomain:        "tu-proyecto.firebaseapp.com"
+    projectId:         "tu-proyecto"
+    storageBucket:     "tu-proyecto.appspot.com"
+    messagingSenderId: "123456789"
+    appId:             "1:123456789:web:abc123..."
+
+PASO 7 — Agrega tu dominio a los dominios autorizados
+  → Authentication → Settings → Dominios autorizados
+  → Si usas GitHub Pages, Netlify, etc., agrega tu dominio ahí
+  → localhost ya viene autorizado por defecto (para pruebas locales)
+
+════════════════════════════════════════════════════════════
+-->
+</body>
+</html>
