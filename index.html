@@ -1802,50 +1802,7 @@ document.getElementById('form-tc').addEventListener('input', calcularFormulario)
 </script>
 
 <!--
-════════════════════════════════════════════════════════════
-  INSTRUCCIONES: CONFIGURACIÓN FIREBASE
-════════════════════════════════════════════════════════════
 
-PASO 1 — Crea tu proyecto en Firebase
-  → https://console.firebase.google.com
-  → "Agregar proyecto" → ponle nombre (ej: libro-dolares)
-
-PASO 2 — Activa Authentication con Google
-  → Build → Authentication → Sign-in method → Habilita "Google"
-
-PASO 3 — Activa Firestore Database
-  → Build → Firestore Database → "Crear base de datos"
-  → Modo producción → Región: southamerica-east1
-
-PASO 4 — Configura las Reglas de Firestore (subcolecciones)
-  → Firestore → pestaña "Reglas" → reemplaza con esto:
-
-    rules_version = '2';
-    service cloud.firestore {
-      match /databases/{database}/documents {
-        match /librodolares_usuarios/{userId} {
-          // Solo el dueño puede leer/escribir su perfil
-          allow read, write: if request.auth != null && request.auth.uid == userId;
-
-          // Solo el dueño puede leer/escribir sus ops
-          match /ops/{opId} {
-            allow read, write: if request.auth != null && request.auth.uid == userId;
-          }
-        }
-      }
-    }
-
-  → Publicar
-
-PASO 5 — Pega tus credenciales en este archivo
-  Busca el bloque "firebaseConfig" y reemplaza los valores.
-
-PASO 6 — Opcional: limitar acceso a tu email
-  Agrega en las reglas:
-  && request.auth.token.email == 'tu@gmail.com'
-
-PASO 7 — Agrega tu dominio a los dominios autorizados
-  → Authentication → Settings → Dominios autorizados
 
 CAMBIOS RESPECTO A v1:
   - Cada operación es un documento individual en subcolección /ops
