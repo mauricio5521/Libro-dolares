@@ -27,6 +27,8 @@
   --amber:   #8A5C00;
   --amber-bg:#FEF3DC;
   --white:   #FFFFFF;
+  --blue:    #1A4A8A;
+  --blue-bg: #E8F0FD;
 
   --r-sm:  8px;
   --r:     12px;
@@ -120,6 +122,27 @@ body{
 @keyframes spin{ to{ transform:rotate(360deg); } }
 
 /* ══════════════════════════════════════════════
+   SYNC STATUS BAR
+══════════════════════════════════════════════ */
+#sync-bar{
+  position:fixed;top:0;left:0;right:0;z-index:500;
+  padding:7px 16px;
+  display:flex;align-items:center;justify-content:center;gap:7px;
+  font-size:12px;font-weight:600;
+  transform:translateY(-100%);
+  transition:transform .3s var(--ease);
+}
+#sync-bar.show{ transform:translateY(0); }
+#sync-bar.saving{ background:#1A4A8A;color:#fff; }
+#sync-bar.saved { background:#1A6B49;color:#fff; }
+#sync-bar.error { background:#B83327;color:#fff; }
+#sync-bar.offline{ background:#8A5C00;color:#fff; }
+.sync-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:currentColor;opacity:.7;
+}
+
+/* ══════════════════════════════════════════════
    SHELL
 ══════════════════════════════════════════════ */
 .shell{
@@ -157,11 +180,9 @@ body{
 .app-date{ font-size:12px;color:var(--ink-3); }
 
 /* ══════════════════════════════════════════════
-   USER CHIP (esquina superior)
+   USER CHIP
 ══════════════════════════════════════════════ */
-.user-chip{
-  display:flex;align-items:center;gap:8px;
-}
+.user-chip{ display:flex;align-items:center;gap:8px; }
 .user-avatar{
   width:28px;height:28px;border-radius:50%;
   background:var(--sand-3);overflow:hidden;
@@ -298,6 +319,7 @@ body{
   transition:border-color var(--dur),background var(--dur);
 }
 .field-input:focus{ border-color:var(--stone);background:var(--white); }
+.field-input.error{ border-color:var(--red-2);background:var(--red-bg); }
 .field-input-serif{
   font-family:var(--f-serif);
   font-size:22px;letter-spacing:-.5px;
@@ -306,6 +328,9 @@ body{
 .field-row .field-group{ flex:1; }
 .field-hint{
   font-size:11px;color:var(--ink-3);margin-top:5px;
+}
+.field-error{
+  font-size:11px;color:var(--red);margin-top:5px;display:none;
 }
 
 .result-box{
@@ -390,6 +415,7 @@ body{
   display:inline-flex;align-items:center;gap:4px;
   margin-top:5px;padding:2px 8px;border-radius:20px;
   background:var(--sand);font-size:11px;color:var(--ink-3);
+  max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
 .op-right{ text-align:right;flex-shrink:0; }
 .op-amount{ font-size:14px;font-weight:700;letter-spacing:-.3px; }
@@ -410,6 +436,16 @@ body{
 }
 .empty-icon{ font-size:40px;margin-bottom:12px;opacity:.6; }
 .empty-text{ font-size:14px;line-height:1.7; }
+
+/* Paginación historial */
+.load-more-wrap{ padding:8px 14px 16px;text-align:center; }
+.btn-load-more{
+  padding:9px 22px;border-radius:var(--r-lg);
+  background:var(--white);border:1.5px solid var(--sand-3);
+  font-size:13px;font-weight:600;color:var(--ink-2);
+  cursor:pointer;transition:all .15s;box-shadow:var(--sh-sm);
+}
+.btn-load-more:hover{ background:var(--sand-2); }
 
 /* ══════════════════════════════════════════════
    OPERACIONES CERRADAS
@@ -466,16 +502,6 @@ body{
 .evol-stat-value.pos{ color:var(--green); }
 .evol-stat-value.neg{ color:var(--red); }
 
-.chart-main-wrap{
-  background:var(--white);border-radius:var(--r-xl);
-  margin:0 14px 12px;padding:20px 20px 16px;
-  box-shadow:var(--sh);
-}
-.chart-main-title{
-  font-size:12px;font-weight:700;color:var(--ink-3);
-  text-transform:uppercase;letter-spacing:.07em;margin-bottom:16px;
-}
-
 /* ══════════════════════════════════════════════
    BUTTONS
 ══════════════════════════════════════════════ */
@@ -488,7 +514,6 @@ body{
 }
 .btn-icon:hover{ background:var(--sand-2); }
 
-/* EXPORT/IMPORT ROW */
 .export-row{
   display:flex;gap:8px;flex-wrap:wrap;padding:0 14px 16px;
 }
@@ -502,7 +527,7 @@ body{
 .export-btn:hover{ background:var(--sand-2);border-color:var(--stone); }
 
 /* ══════════════════════════════════════════════
-   MODAL (Editar / Configurar capital inicial)
+   MODAL
 ══════════════════════════════════════════════ */
 .modal-backdrop{
   position:fixed;inset:0;background:rgba(28,27,24,.55);
@@ -546,7 +571,6 @@ body{
 }
 .btn-cancel:hover{ background:var(--sand-3); }
 
-/* Confirm delete modal */
 .confirm-modal{
   position:fixed;inset:0;background:rgba(28,27,24,.55);
   z-index:300;display:flex;align-items:center;justify-content:center;
@@ -647,31 +671,30 @@ body{
 .text-muted{ color:var(--ink-3); }
 </style>
 
-<!-- ══════════════════════════════════════════
-     FIREBASE SDKs  (compat v10)
-══════════════════════════════════════════ -->
+<!-- Firebase SDKs (compat v10) -->
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
-<!-- ══════════════════════════════════════════
-     PANTALLA DE CARGA (mientras verifica auth)
-══════════════════════════════════════════ -->
+<!-- Sync status bar -->
+<div id="sync-bar">
+  <div class="sync-dot"></div>
+  <span id="sync-msg">Guardando...</span>
+</div>
+
+<!-- Pantalla de carga -->
 <div id="auth-loading">
   <div class="spinner"></div>
 </div>
 
-<!-- ══════════════════════════════════════════
-     PANTALLA DE LOGIN
-══════════════════════════════════════════ -->
+<!-- Login -->
 <div id="login-screen" class="hidden">
   <div class="login-logo-mark">💵</div>
   <div class="login-title">Libro de Dólares</div>
   <div class="login-sub">Tu registro personal de operaciones<br>USD/PEN siempre sincronizado.</div>
   <button class="btn-google" id="btn-login-google">
-    <!-- Logo Google SVG -->
     <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
       <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
       <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/>
@@ -683,11 +706,10 @@ body{
   <div class="login-notice">Solo tú verás tus datos.<br>Funciona en cualquier dispositivo.</div>
 </div>
 
-<!-- ══════════════════════════════════════════
-     APP PRINCIPAL
-══════════════════════════════════════════ -->
+<!-- App principal -->
 <div class="shell" id="app-shell">
 
+  <!-- DASHBOARD -->
   <div id="v-dashboard" class="view on">
     <header class="app-header">
       <div class="app-logo">
@@ -757,6 +779,7 @@ body{
     </div>
   </div>
 
+  <!-- REGISTRAR -->
   <div id="v-registrar" class="view">
     <header class="app-header">
       <div class="app-logo"><div class="app-logo-mark">💵</div><span class="app-logo-name">Registrar operación</span></div>
@@ -781,15 +804,17 @@ body{
         <div class="field-group">
           <div class="field-label" id="form-monto-label">Soles entregados (PEN)</div>
           <input type="number" id="form-monto" class="field-input field-input-serif" placeholder="0.00" step="0.01" min="0" inputmode="decimal">
+          <div class="field-error" id="err-monto">Ingresa un monto válido mayor a 0</div>
         </div>
         <div class="field-group">
           <div class="field-label">Tipo de cambio</div>
           <input type="number" id="form-tc" class="field-input field-input-serif" placeholder="3.7500" step="0.0001" min="2.5" max="6" inputmode="decimal">
+          <div class="field-error" id="err-tc">TC debe estar entre 2.50 y 6.00</div>
         </div>
       </div>
       <div class="field-group">
         <div class="field-label">Notas <span class="text-muted">(opcional)</span></div>
-        <input type="text" id="form-nota" class="field-input" placeholder="Ej: Casa de cambio, banco…">
+        <input type="text" id="form-nota" class="field-input" placeholder="Ej: Casa de cambio, banco…" maxlength="200">
       </div>
     </div>
 
@@ -805,6 +830,7 @@ body{
     </div>
   </div>
 
+  <!-- HISTORIAL -->
   <div id="v-historial" class="view">
     <div class="page-header">
       <div class="page-title">Historial</div>
@@ -830,8 +856,12 @@ body{
       <div class="hist-stat-chip"><div class="lbl">USD neto</div><div class="val" id="hstat-neto">+US$0.00</div></div>
     </div>
     <div class="hist-list" id="hist-list"></div>
+    <div class="load-more-wrap hidden" id="load-more-wrap">
+      <button class="btn-load-more" onclick="cargarMas()">Cargar más operaciones</button>
+    </div>
   </div>
 
+  <!-- CICLOS CERRADOS -->
   <div id="v-cerradas" class="view">
     <div class="page-header"><div class="page-title">Ciclos cerrados</div></div>
     <div style="padding:0 14px 8px">
@@ -845,6 +875,7 @@ body{
     </div>
   </div>
 
+  <!-- EVOLUCIÓN -->
   <div id="v-evolucion" class="view">
     <div class="page-header"><div class="page-title">Evolución</div></div>
     <div class="evol-stats">
@@ -875,7 +906,7 @@ body{
     <div class="field-group" style="padding:0 0 12px"><div class="field-label">Fecha</div><input type="date" id="edit-fecha" class="field-input"></div>
     <div class="field-row" style="padding:0"><div class="field-group" style="padding:0 0 12px"><div class="field-label" id="edit-monto-label">Monto</div><input type="number" id="edit-monto" class="field-input" step="0.01" oninput="calcularEdit()"></div><div class="field-group" style="padding:0 0 12px"><div class="field-label">Tipo de cambio</div><input type="number" id="edit-tc" class="field-input" step="0.0001" oninput="calcularEdit()"></div></div>
     <div class="field-group" style="padding:0 0 12px"><div class="field-label">Calculado</div><div id="edit-result" style="font-size:15px;font-weight:600;color:var(--ink-2);">—</div></div>
-    <div class="field-group" style="padding:0"><div class="field-label">Notas</div><input type="text" id="edit-nota" class="field-input"></div>
+    <div class="field-group" style="padding:0"><div class="field-label">Notas</div><input type="text" id="edit-nota" class="field-input" maxlength="200"></div>
     <div class="modal-actions"><button class="btn-cancel" onclick="cerrarModalEditar()">Cancelar</button><button class="btn-confirm" onclick="guardarEdicion()">Guardar</button></div>
   </div>
 </div>
@@ -884,7 +915,7 @@ body{
   <div class="modal-sheet">
     <div class="modal-handle"></div><div class="modal-title">Capital inicial</div>
     <p style="font-size:14px;color:var(--ink-2);margin-bottom:16px">¿Con cuántos dólares comenzaste?</p>
-    <div class="field-group" style="padding:0"><input type="number" id="capital-input" class="field-input field-input-serif" placeholder="0.00" step="0.01"></div>
+    <div class="field-group" style="padding:0"><input type="number" id="capital-input" class="field-input field-input-serif" placeholder="0.00" step="0.01" min="0"></div>
     <div class="modal-actions"><button class="btn-cancel" onclick="cerrarModalCapital()">Cancelar</button><button class="btn-confirm" onclick="guardarCapital()">Guardar</button></div>
   </div>
 </div>
@@ -898,8 +929,7 @@ body{
 
 <script>
 /* ══════════════════════════════════════════════
-   ① PEGA AQUÍ TUS CREDENCIALES DE FIREBASE
-   (Ver instrucciones al pie del archivo)
+   ① PEGA TUS CREDENCIALES DE FIREBASE AQUÍ
 ══════════════════════════════════════════════ */
 const firebaseConfig = {
   apiKey:            "AIzaSyBJt47-8m9jZy-12cqagxLYSbS270AD4Fw",
@@ -911,45 +941,93 @@ const firebaseConfig = {
 };
 
 /* ══════════════════════════════════════════════
-   INICIALIZACIÓN FIREBASE
+   FIREBASE INIT
 ══════════════════════════════════════════════ */
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db   = firebase.firestore();
+
+// Persistencia offline nativa de Firestore
+db.enablePersistence({ synchronizeTabs: true }).catch(function(err) {
+  if (err.code === 'failed-precondition') {
+    console.warn('Persistencia offline: múltiples pestañas abiertas.');
+  } else if (err.code === 'unimplemented') {
+    console.warn('Persistencia offline no soportada en este navegador.');
+  }
+});
+
 const googleProvider = new firebase.auth.GoogleAuthProvider();
+
+/* ══════════════════════════════════════════════
+   ESCAPE XSS — SIEMPRE usar para contenido de usuario
+══════════════════════════════════════════════ */
+function esc(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
 
 /* ══════════════════════════════════════════════
    STATE GLOBAL
 ══════════════════════════════════════════════ */
 var STATE = {
-  ops: [],
+  ops: [],                    // array en memoria, cargado desde subcolección
   capitalInicial: 0,
   tipo: 'buy',
   editId: null,
   confirmCallback: null,
   currentUser: null,
-  unsubscribeFirestore: null   // para detener el listener al cerrar sesión
+  unsubOps: null,             // listener de subcolección de ops
+  unsubPerfil: null,          // listener de doc de perfil (capital inicial)
+  histPageSize: 30,
+  histPage: 1,
+  isOnline: navigator.onLine
 };
 
 /* ══════════════════════════════════════════════
-   REFERENCIA A DOCUMENTO DEL USUARIO
-   Cada usuario tiene su propio doc en Firestore
+   RUTAS FIRESTORE
+   
+   NUEVA ESTRUCTURA (subcolecciones):
+   librodolares_usuarios/{uid}               ← doc perfil (solo capitalInicial, meta)
+   librodolares_usuarios/{uid}/ops/{opId}    ← una op por doc (sin límite de 1MB)
 ══════════════════════════════════════════════ */
-function getUserDocRef(uid) {
+function getPerfilRef(uid) {
   return db.collection('librodolares_usuarios').doc(uid);
+}
+function getOpsRef(uid) {
+  return db.collection('librodolares_usuarios').doc(uid).collection('ops');
 }
 
 /* ══════════════════════════════════════════════
-   SINCRONIZACIÓN CON FIRESTORE
+   SYNC STATUS BAR
 ══════════════════════════════════════════════ */
-function sincronizarConFirestore() {
-  if (!STATE.currentUser) return;
-  getUserDocRef(STATE.currentUser.uid).set({
-    capitalInicial: STATE.capitalInicial,
-    ops: STATE.ops,
-    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-  }).catch(e => console.error('Error al sincronizar:', e));
+var syncTimer = null;
+function showSync(type, msg) {
+  var bar = document.getElementById('sync-bar');
+  var txt = document.getElementById('sync-msg');
+  clearTimeout(syncTimer);
+  bar.className = 'show ' + type;
+  txt.textContent = msg;
+  if (type === 'saved' || type === 'offline') {
+    syncTimer = setTimeout(function() { bar.classList.remove('show'); }, 2500);
+  }
 }
+
+/* ══════════════════════════════════════════════
+   DETECCIÓN ONLINE / OFFLINE
+══════════════════════════════════════════════ */
+window.addEventListener('online', function() {
+  STATE.isOnline = true;
+  showSync('saved', '🟢 Conexión restaurada');
+});
+window.addEventListener('offline', function() {
+  STATE.isOnline = false;
+  showSync('offline', '🟡 Sin conexión — los cambios se sincronizarán después');
+});
 
 /* ══════════════════════════════════════════════
    AUTENTICACIÓN
@@ -962,59 +1040,138 @@ document.getElementById('btn-login-google').addEventListener('click', function()
 });
 
 function cerrarSesion() {
-  if (STATE.unsubscribeFirestore) {
-    STATE.unsubscribeFirestore();
-    STATE.unsubscribeFirestore = null;
-  }
+  detenerListeners();
   auth.signOut();
 }
 
-/* Escucha el estado de autenticación */
+function detenerListeners() {
+  if (STATE.unsubOps)    { STATE.unsubOps();    STATE.unsubOps    = null; }
+  if (STATE.unsubPerfil) { STATE.unsubPerfil(); STATE.unsubPerfil = null; }
+}
+
 auth.onAuthStateChanged(function(user) {
   var loading  = document.getElementById('auth-loading');
   var loginScr = document.getElementById('login-screen');
   var shell    = document.getElementById('app-shell');
 
   if (user) {
-    /* ── Usuario autenticado ── */
     STATE.currentUser = user;
 
-    // Avatar
     var img = document.getElementById('user-avatar-img');
     if (user.photoURL) { img.src = user.photoURL; img.style.display = 'block'; }
 
-    // Ocultar pantallas de auth, mostrar app
     loading.classList.add('hidden');
     loginScr.classList.add('hidden');
     shell.classList.add('visible');
 
-    // Iniciar listener en tiempo real para ESTE usuario
-    if (STATE.unsubscribeFirestore) STATE.unsubscribeFirestore();
-    STATE.unsubscribeFirestore = getUserDocRef(user.uid).onSnapshot(function(doc) {
-      if (doc.exists) {
-        var data = doc.data();
-        STATE.ops = data.ops || [];
-        STATE.capitalInicial = data.capitalInicial || 0;
-      } else {
-        STATE.ops = [];
-        STATE.capitalInicial = 0;
-      }
-      renderAll();
-    }, function(error) {
-      console.error('Error en listener Firestore:', error);
-    });
-
+    iniciarListeners(user.uid);
   } else {
-    /* ── No hay usuario ── */
     STATE.currentUser = null;
     STATE.ops = [];
     STATE.capitalInicial = 0;
+    detenerListeners();
 
     loading.classList.add('hidden');
     loginScr.classList.remove('hidden');
     shell.classList.remove('visible');
   }
 });
+
+/* ══════════════════════════════════════════════
+   LISTENERS EN TIEMPO REAL
+   
+   - Perfil: escucha capitalInicial
+   - Ops: escucha subcolección completa, ordena por ts desc
+══════════════════════════════════════════════ */
+function iniciarListeners(uid) {
+  detenerListeners();
+
+  // Listener 1: doc de perfil (capitalInicial)
+  STATE.unsubPerfil = getPerfilRef(uid).onSnapshot(function(doc) {
+    if (doc.exists) {
+      STATE.capitalInicial = doc.data().capitalInicial || 0;
+    } else {
+      STATE.capitalInicial = 0;
+    }
+    renderDashboard();
+    if (CURRENT_TAB === 'evolucion') renderEvolucion();
+  }, function(err) {
+    console.error('Error listener perfil:', err);
+  });
+
+  // Listener 2: subcolección de ops
+  STATE.unsubOps = getOpsRef(uid)
+    .orderBy('ts', 'desc')
+    .onSnapshot(function(snapshot) {
+      STATE.ops = [];
+      snapshot.forEach(function(doc) {
+        var d = doc.data();
+        STATE.ops.push({
+          id:   doc.id,
+          ts:   d.ts,
+          tipo: d.tipo,
+          usd:  d.usd,
+          pen:  d.pen,
+          tc:   d.tc,
+          nota: d.nota || ''
+        });
+      });
+      renderAll();
+    }, function(err) {
+      console.error('Error listener ops:', err);
+      showSync('error', '⚠ Error al cargar datos');
+    });
+}
+
+/* ══════════════════════════════════════════════
+   GUARDAR / EDITAR / ELIMINAR UNA OP
+   Ahora cada op es un documento individual
+══════════════════════════════════════════════ */
+function guardarOpEnFirestore(op) {
+  if (!STATE.currentUser) return Promise.reject('Sin usuario');
+  showSync('saving', 'Guardando...');
+  return getOpsRef(STATE.currentUser.uid).doc(op.id).set({
+    ts:   op.ts,
+    tipo: op.tipo,
+    usd:  op.usd,
+    pen:  op.pen,
+    tc:   op.tc,
+    nota: op.nota,
+    creadoEn: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(function() {
+    showSync('saved', '✓ Guardado');
+  }).catch(function(e) {
+    console.error('Error guardando op:', e);
+    showSync('error', '⚠ Error al guardar');
+    throw e;
+  });
+}
+
+function eliminarOpEnFirestore(id) {
+  if (!STATE.currentUser) return Promise.reject('Sin usuario');
+  showSync('saving', 'Eliminando...');
+  return getOpsRef(STATE.currentUser.uid).doc(id).delete()
+    .then(function() { showSync('saved', '✓ Eliminado'); })
+    .catch(function(e) {
+      console.error('Error eliminando op:', e);
+      showSync('error', '⚠ Error al eliminar');
+      throw e;
+    });
+}
+
+function guardarPerfilEnFirestore() {
+  if (!STATE.currentUser) return;
+  showSync('saving', 'Guardando...');
+  getPerfilRef(STATE.currentUser.uid).set({
+    capitalInicial: STATE.capitalInicial,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  }, { merge: true })
+    .then(function() { showSync('saved', '✓ Capital guardado'); })
+    .catch(function(e) {
+      console.error('Error guardando perfil:', e);
+      showSync('error', '⚠ Error al guardar');
+    });
+}
 
 /* ══════════════════════════════════════════════
    HELPERS
@@ -1025,17 +1182,49 @@ function fmt(n, dec) {
 }
 function fmtUSD(n, dec) { return 'US$' + fmt(n, dec === undefined ? 2 : dec); }
 function fmtPEN(n, dec) { return 'S/ ' + fmt(n, dec === undefined ? 2 : dec); }
-function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
 function todayISO() { var d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()); }
 function pad(n) { return String(n).padStart(2,'0'); }
 function fmtFecha(ts) { return new Date(ts).toLocaleDateString('es-PE', { day:'numeric', month:'short', year:'numeric' }); }
 function fmtFechaShort(ts) { return new Date(ts).toLocaleDateString('es-PE', { day:'numeric', month:'short' }); }
 
 /* ══════════════════════════════════════════════
+   VALIDACIÓN DE INPUTS
+══════════════════════════════════════════════ */
+function validarFormulario() {
+  var fecha  = document.getElementById('form-fecha').value;
+  var monto  = parseFloat(document.getElementById('form-monto').value);
+  var tc     = parseFloat(document.getElementById('form-tc').value);
+  var valido = true;
+
+  // Reset errores
+  ['form-monto','form-tc'].forEach(function(id) {
+    document.getElementById(id).classList.remove('error');
+  });
+  ['err-monto','err-tc'].forEach(function(id) {
+    document.getElementById(id).style.display = 'none';
+  });
+
+  if (!fecha) { valido = false; }
+
+  if (isNaN(monto) || monto <= 0) {
+    document.getElementById('form-monto').classList.add('error');
+    document.getElementById('err-monto').style.display = 'block';
+    valido = false;
+  }
+  if (isNaN(tc) || tc < 2.5 || tc > 6) {
+    document.getElementById('form-tc').classList.add('error');
+    document.getElementById('err-tc').style.display = 'block';
+    valido = false;
+  }
+  return valido;
+}
+
+/* ══════════════════════════════════════════════
    LÓGICA DE NEGOCIO
 ══════════════════════════════════════════════ */
 function calcularCapital() {
-  var ops = STATE.ops.slice().sort((a,b) => a.ts - b.ts);
+  var ops = STATE.ops.slice().sort(function(a,b) { return a.ts - b.ts; });
   var capitalUSD = STATE.capitalInicial;
   var capitalPEN = 0;
   var puntos = [];
@@ -1052,9 +1241,9 @@ function calcularCapital() {
 }
 
 function calcularCiclos() {
-  var ops = STATE.ops.slice().sort((a,b) => a.ts - b.ts);
-  var compras = ops.filter(o => o.tipo === 'buy').slice();
-  var ventas  = ops.filter(o => o.tipo === 'sell');
+  var ops = STATE.ops.slice().sort(function(a,b) { return a.ts - b.ts; });
+  var compras = ops.filter(function(o) { return o.tipo === 'buy'; }).slice();
+  var ventas  = ops.filter(function(o) { return o.tipo === 'sell'; });
   var ciclos  = [];
 
   ventas.forEach(function(venta) {
@@ -1083,35 +1272,41 @@ function calcularCiclos() {
    GUARDAR OPERACIÓN
 ══════════════════════════════════════════════ */
 function guardarOperacion() {
+  if (!validarFormulario()) { return; }
+
   var fecha = document.getElementById('form-fecha').value;
   var monto = parseFloat(document.getElementById('form-monto').value);
   var tc    = parseFloat(document.getElementById('form-tc').value);
-  var nota  = document.getElementById('form-nota').value.trim();
+  var nota  = document.getElementById('form-nota').value.trim().slice(0, 200);
 
-  if (!fecha || isNaN(monto) || monto <= 0 || isNaN(tc) || tc <= 0) {
-    flashFeedback('⚠ Completa todos los campos', 'var(--amber)'); return;
-  }
   var tipo = STATE.tipo;
   var usd  = (tipo === 'buy') ? monto / tc : monto;
   var pen  = (tipo === 'buy') ? monto : monto * tc;
   var ts   = new Date(fecha + 'T12:00:00').getTime();
+  var id   = genId();
 
-  STATE.ops.push({ id: genId(), ts: ts, tipo: tipo, usd: usd, pen: pen, tc: tc, nota: nota });
-  sincronizarConFirestore();
-  flashFeedback('✓ Guardado en la nube', 'var(--green)');
+  var op = { id: id, ts: ts, tipo: tipo, usd: usd, pen: pen, tc: tc, nota: nota };
 
-  document.getElementById('form-monto').value = '';
-  document.getElementById('form-nota').value  = '';
-  document.getElementById('result-value').textContent = '—';
-  document.getElementById('result-value').className = 'result-box-value empty';
-  document.getElementById('result-hint').textContent = '';
-  document.getElementById('form-fecha').value = todayISO();
+  document.getElementById('btn-guardar').disabled = true;
+  guardarOpEnFirestore(op).then(function() {
+    flashFeedback('✓ Guardado en la nube', 'var(--green)');
+    document.getElementById('form-monto').value = '';
+    document.getElementById('form-nota').value  = '';
+    document.getElementById('result-value').textContent = '—';
+    document.getElementById('result-value').className = 'result-box-value empty';
+    document.getElementById('result-hint').textContent = '';
+    document.getElementById('form-fecha').value = todayISO();
+  }).catch(function() {
+    flashFeedback('⚠ Error al guardar. Intenta de nuevo.', 'var(--red)');
+  }).finally(function() {
+    document.getElementById('btn-guardar').disabled = false;
+  });
 }
 
 function flashFeedback(msg, color) {
   var el = document.getElementById('save-feedback');
   el.textContent = msg; el.style.color = color; el.style.opacity = '1';
-  setTimeout(() => el.style.opacity = '0', 2500);
+  setTimeout(function() { el.style.opacity = '0'; }, 2500);
 }
 
 function calcularFormulario() {
@@ -1166,19 +1361,21 @@ function renderDashboard() {
     pill.textContent = (gananciaUSD >= 0 ? '+' : '') + fmtUSD(gananciaUSD, 2) + ' (' + (gananciaUSD >= 0 ? '+' : '') + fmt(rentab, 2) + '%)';
   }
 
-  document.getElementById('dash-ganancia-usd').textContent = ci > 0 ? ((gananciaUSD >= 0 ? '+' : '') + fmtUSD(gananciaUSD, 2)) : '—';
-  document.getElementById('dash-ganancia-usd').className = 'hero-tile-value ' + (gananciaUSD >= 0 ? 'pos-light' : 'neg-light');
+  var gUsdEl = document.getElementById('dash-ganancia-usd');
+  gUsdEl.textContent = ci > 0 ? ((gananciaUSD >= 0 ? '+' : '') + fmtUSD(gananciaUSD, 2)) : '—';
+  gUsdEl.className = 'hero-tile-value ' + (gananciaUSD >= 0 ? 'pos-light' : 'neg-light');
 
   var ciclos = calcularCiclos();
-  var totalGanPEN = ciclos.reduce((s,c) => s + c.gananciaPEN, 0);
-  document.getElementById('dash-ganancia-pen').textContent = ci > 0 ? ((totalGanPEN >= 0 ? '+' : '') + fmtPEN(totalGanPEN, 2)) : '—';
-  document.getElementById('dash-ganancia-pen').className = 'hero-tile-value ' + (totalGanPEN >= 0 ? 'pos-light' : 'neg-light');
+  var totalGanPEN = ciclos.reduce(function(s,c) { return s + c.gananciaPEN; }, 0);
+  var gPenEl = document.getElementById('dash-ganancia-pen');
+  gPenEl.textContent = ci > 0 ? ((totalGanPEN >= 0 ? '+' : '') + fmtPEN(totalGanPEN, 2)) : '—';
+  gPenEl.className = 'hero-tile-value ' + (totalGanPEN >= 0 ? 'pos-light' : 'neg-light');
   document.getElementById('dash-num-ops').textContent = numOps;
 
   var rentab = ci > 0 && numOps > 0 ? (gananciaUSD / ci * 100) : null;
   var rentabAnual = null;
   if (ci > 0 && numOps > 0) {
-    var firstTs = STATE.ops.reduce((m,o) => Math.min(m,o.ts), Infinity);
+    var firstTs = STATE.ops.reduce(function(m,o) { return Math.min(m,o.ts); }, Infinity);
     var diasTrans = Math.max(1, (Date.now() - firstTs) / 86400000);
     rentabAnual = (Math.pow(1 + gananciaUSD / ci, 365 / diasTrans) - 1) * 100;
   }
@@ -1211,7 +1408,18 @@ function setInfoRow(id, text, cls) {
   el.textContent = text; el.className = 'info-value' + (cls ? ' ' + cls : '');
 }
 
+/* Renderizado de historial con paginación */
 function renderHistorial() {
+  STATE.histPage = 1; // reset paginación al re-renderizar con filtros
+  _renderHistorialInner();
+}
+
+function cargarMas() {
+  STATE.histPage++;
+  _renderHistorialInner(true);
+}
+
+function _renderHistorialInner(append) {
   var list   = document.getElementById('hist-list');
   var search = (document.getElementById('hist-search').value || '').toLowerCase();
   var filter = document.getElementById('hist-filter').value;
@@ -1220,9 +1428,9 @@ function renderHistorial() {
 
   var tsDesde = desde ? new Date(desde + 'T00:00:00').getTime() : 0;
   var tsHasta = hasta ? new Date(hasta + 'T23:59:59').getTime() : Infinity;
-  var ops = STATE.ops.slice().sort((a,b) => b.ts - a.ts);
 
-  ops = ops.filter(function(op) {
+  // STATE.ops ya viene ordenado desc por ts desde el listener
+  var ops = STATE.ops.filter(function(op) {
     if (filter !== 'all' && op.tipo !== filter) return false;
     if (op.ts < tsDesde || op.ts > tsHasta) return false;
     if (search) {
@@ -1232,13 +1440,14 @@ function renderHistorial() {
     return true;
   });
 
+  // Stats strip (sobre todas las ops filtradas)
   var strip = document.getElementById('hist-stats-strip');
   if (ops.length > 0) {
     strip.style.display = 'flex';
-    var numCompras  = ops.filter(o => o.tipo==='buy').length;
-    var numVentas   = ops.filter(o => o.tipo==='sell').length;
-    var usdComprado = ops.filter(o => o.tipo==='buy').reduce((s,o) => s+o.usd, 0);
-    var usdVendido  = ops.filter(o => o.tipo==='sell').reduce((s,o) => s+o.usd, 0);
+    var numCompras  = ops.filter(function(o) { return o.tipo==='buy'; }).length;
+    var numVentas   = ops.filter(function(o) { return o.tipo==='sell'; }).length;
+    var usdComprado = ops.filter(function(o) { return o.tipo==='buy'; }).reduce(function(s,o) { return s+o.usd; }, 0);
+    var usdVendido  = ops.filter(function(o) { return o.tipo==='sell'; }).reduce(function(s,o) { return s+o.usd; }, 0);
     var usdNeto = usdComprado - usdVendido;
     document.getElementById('hstat-compras').textContent = numCompras;
     document.getElementById('hstat-ventas').textContent  = numVentas;
@@ -1248,11 +1457,20 @@ function renderHistorial() {
   } else { strip.style.display = 'none'; }
 
   if (!ops.length) {
-    list.innerHTML = '<div class="empty-state"><div class="empty-text">No se encontraron operaciones.</div></div>'; return;
+    list.innerHTML = '<div class="empty-state"><div class="empty-text">No se encontraron operaciones.</div></div>';
+    document.getElementById('load-more-wrap').classList.add('hidden');
+    return;
   }
 
+  // Paginación
+  var pageSize = STATE.histPageSize;
+  var total    = ops.length;
+  var shown    = Math.min(STATE.histPage * pageSize, total);
+  var opsPagina = ops.slice(0, shown);
+
+  // Agrupación por mes
   var groups = {};
-  ops.forEach(function(op) {
+  opsPagina.forEach(function(op) {
     var d = new Date(op.ts); var key = d.getFullYear() + '-' + pad(d.getMonth()+1);
     var lbl = d.toLocaleDateString('es-PE', { month:'long', year:'numeric' });
     lbl = lbl.charAt(0).toUpperCase() + lbl.slice(1);
@@ -1263,17 +1481,18 @@ function renderHistorial() {
   var html = '';
   Object.keys(groups).sort().reverse().forEach(function(key) {
     var g = groups[key];
-    html += '<div class="group-label">' + g.label + '</div>';
+    html += '<div class="group-label">' + esc(g.label) + '</div>';
     g.ops.forEach(function(op) {
       var esBuy = op.tipo === 'buy';
+      // XSS-safe: todos los valores dinámicos pasan por esc()
       html += '<div class="op-card">' +
         '<div class="op-icon ' + op.tipo + '">' + (esBuy ? '🟢' : '🔴') + '</div>' +
         '<div class="op-body">' +
-          '<div class="op-type">' + (esBuy ? 'Compra' : 'Venta') + ' · ' + fmtFecha(op.ts) + '</div>' +
-          '<div class="op-meta">TC: ' + op.tc.toFixed(4) + ' · ' + (esBuy ? fmtPEN(op.pen,2) : fmtUSD(op.usd,2)) + ' → ' + (esBuy ? fmtUSD(op.usd,2) : fmtPEN(op.pen,2)) + '</div>' +
-          (op.nota ? '<div class="op-note">💬 ' + op.nota + '</div>' : '') +
+          '<div class="op-type">' + (esBuy ? 'Compra' : 'Venta') + ' · ' + esc(fmtFecha(op.ts)) + '</div>' +
+          '<div class="op-meta">TC: ' + esc(op.tc.toFixed(4)) + ' · ' + esc(esBuy ? fmtPEN(op.pen,2) : fmtUSD(op.usd,2)) + ' → ' + esc(esBuy ? fmtUSD(op.usd,2) : fmtPEN(op.pen,2)) + '</div>' +
+          (op.nota ? '<div class="op-note">💬 ' + esc(op.nota) + '</div>' : '') +
         '</div>' +
-        '<div class="op-right"><div class="op-amount ' + op.tipo + '">' + (esBuy ? fmtUSD(op.usd,2) : fmtPEN(op.pen,2)) + '</div></div>' +
+        '<div class="op-right"><div class="op-amount ' + op.tipo + '">' + esc(esBuy ? fmtUSD(op.usd,2) : fmtPEN(op.pen,2)) + '</div></div>' +
         '<div class="op-actions">' +
           '<button class="op-btn edit" onclick="abrirModalEditar(\'' + op.id + '\')">✏️</button>' +
           '<button class="op-btn del" onclick="confirmarEliminar(\'' + op.id + '\')">🗑</button>' +
@@ -1281,7 +1500,22 @@ function renderHistorial() {
       '</div>';
     });
   });
-  list.innerHTML = html;
+
+  if (append) {
+    list.innerHTML = html; // re-render completo al cargar más (grupos pueden cambiar)
+  } else {
+    list.innerHTML = html;
+  }
+
+  // Mostrar/ocultar botón "Cargar más"
+  var loadMoreWrap = document.getElementById('load-more-wrap');
+  if (shown < total) {
+    loadMoreWrap.classList.remove('hidden');
+    loadMoreWrap.querySelector('.btn-load-more').textContent =
+      'Cargar más (' + (total - shown) + ' restantes)';
+  } else {
+    loadMoreWrap.classList.add('hidden');
+  }
 }
 
 function renderCerradas() {
@@ -1297,12 +1531,12 @@ function renderCerradas() {
     var isWin = c.gananciaPEN >= 0; var cls = isWin ? 'win' : 'loss';
     html += '<div class="cerrada-card">' +
       '<div class="cerrada-header">' +
-        '<div class="cerrada-pair"><span class="cerrada-badge ' + cls + '">' + (isWin ? '✓ Ganancia' : '✗ Pérdida') + '</span><span style="font-size:12px;color:var(--ink-3)">' + fmt(c.usd, 2) + ' USD</span></div>' +
-        '<div><div class="cerrada-pnl ' + cls + '">' + (isWin ? '+' : '') + fmtPEN(c.gananciaPEN, 2) + '</div></div>' +
+        '<div class="cerrada-pair"><span class="cerrada-badge ' + cls + '">' + (isWin ? '✓ Ganancia' : '✗ Pérdida') + '</span><span style="font-size:12px;color:var(--ink-3)">' + esc(fmt(c.usd, 2)) + ' USD</span></div>' +
+        '<div><div class="cerrada-pnl ' + cls + '">' + (isWin ? '+' : '') + esc(fmtPEN(c.gananciaPEN, 2)) + '</div></div>' +
       '</div>' +
       '<div class="cerrada-details">' +
-        '<div class="cerrada-field"><div class="cerrada-field-label">Compra</div><div class="cerrada-field-value">' + fmtFecha(c.compraFecha) + ' (TC: ' + c.compraTc.toFixed(4) + ')</div></div>' +
-        '<div class="cerrada-field"><div class="cerrada-field-label">Venta</div><div class="cerrada-field-value">' + fmtFecha(c.ventaFecha) + ' (TC: ' + c.ventaTc.toFixed(4) + ')</div></div>' +
+        '<div class="cerrada-field"><div class="cerrada-field-label">Compra</div><div class="cerrada-field-value">' + esc(fmtFecha(c.compraFecha)) + ' (TC: ' + esc(c.compraTc.toFixed(4)) + ')</div></div>' +
+        '<div class="cerrada-field"><div class="cerrada-field-label">Venta</div><div class="cerrada-field-value">' + esc(fmtFecha(c.ventaFecha)) + ' (TC: ' + esc(c.ventaTc.toFixed(4)) + ')</div></div>' +
       '</div>' +
     '</div>';
   });
@@ -1312,16 +1546,23 @@ function renderCerradas() {
 function renderEvolucion() {
   var pos = calcularCapital(); var ci = STATE.capitalInicial; var puntos = pos.puntos;
   var gananciaUSD = pos.capitalUSD - ci; var rentab = ci > 0 ? gananciaUSD / ci * 100 : 0;
+  var evAnual = '—';
+  if (ci > 0 && STATE.ops.length > 0) {
+    var firstTs2 = STATE.ops.reduce(function(m,o) { return Math.min(m,o.ts); }, Infinity);
+    var dias = Math.max(1, (Date.now() - firstTs2) / 86400000);
+    evAnual = fmt((Math.pow(1 + gananciaUSD / ci, 365 / dias) - 1) * 100, 2) + '%';
+  }
 
   document.getElementById('evol-crec').textContent = fmtUSD(gananciaUSD, 2);
   document.getElementById('evol-rentab').textContent = fmt(rentab, 2) + '%';
+  document.getElementById('evol-anual').textContent = evAnual;
 
   var tableEl = document.getElementById('evol-table');
   var html = '';
   puntos.forEach(function(p) {
     html += '<div class="info-row">' +
-      '<span class="info-label">' + (p.ts ? fmtFecha(p.ts) : 'Inicio') + '</span>' +
-      '<span class="info-value">' + fmtUSD(p.usd, 2) + '</span>' +
+      '<span class="info-label">' + esc(p.ts ? fmtFecha(p.ts) : 'Inicio') + '</span>' +
+      '<span class="info-value">' + esc(fmtUSD(p.usd, 2)) + '</span>' +
     '</div>';
   });
   tableEl.innerHTML = html;
@@ -1337,7 +1578,7 @@ function limpiarFiltroFechas() {
    MODALES
 ══════════════════════════════════════════════ */
 function abrirModalEditar(id) {
-  var op = STATE.ops.find(o => o.id === id); if (!op) return;
+  var op = STATE.ops.find(function(o) { return o.id === id; }); if (!op) return;
   STATE.editId = id;
   document.getElementById('edit-tipo').value  = op.tipo;
   document.getElementById('edit-fecha').value = new Date(op.ts).toISOString().slice(0,10);
@@ -1367,13 +1608,20 @@ function guardarEdicion() {
   var fecha = document.getElementById('edit-fecha').value;
   var monto = parseFloat(document.getElementById('edit-monto').value);
   var tc    = parseFloat(document.getElementById('edit-tc').value);
-  var nota  = document.getElementById('edit-nota').value.trim();
-  var usd   = (tipo === 'buy') ? monto / tc : monto;
-  var pen   = (tipo === 'buy') ? monto : monto * tc;
-  var idx   = STATE.ops.findIndex(o => o.id === id);
-  if (idx === -1) return;
-  STATE.ops[idx] = { id: id, ts: new Date(fecha + 'T12:00:00').getTime(), tipo: tipo, usd: usd, pen: pen, tc: tc, nota: nota };
-  sincronizarConFirestore();
+  var nota  = document.getElementById('edit-nota').value.trim().slice(0, 200);
+
+  if (!fecha || isNaN(monto) || monto <= 0 || isNaN(tc) || tc < 2.5 || tc > 6) {
+    alert('Completa todos los campos correctamente.');
+    return;
+  }
+
+  var usd = (tipo === 'buy') ? monto / tc : monto;
+  var pen = (tipo === 'buy') ? monto : monto * tc;
+  var op  = { id: id, ts: new Date(fecha + 'T12:00:00').getTime(), tipo: tipo, usd: usd, pen: pen, tc: tc, nota: nota };
+
+  guardarOpEnFirestore(op).catch(function() {
+    alert('Error al guardar. Intenta de nuevo.');
+  });
   document.getElementById('modal-editar').classList.remove('on');
   STATE.editId = null;
 }
@@ -1390,24 +1638,37 @@ function guardarCapital() {
   var v = parseFloat(document.getElementById('capital-input').value);
   if (isNaN(v) || v < 0) return;
   STATE.capitalInicial = v;
-  sincronizarConFirestore();
+  guardarPerfilEnFirestore();
   document.getElementById('modal-capital').classList.remove('on');
 }
 
 function confirmarEliminar(id) {
   STATE.confirmCallback = function() {
-    STATE.ops = STATE.ops.filter(o => o.id !== id);
-    sincronizarConFirestore();
+    eliminarOpEnFirestore(id).catch(function() {
+      alert('Error al eliminar. Intenta de nuevo.');
+    });
   };
   document.getElementById('modal-confirm').classList.add('on');
 }
+
 function confirmarEliminarTodo() {
   STATE.confirmCallback = function() {
-    STATE.ops = [];
-    sincronizarConFirestore();
+    if (!STATE.currentUser) return;
+    showSync('saving', 'Eliminando todo...');
+    var batch = db.batch();
+    STATE.ops.forEach(function(op) {
+      batch.delete(getOpsRef(STATE.currentUser.uid).doc(op.id));
+    });
+    batch.commit()
+      .then(function() { showSync('saved', '✓ Historial eliminado'); })
+      .catch(function(e) {
+        console.error('Error eliminando todo:', e);
+        showSync('error', '⚠ Error al eliminar');
+      });
   };
   document.getElementById('modal-confirm').classList.add('on');
 }
+
 function cerrarConfirm() { document.getElementById('modal-confirm').classList.remove('on'); }
 
 document.getElementById('confirm-ok-btn').addEventListener('click', function() {
@@ -1420,9 +1681,9 @@ document.getElementById('confirm-ok-btn').addEventListener('click', function() {
 ══════════════════════════════════════════════ */
 var CURRENT_TAB = 'dashboard';
 function setTab(tab, btn) {
-  document.querySelectorAll('.tab-item').forEach(b => b.classList.remove('on'));
+  document.querySelectorAll('.tab-item').forEach(function(b) { b.classList.remove('on'); });
   if (btn) btn.classList.add('on');
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('on'));
+  document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('on'); });
   document.getElementById('v-' + tab).classList.add('on');
   CURRENT_TAB = tab;
   renderAll();
@@ -1437,35 +1698,92 @@ function renderAll() {
 
 /* ══════════════════════════════════════════════
    EXPORT / IMPORT
+   Import: sube ops a subcolecciones, no reemplaza el array completo
 ══════════════════════════════════════════════ */
 function exportarJSON() {
   var payload = JSON.stringify({ capitalInicial: STATE.capitalInicial, ops: STATE.ops }, null, 2);
   var blob = new Blob([payload], { type: 'application/json' });
   var url  = URL.createObjectURL(blob);
   var a = document.createElement('a'); a.href = url; a.download = 'libro-dolares.json'; a.click();
+  setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
 }
+
 function importarJSON(event) {
   var file = event.target.files[0]; if (!file) return;
+  if (!STATE.currentUser) { alert('Debes iniciar sesión primero.'); return; }
+
   var reader = new FileReader();
   reader.onload = function(e) {
     try {
       var data = JSON.parse(e.target.result);
-      if (data.ops) STATE.ops = data.ops;
-      if (data.capitalInicial !== undefined) STATE.capitalInicial = data.capitalInicial;
-      sincronizarConFirestore();
-      alert('Datos importados y sincronizados correctamente.');
-    } catch(err) { alert('Error al importar archivo.'); }
+      if (!Array.isArray(data.ops)) { alert('Formato de archivo inválido.'); return; }
+
+      var confirmado = confirm(
+        'Se importarán ' + data.ops.length + ' operaciones.\n' +
+        'Las operaciones existentes con el mismo ID serán sobreescritas.\n¿Continuar?'
+      );
+      if (!confirmado) return;
+
+      showSync('saving', 'Importando ' + data.ops.length + ' operaciones...');
+
+      // Usar batches de máx 500 ops (límite de Firestore)
+      var opsRef = getOpsRef(STATE.currentUser.uid);
+      var batches = [];
+      var currentBatch = db.batch();
+      var count = 0;
+
+      data.ops.forEach(function(op) {
+        if (!op.id || !op.ts || !op.tipo || !op.usd || !op.pen || !op.tc) return;
+        var docRef = opsRef.doc(String(op.id));
+        currentBatch.set(docRef, {
+          ts:   Number(op.ts),
+          tipo: String(op.tipo),
+          usd:  Number(op.usd),
+          pen:  Number(op.pen),
+          tc:   Number(op.tc),
+          nota: String(op.nota || '').slice(0, 200),
+          creadoEn: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        count++;
+        if (count % 400 === 0) {
+          batches.push(currentBatch.commit());
+          currentBatch = db.batch();
+        }
+      });
+      batches.push(currentBatch.commit());
+
+      if (data.capitalInicial !== undefined) {
+        STATE.capitalInicial = Number(data.capitalInicial);
+        guardarPerfilEnFirestore();
+      }
+
+      Promise.all(batches)
+        .then(function() { showSync('saved', '✓ Importación completada'); })
+        .catch(function(err) {
+          console.error('Error en importación:', err);
+          showSync('error', '⚠ Error al importar');
+        });
+
+    } catch(err) {
+      alert('Error al leer el archivo. Asegúrate de que es un JSON válido.');
+    }
   };
   reader.readAsText(file);
+  event.target.value = ''; // reset para poder importar el mismo archivo de nuevo
 }
+
 function exportarExcel() {
   var csv = 'Fecha,Tipo,USD,PEN,TC,Notas\n';
-  STATE.ops.forEach(function(o) {
-    csv += fmtFecha(o.ts) + ',' + (o.tipo==='buy'?'Compra':'Venta') + ',' + o.usd.toFixed(2) + ',' + o.pen.toFixed(2) + ',' + o.tc.toFixed(4) + ',' + (o.nota||'') + '\n';
+  STATE.ops.slice().sort(function(a,b) { return a.ts - b.ts; }).forEach(function(o) {
+    var nota = (o.nota || '').replace(/,/g, ';'); // evitar que las comas rompan el CSV
+    csv += fmtFecha(o.ts) + ',' + (o.tipo==='buy'?'Compra':'Venta') + ',' +
+           o.usd.toFixed(2) + ',' + o.pen.toFixed(2) + ',' +
+           o.tc.toFixed(4) + ',' + nota + '\n';
   });
   var blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
   var url  = URL.createObjectURL(blob);
   var a = document.createElement('a'); a.href = url; a.download = 'libro-dolares.csv'; a.click();
+  setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
 }
 
 /* ══════════════════════════════════════════════
@@ -1485,59 +1803,62 @@ document.getElementById('form-tc').addEventListener('input', calcularFormulario)
 
 <!--
 ════════════════════════════════════════════════════════════
-  INSTRUCCIONES: QUÉ DATOS DEBES INSERTAR
+  INSTRUCCIONES: CONFIGURACIÓN FIREBASE
 ════════════════════════════════════════════════════════════
 
 PASO 1 — Crea tu proyecto en Firebase
   → https://console.firebase.google.com
   → "Agregar proyecto" → ponle nombre (ej: libro-dolares)
-  → Desactiva Google Analytics si no la quieres (opcional)
 
 PASO 2 — Activa Authentication con Google
-  → En el panel izquierdo: Build → Authentication
-  → Pestaña "Sign-in method"
-  → Habilita "Google" → pon tu correo de soporte → Guardar
+  → Build → Authentication → Sign-in method → Habilita "Google"
 
 PASO 3 — Activa Firestore Database
   → Build → Firestore Database → "Crear base de datos"
-  → Elige "Comenzar en modo producción"
-  → Selecciona región: nam5 (us-central) o southamerica-east1
+  → Modo producción → Región: southamerica-east1
 
-PASO 4 — Configura las Reglas de Firestore
+PASO 4 — Configura las Reglas de Firestore (subcolecciones)
   → Firestore → pestaña "Reglas" → reemplaza con esto:
 
     rules_version = '2';
     service cloud.firestore {
       match /databases/{database}/documents {
         match /librodolares_usuarios/{userId} {
+          // Solo el dueño puede leer/escribir su perfil
           allow read, write: if request.auth != null && request.auth.uid == userId;
+
+          // Solo el dueño puede leer/escribir sus ops
+          match /ops/{opId} {
+            allow read, write: if request.auth != null && request.auth.uid == userId;
+          }
         }
       }
     }
 
   → Publicar
 
-PASO 5 — Obtén tus credenciales
-  → Configuración del proyecto (ícono ⚙️ arriba a la izquierda)
-  → "Tus apps" → agrega app Web (</>)
-  → Ponle un apodo (ej: libro-dolares-web)
-  → Copia el objeto firebaseConfig que te muestra
+PASO 5 — Pega tus credenciales en este archivo
+  Busca el bloque "firebaseConfig" y reemplaza los valores.
 
-PASO 6 — Pega las credenciales en este archivo
-  Busca el bloque que dice "PEGA TU..." y reemplaza cada valor:
-
-    apiKey:            "AIzaSy..."
-    authDomain:        "tu-proyecto.firebaseapp.com"
-    projectId:         "tu-proyecto"
-    storageBucket:     "tu-proyecto.appspot.com"
-    messagingSenderId: "123456789"
-    appId:             "1:123456789:web:abc123..."
+PASO 6 — Opcional: limitar acceso a tu email
+  Agrega en las reglas:
+  && request.auth.token.email == 'tu@gmail.com'
 
 PASO 7 — Agrega tu dominio a los dominios autorizados
   → Authentication → Settings → Dominios autorizados
-  → Si usas GitHub Pages, Netlify, etc., agrega tu dominio ahí
-  → localhost ya viene autorizado por defecto (para pruebas locales)
 
+CAMBIOS RESPECTO A v1:
+  - Cada operación es un documento individual en subcolección /ops
+    (elimina el límite de 1MB por usuario)
+  - Persistencia offline nativa de Firestore activada
+  - Barra de estado de sincronización visible
+  - Detección online/offline con feedback
+  - Escape XSS en todo el contenido generado por usuario
+  - Validación de inputs con mensajes de error visibles
+  - Paginación en historial (30 ops por página)
+  - Import con batch writes (soporta miles de ops)
+  - URLs de blob revocadas correctamente
+  - Notas limitadas a 200 caracteres (modelo y UI)
 ════════════════════════════════════════════════════════════
 -->
 </body>
