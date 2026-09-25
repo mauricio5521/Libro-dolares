@@ -5,934 +5,476 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Libro de Dólares</title>
 <style>
-/* ══════════════════════════════════════════════
-   TOKENS & RESET
-══════════════════════════════════════════════ */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-
 :root{
-  --sand:    #F5F2EC;
-  --sand-2:  #EDE9E0;
-  --sand-3:  #DDD8CC;
-  --stone:   #BFBAB0;
-  --ink:     #1C1B18;
-  --ink-2:   #4A4840;
-  --ink-3:   #8A8780;
-  --green:   #1A6B49;
-  --green-2: #2E9E6E;
-  --green-bg:#E6F4ED;
-  --red:     #B83327;
-  --red-2:   #D94F40;
-  --red-bg:  #FAEAE8;
-  --amber:   #8A5C00;
-  --amber-bg:#FEF3DC;
-  --white:   #FFFFFF;
-  --blue:    #1A4A8A;
-  --blue-bg: #E8F0FD;
+  --sand:#F5F2EC;--sand-2:#EDE9E0;--sand-3:#DDD8CC;--stone:#BFBAB0;
+  --ink:#1C1B18;--ink-2:#4A4840;--ink-3:#8A8780;
+  --green:#1A6B49;--green-2:#2E9E6E;--green-bg:#E6F4ED;
+  --red:#B83327;--red-2:#D94F40;--red-bg:#FAEAE8;
+  --amber:#8A5C00;--amber-bg:#FEF3DC;--white:#FFFFFF;
+  --r-sm:8px;--r:12px;--r-lg:16px;--r-xl:22px;--r-2xl:28px;
+  --sh:0 1px 4px rgba(0,0,0,.05),0 6px 20px rgba(0,0,0,.06);
+  --sh-sm:0 1px 2px rgba(0,0,0,.04),0 2px 8px rgba(0,0,0,.04);
+  --f-serif:'Georgia','Times New Roman',serif;
+  --f-sans:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+  --ease:cubic-bezier(.4,0,.2,1);
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--f-sans);background:var(--sand);color:var(--ink);min-height:100dvh;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
 
-  --r-sm:  8px;
-  --r:     12px;
-  --r-lg:  16px;
-  --r-xl:  22px;
-  --r-2xl: 28px;
+/* LOGIN / LOADING */
+#login-screen{position:fixed;inset:0;z-index:999;background:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;transition:opacity .35s var(--ease)}
+#login-screen.hidden{opacity:0;pointer-events:none}
+.login-logo-mark{width:64px;height:64px;border-radius:20px;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:30px;margin-bottom:20px;border:1px solid rgba(255,255,255,.1)}
+.login-title{font-family:var(--f-serif);font-size:28px;letter-spacing:-.8px;color:#fff;margin-bottom:8px}
+.login-sub{font-size:14px;color:rgba(255,255,255,.45);text-align:center;margin-bottom:40px;line-height:1.6}
+.btn-google{display:flex;align-items:center;gap:12px;padding:14px 24px;background:#fff;color:var(--ink);border:none;border-radius:var(--r-lg);font-size:15px;font-weight:600;cursor:pointer;width:100%;max-width:320px;justify-content:center;box-shadow:0 4px 20px rgba(0,0,0,.3)}
+.login-notice{margin-top:24px;font-size:12px;color:rgba(255,255,255,.25);text-align:center;line-height:1.6}
+#auth-loading{position:fixed;inset:0;z-index:998;background:var(--sand);display:flex;align-items:center;justify-content:center;transition:opacity .3s}
+#auth-loading.hidden{opacity:0;pointer-events:none}
+.spinner{width:32px;height:32px;border:3px solid var(--sand-3);border-top-color:var(--ink);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-  --sh:    0 1px 4px rgba(0,0,0,.05), 0 6px 20px rgba(0,0,0,.06);
-  --sh-sm: 0 1px 2px rgba(0,0,0,.04), 0 2px 8px rgba(0,0,0,.04);
+/* SYNC BAR */
+#sync-bar{position:fixed;top:0;left:0;right:0;z-index:500;padding:7px 16px;display:flex;align-items:center;justify-content:center;gap:7px;font-size:12px;font-weight:600;transform:translateY(-100%);transition:transform .3s var(--ease)}
+#sync-bar.show{transform:translateY(0)}
+#sync-bar.saving{background:#1A4A8A;color:#fff}
+#sync-bar.saved{background:#1A6B49;color:#fff}
+#sync-bar.error{background:#B83327;color:#fff}
+#sync-bar.offline{background:#8A5C00;color:#fff}
 
-  --f-serif: 'Georgia','Times New Roman',serif;
-  --f-sans:  -apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+/* SHELL */
+.shell{max-width:480px;margin:0 auto;min-height:100dvh;padding-bottom:92px;opacity:0;transition:opacity .3s}
+.shell.visible{opacity:1}
+.view{display:none;animation:fadeSlide .22s var(--ease) both}
+.view.on{display:block}
+@keyframes fadeSlide{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
-  --dur: .2s;
-  --ease: cubic-bezier(.4,0,.2,1);
-}
+.app-header{display:flex;align-items:center;justify-content:space-between;padding:26px 18px 0;margin-bottom:14px;gap:8px}
+.app-logo{display:flex;align-items:center;gap:9px;min-width:0}
+.app-logo-mark{width:30px;height:30px;border-radius:9px;background:var(--ink);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.app-logo-name{font-size:15px;font-weight:700;letter-spacing:-.3px;white-space:nowrap}
+.hdr-right{display:flex;align-items:center;gap:6px}
+.user-avatar{width:28px;height:28px;border-radius:50%;background:var(--sand-3);overflow:hidden;flex-shrink:0}
+.user-avatar img{width:100%;height:100%;object-fit:cover}
+.btn-small{padding:6px 10px;border-radius:var(--r-sm);background:var(--sand-2);border:1px solid var(--sand-3);font-size:11px;font-weight:700;color:var(--ink-2);cursor:pointer;white-space:nowrap}
+.btn-small:hover{background:var(--sand-3)}
+.page-header{display:flex;align-items:center;justify-content:space-between;padding:26px 18px 14px}
+.page-title{font-family:var(--f-serif);font-size:26px;letter-spacing:-.5px}
+.page-sub{font-size:13px;color:var(--ink-3);padding:0 18px 14px;line-height:1.5;margin-top:-6px}
 
-html{ scroll-behavior:smooth; }
-body{
-  font-family:var(--f-sans);
-  background:var(--sand);
-  color:var(--ink);
-  min-height:100dvh;
-  -webkit-font-smoothing:antialiased;
-  -moz-osx-font-smoothing:grayscale;
-  overscroll-behavior:none;
-}
+/* CARDS */
+.card{background:#fff;border-radius:var(--r-xl);box-shadow:var(--sh);margin:0 14px 12px;overflow:hidden}
+.card-inner{padding:20px}
+.card-title{font-size:10px;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:.09em;margin-bottom:12px}
+.info-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--sand-2);font-size:14px}
+.info-row:last-child{border-bottom:none}
+.info-label{color:var(--ink-2)}
+.info-value{font-weight:600;text-align:right}
+.pos{color:var(--green)!important}
+.neg{color:var(--red)!important}
 
-/* ══════════════════════════════════════════════
-   PANTALLA DE LOGIN
-══════════════════════════════════════════════ */
-#login-screen{
-  position:fixed;inset:0;z-index:999;
-  background:var(--ink);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:32px 24px;
-  transition:opacity .35s var(--ease);
-}
-#login-screen.hidden{ opacity:0;pointer-events:none; }
+/* HERO */
+.hero-card{background:var(--ink);border-radius:var(--r-xl);margin:0 14px 12px;padding:22px;box-shadow:var(--sh);color:#fff}
+.hero-eyebrow{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.45);margin-bottom:6px}
+.hero-capital{font-family:var(--f-serif);font-size:44px;letter-spacing:-2px;line-height:1.05;margin-bottom:8px;word-break:break-word}
+.hero-pill{display:inline-flex;padding:5px 12px;border-radius:40px;font-size:13px;font-weight:700;margin-bottom:18px}
+.hero-pill.p{background:rgba(46,158,110,.25);color:#6DECAA}
+.hero-pill.n{background:rgba(217,79,64,.25);color:#F8948A}
+.hero-pill.z{background:rgba(255,255,255,.1);color:rgba(255,255,255,.55)}
+.hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hero-tile{background:rgba(255,255,255,.07);border-radius:var(--r);padding:12px 13px}
+.hero-tile-label{font-size:10px;font-weight:600;opacity:.5;text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px}
+.hero-tile-value{font-family:var(--f-serif);font-size:18px;letter-spacing:-.4px}
+.hero-tile-value.pl{color:#6DECAA}
+.hero-tile-value.nl{color:#F8948A}
 
-.login-logo-mark{
-  width:64px;height:64px;border-radius:20px;
-  background:rgba(255,255,255,.08);
-  display:flex;align-items:center;justify-content:center;
-  font-size:30px;margin-bottom:20px;
-  border:1px solid rgba(255,255,255,.1);
-}
-.login-title{
-  font-family:var(--f-serif);
-  font-size:28px;letter-spacing:-.8px;color:var(--white);
-  margin-bottom:8px;text-align:center;
-}
-.login-sub{
-  font-size:14px;color:rgba(255,255,255,.45);
-  text-align:center;margin-bottom:40px;line-height:1.6;
-}
-.btn-google{
-  display:flex;align-items:center;gap:12px;
-  padding:14px 24px;
-  background:var(--white);color:var(--ink);
-  border:none;border-radius:var(--r-lg);
-  font-size:15px;font-weight:600;font-family:var(--f-sans);
-  cursor:pointer;width:100%;max-width:320px;justify-content:center;
-  box-shadow:0 4px 20px rgba(0,0,0,.3);
-  transition:opacity .15s,transform .12s;
-}
-.btn-google:hover{ opacity:.92; }
-.btn-google:active{ transform:scale(.975); }
-.btn-google svg{ flex-shrink:0; }
+/* STATUS */
+.status-card{margin:0 14px 12px;border-radius:var(--r-xl);padding:20px;box-shadow:var(--sh-sm)}
+.status-card.soles{background:var(--amber-bg)}
+.status-card.usd{background:var(--green-bg)}
+.st-eyebrow{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;margin-bottom:6px}
+.soles .st-eyebrow{color:var(--amber)}
+.usd .st-eyebrow{color:var(--green)}
+.st-big{font-family:var(--f-serif);font-size:32px;letter-spacing:-1px;line-height:1.1;margin-bottom:6px}
+.st-text{font-size:13px;color:var(--ink-2);line-height:1.55}
+.st-eq{margin:14px 0;padding:12px 14px;background:rgba(255,255,255,.65);border-radius:var(--r);font-size:13px;color:var(--ink-2);line-height:1.5}
+.st-eq strong{font-size:17px;color:var(--ink);font-family:var(--f-serif)}
+.st-sim{margin-top:10px;padding:12px 14px;background:#fff;border-radius:var(--r);font-size:13px;line-height:1.6;color:var(--ink-2)}
+.st-sim .big{font-family:var(--f-serif);font-size:22px;letter-spacing:-.5px;display:block}
+.st-btn{margin-top:14px}
 
-.login-notice{
-  margin-top:24px;font-size:12px;
-  color:rgba(255,255,255,.25);text-align:center;line-height:1.6;
-}
+/* FORMS */
+.field-group{padding:0 16px 12px}
+.field-label{font-size:10px;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px}
+.field-input{width:100%;padding:12px 14px;font-size:16px;font-family:var(--f-sans);color:var(--ink);background:var(--sand);border:1.5px solid var(--sand-3);border-radius:var(--r);outline:none;transition:border-color .2s,background .2s;min-width:0}
+.field-input:focus{border-color:var(--stone);background:#fff}
+.field-input.error{border-color:var(--red-2);background:var(--red-bg)}
+.serif{font-family:var(--f-serif);font-size:21px;letter-spacing:-.5px}
+.field-row{display:flex;gap:0}
+.field-row .field-group{flex:1;min-width:0}
+.field-row .field-group+.field-group{padding-left:0}
+.field-hint{font-size:11px;color:var(--ink-3);margin-top:5px;line-height:1.5}
+.field-error{font-size:11px;color:var(--red);margin-top:5px;display:none}
+.form-head{padding:18px 16px 14px;display:flex;gap:12px;align-items:center}
+.form-head-icon{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.form-head-title{font-size:15px;font-weight:700}
+.form-head-sub{font-size:12px;color:var(--ink-3);margin-top:2px}
+.divider{height:1px;background:var(--sand-2);margin:0 16px 14px}
 
-/* LOADING SPINNER */
-#auth-loading{
-  position:fixed;inset:0;z-index:998;
-  background:var(--sand);
-  display:flex;align-items:center;justify-content:center;
-  transition:opacity .3s;
-}
-#auth-loading.hidden{ opacity:0;pointer-events:none; }
-.spinner{
-  width:32px;height:32px;
-  border:3px solid var(--sand-3);
-  border-top-color:var(--ink);
-  border-radius:50%;
-  animation:spin .7s linear infinite;
-}
-@keyframes spin{ to{ transform:rotate(360deg); } }
+.result-box{margin:0 14px 12px;background:#fff;border-radius:var(--r-lg);padding:16px 18px;box-shadow:var(--sh-sm)}
+.result-label{font-size:10px;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.result-value{font-family:var(--f-serif);font-size:34px;letter-spacing:-1.5px;line-height:1.1;color:var(--stone)}
+.result-sub{font-size:14px;font-weight:700;margin-top:6px}
 
-/* ══════════════════════════════════════════════
-   SYNC STATUS BAR
-══════════════════════════════════════════════ */
-#sync-bar{
-  position:fixed;top:0;left:0;right:0;z-index:500;
-  padding:7px 16px;
-  display:flex;align-items:center;justify-content:center;gap:7px;
-  font-size:12px;font-weight:600;
-  transform:translateY(-100%);
-  transition:transform .3s var(--ease);
-}
-#sync-bar.show{ transform:translateY(0); }
-#sync-bar.saving{ background:#1A4A8A;color:#fff; }
-#sync-bar.saved { background:#1A6B49;color:#fff; }
-#sync-bar.error { background:#B83327;color:#fff; }
-#sync-bar.offline{ background:#8A5C00;color:#fff; }
-.sync-dot{
-  width:6px;height:6px;border-radius:50%;
-  background:currentColor;opacity:.7;
-}
+.btn-primary{width:100%;padding:15px;background:var(--ink);color:#fff;border:none;border-radius:var(--r-lg);font-size:15px;font-weight:600;font-family:var(--f-sans);cursor:pointer;transition:opacity .15s,transform .12s}
+.btn-primary:hover{opacity:.88}
+.btn-primary:active{transform:scale(.975)}
+.btn-primary:disabled{opacity:.35;cursor:not-allowed}
+.btn-primary.amber{background:var(--amber)}
+.btn-primary.green{background:var(--green)}
+.save-wrap{padding:0 14px 16px}
 
-/* ══════════════════════════════════════════════
-   SHELL
-══════════════════════════════════════════════ */
-.shell{
-  max-width:480px;
-  margin:0 auto;
-  min-height:100dvh;
-  padding-bottom:88px;
-  opacity:0;transition:opacity .3s;
-}
-.shell.visible{ opacity:1; }
+/* SIMULADOR */
+.sim-res{margin-top:4px;padding:14px 16px;background:var(--sand);border-radius:var(--r);font-size:13px;color:var(--ink-2);line-height:1.6}
+.sim-res .big{font-family:var(--f-serif);font-size:24px;letter-spacing:-.5px;display:block;color:var(--ink)}
 
-.view{ display:none; animation:fadeSlide .22s var(--ease) both; }
-.view.on{ display:block; }
-@keyframes fadeSlide{
-  from{ opacity:0; transform:translateY(8px); }
-  to  { opacity:1; transform:translateY(0); }
-}
+/* CICLOS */
+.strip{display:flex;gap:8px;padding:0 14px 12px}
+.chip{flex:1;padding:10px 8px;background:#fff;border-radius:var(--r-lg);box-shadow:var(--sh-sm);text-align:center;min-width:0}
+.chip .lbl{font-size:10px;color:var(--ink-3);font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.chip .val{font-size:14px;font-weight:700;margin-top:3px}
+.ciclo{background:#fff;border-radius:var(--r-lg);box-shadow:var(--sh-sm);margin:0 14px 10px;overflow:hidden}
+.ciclo.open{border:1.5px solid var(--amber)}
+.ciclo-head{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid var(--sand-2);gap:8px}
+.badge{display:inline-flex;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700}
+.badge.win{background:var(--green-bg);color:var(--green)}
+.badge.loss{background:var(--red-bg);color:var(--red)}
+.badge.open{background:var(--amber-bg);color:var(--amber)}
+.ciclo-num{font-size:12px;color:var(--ink-3);margin-left:6px}
+.ciclo-pnl{font-family:var(--f-serif);font-size:21px;letter-spacing:-.5px;text-align:right}
+.ciclo-pct{font-size:11px;color:var(--ink-3);text-align:right}
+.ciclo-body{display:grid;grid-template-columns:1fr 1fr;padding:10px 16px 4px}
+.cf{padding:5px 0}
+.cf-l{font-size:10px;color:var(--ink-3);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.cf-v{font-size:13px;font-weight:600;margin-top:2px}
+.ciclo-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 12px 10px 16px}
+.ciclo-note{font-size:11px;color:var(--ink-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.ciclo-actions{display:flex;gap:4px;flex-shrink:0}
+.op-btn{background:none;border:none;cursor:pointer;font-size:13px;padding:5px 7px;border-radius:6px}
+.op-btn:hover{background:var(--sand-2)}
 
-/* ══════════════════════════════════════════════
-   HEADER
-══════════════════════════════════════════════ */
-.app-header{
-  display:flex; align-items:center; justify-content:space-between;
-  padding:28px 22px 0;
-  margin-bottom:6px;
-}
-.app-logo{ display:flex;align-items:center;gap:9px; }
-.app-logo-mark{
-  width:30px;height:30px;border-radius:9px;
-  background:var(--ink);
-  display:flex;align-items:center;justify-content:center;
-  font-size:14px;
-}
-.app-logo-name{ font-size:15px;font-weight:700;color:var(--ink);letter-spacing:-.3px; }
-.app-date{ font-size:12px;color:var(--ink-3); }
+/* EVOLUCION */
+.evol-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 14px 12px}
+.evol-stat{background:#fff;border-radius:var(--r-lg);padding:13px 8px;box-shadow:var(--sh-sm);text-align:center;min-width:0}
+.evol-stat-label{font-size:10px;color:var(--ink-3);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
+.evol-stat-value{font-family:var(--f-serif);font-size:17px;letter-spacing:-.3px}
+.chart svg{width:100%;height:auto;display:block}
 
-/* ══════════════════════════════════════════════
-   USER CHIP
-══════════════════════════════════════════════ */
-.user-chip{ display:flex;align-items:center;gap:8px; }
-.user-avatar{
-  width:28px;height:28px;border-radius:50%;
-  background:var(--sand-3);overflow:hidden;
-  flex-shrink:0;border:1.5px solid var(--sand-3);
-}
-.user-avatar img{ width:100%;height:100%;object-fit:cover; }
-.btn-signout{
-  padding:5px 10px;border-radius:var(--r-sm);
-  background:var(--sand-2);border:1px solid var(--sand-3);
-  font-size:11px;font-weight:600;color:var(--ink-3);
-  cursor:pointer;transition:all .15s;white-space:nowrap;
-}
-.btn-signout:hover{ background:var(--red-bg);color:var(--red);border-color:var(--red-bg); }
+/* NOTICES */
+.notice{margin:0 14px 12px;background:var(--amber-bg);border-radius:var(--r-lg);padding:14px 16px;font-size:13px;color:var(--amber);line-height:1.5}
+.notice strong{font-weight:700}
+.notice-actions{display:flex;gap:8px;margin-top:10px}
+.btn-amber{padding:8px 14px;background:var(--amber);color:#fff;border:none;border-radius:var(--r);font-size:12px;font-weight:700;cursor:pointer}
+.btn-ghost{padding:8px 14px;background:transparent;color:var(--amber);border:1px solid var(--amber);border-radius:var(--r);font-size:12px;font-weight:700;cursor:pointer}
 
-/* ══════════════════════════════════════════════
-   PAGE HEADER
-══════════════════════════════════════════════ */
-.page-header{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:26px 22px 14px;
-}
-.page-title{
-  font-family:var(--f-serif);
-  font-size:26px;letter-spacing:-.5px;color:var(--ink);
-}
-.page-actions{ display:flex;gap:8px;align-items:center; }
+.export-row{display:flex;gap:8px;flex-wrap:wrap;padding:0 14px 16px}
+.export-btn{flex:1;min-width:96px;padding:10px 8px;border:1.5px solid var(--sand-3);border-radius:var(--r);background:#fff;font-size:12px;font-weight:600;color:var(--ink-2);cursor:pointer;box-shadow:var(--sh-sm)}
+.export-btn:hover{background:var(--sand-2)}
+.empty-state{text-align:center;padding:48px 24px;color:var(--ink-3);font-size:14px;line-height:1.7}
+.empty-icon{font-size:38px;margin-bottom:10px;opacity:.6}
 
-/* ══════════════════════════════════════════════
-   CARDS
-══════════════════════════════════════════════ */
-.card{
-  background:var(--white);
-  border-radius:var(--r-xl);
-  box-shadow:var(--sh);
-  margin:0 14px 12px;
-  overflow:hidden;
-}
-.card-inner{ padding:20px 20px; }
-.card-title{
-  font-size:10px;font-weight:700;color:var(--ink-3);
-  text-transform:uppercase;letter-spacing:.09em;margin-bottom:14px;
-}
-.divider{ height:1px;background:var(--sand-2);margin:0 20px; }
+/* MODALES */
+.modal-backdrop{position:fixed;inset:0;background:rgba(28,27,24,.55);z-index:200;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-backdrop.on{opacity:1;pointer-events:all}
+.modal-sheet{width:100%;max-width:480px;max-height:92dvh;overflow-y:auto;background:#fff;border-radius:var(--r-2xl) var(--r-2xl) 0 0;padding:22px 6px max(22px,env(safe-area-inset-bottom));transform:translateY(32px);transition:transform .25s var(--ease)}
+.modal-backdrop.on .modal-sheet{transform:translateY(0)}
+.modal-handle{width:36px;height:4px;border-radius:2px;background:var(--sand-3);margin:0 auto 18px}
+.modal-title{font-family:var(--f-serif);font-size:20px;padding:0 16px;margin-bottom:14px}
+.modal-sec{font-size:11px;font-weight:700;color:var(--ink-2);padding:6px 16px 10px}
+.modal-actions{display:flex;gap:8px;padding:6px 16px 0}
+.btn-confirm{flex:1;padding:13px;background:var(--ink);color:#fff;border:none;border-radius:var(--r-lg);font-size:14px;font-weight:700;cursor:pointer}
+.btn-cancel{padding:13px 18px;background:var(--sand-2);color:var(--ink-2);border:none;border-radius:var(--r-lg);font-size:14px;font-weight:600;cursor:pointer}
+.btn-link{background:none;border:none;color:var(--amber);font-size:12px;font-weight:700;cursor:pointer;padding:10px 16px 0;text-decoration:underline}
+.confirm-modal{position:fixed;inset:0;background:rgba(28,27,24,.55);z-index:300;display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;pointer-events:none;transition:opacity .2s}
+.confirm-modal.on{opacity:1;pointer-events:all}
+.confirm-box{background:#fff;border-radius:var(--r-xl);padding:24px;max-width:320px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.18)}
+.confirm-title{font-size:17px;font-weight:700;margin-bottom:8px}
+.confirm-text{font-size:14px;color:var(--ink-2);line-height:1.6;margin-bottom:20px}
+.confirm-btns{display:flex;gap:8px}
+.btn-danger{flex:1;padding:12px;background:var(--red);color:#fff;border:none;border-radius:var(--r-lg);font-size:14px;font-weight:700;cursor:pointer}
 
-/* ══════════════════════════════════════════════
-   DASHBOARD HERO CARD (dark)
-══════════════════════════════════════════════ */
-.hero-card{
-  background:var(--ink);
-  border-radius:var(--r-xl);
-  margin:0 14px 12px;
-  padding:24px 22px;
-  box-shadow:var(--sh);
-}
-.hero-eyebrow{
-  font-size:10px;font-weight:700;letter-spacing:.1em;
-  text-transform:uppercase;color:rgba(255,255,255,.45);margin-bottom:6px;
-}
-.hero-capital{
-  font-family:var(--f-serif);
-  font-size:48px;letter-spacing:-2.5px;line-height:1;
-  color:var(--white);margin-bottom:4px;
-}
-.hero-gain-pill{
-  display:inline-flex;align-items:center;gap:6px;
-  padding:5px 12px;border-radius:40px;
-  font-size:13px;font-weight:700;margin-bottom:18px;
-}
-.hero-gain-pill.pos{ background:rgba(46,158,110,.25);color:#6DECAA; }
-.hero-gain-pill.neg{ background:rgba(217,79,64,.25);color:#F8948A; }
-.hero-gain-pill.neu{ background:rgba(255,255,255,.1);color:rgba(255,255,255,.5); }
-
-.hero-grid{
-  display:grid;grid-template-columns:1fr 1fr;gap:10px;
-}
-.hero-tile{
-  background:rgba(255,255,255,.07);
-  border-radius:var(--r);padding:13px 14px;
-}
-.hero-tile-label{
-  font-size:10px;font-weight:600;
-  color:rgba(255,255,255,.6);
-  text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;
-}
-.hero-tile-value{
-  font-family:var(--f-serif);font-size:19px;
-  letter-spacing:-.4px;color:var(--white);
-}
-.hero-tile-value.pos-light{ color:#6DECAA; }
-.hero-tile-value.neg-light{ color:#F8948A; }
-
-/* ══════════════════════════════════════════════
-   STAT GRID
-══════════════════════════════════════════════ */
-.info-row{
-  display:flex;justify-content:space-between;align-items:center;
-  padding:10px 0;border-bottom:1px solid var(--sand-2);
-  font-size:14px;
-}
-.info-row:last-child{ border-bottom:none; }
-.info-label{ color:var(--ink-2); }
-.info-value{ font-weight:600;color:var(--ink); }
-.info-value.pos{ color:var(--green); }
-.info-value.neg{ color:var(--red); }
-
-/* ══════════════════════════════════════════════
-   OPERATION FORM
-══════════════════════════════════════════════ */
-.type-row{ display:flex;gap:8px;padding:14px 14px 12px; }
-.type-btn{
-  flex:1;padding:14px 8px;
-  border:1.5px solid var(--sand-3);border-radius:var(--r-lg);
-  background:transparent;cursor:pointer;text-align:center;
-  transition:all .18s var(--ease);
-}
-.tb-icon{ font-size:20px;margin-bottom:4px; }
-.tb-label{ font-size:13px;font-weight:700;color:var(--ink-2);display:block; }
-.tb-sub{ font-size:11px;color:var(--ink-3);display:block;margin-top:2px; }
-.type-btn.active-buy{ border-color:var(--green);background:var(--green-bg); }
-.type-btn.active-buy .tb-label{ color:var(--green); }
-.type-btn.active-sell{ border-color:var(--red);background:var(--red-bg); }
-.type-btn.active-sell .tb-label{ color:var(--red); }
-
-.field-group{ padding:0 14px 12px; }
-.field-label{
-  font-size:10px;font-weight:700;color:var(--ink-3);
-  text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px;
-}
-.field-input{
-  width:100%;padding:12px 14px;
-  font-size:16px;font-family:var(--f-sans);
-  color:var(--ink);background:var(--sand);
-  border:1.5px solid var(--sand-3);border-radius:var(--r);
-  outline:none;
-  transition:border-color var(--dur),background var(--dur);
-}
-.field-input:focus{ border-color:var(--stone);background:var(--white); }
-.field-input.error{ border-color:var(--red-2);background:var(--red-bg); }
-.field-input-serif{
-  font-family:var(--f-serif);
-  font-size:22px;letter-spacing:-.5px;
-}
-.field-row{ display:flex;gap:8px; }
-.field-row .field-group{ flex:1; }
-.field-hint{
-  font-size:11px;color:var(--ink-3);margin-top:5px;
-}
-.field-error{
-  font-size:11px;color:var(--red);margin-top:5px;display:none;
-}
-
-.result-box{
-  margin:0 14px 14px;
-  background:var(--sand);border-radius:var(--r-lg);
-  padding:16px 18px;
-}
-.result-box-label{
-  font-size:10px;font-weight:700;color:var(--ink-3);
-  text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;
-}
-.result-box-value{
-  font-family:var(--f-serif);
-  font-size:36px;letter-spacing:-1.5px;line-height:1;
-}
-.result-box-value.buy{ color:var(--green); }
-.result-box-value.sell{ color:var(--red); }
-.result-box-value.empty{ color:var(--stone); }
-
-.save-wrap{ padding:0 14px 16px; }
-.btn-primary{
-  width:100%;padding:15px;
-  background:var(--ink);color:var(--white);
-  border:none;border-radius:var(--r-lg);
-  font-size:15px;font-weight:600;font-family:var(--f-sans);
-  letter-spacing:.01em;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;gap:8px;
-  transition:opacity .15s,transform .12s;
-}
-.btn-primary:hover{ opacity:.88; }
-.btn-primary:active{ transform:scale(.975); }
-.btn-primary:disabled{ opacity:.35;cursor:not-allowed; }
-.save-feedback{
-  text-align:center;font-size:12px;color:var(--green);
-  min-height:18px;margin-top:8px;transition:opacity .3s;
-}
-
-/* ══════════════════════════════════════════════
-   HISTORIAL
-══════════════════════════════════════════════ */
-.hist-filters{
-  display:flex;gap:8px;padding:0 14px 12px;
-}
-.search-input{
-  flex:1;padding:9px 13px;
-  font-size:13px;font-family:var(--f-sans);
-  background:var(--white);color:var(--ink);
-  border:1.5px solid var(--sand-3);border-radius:var(--r);
-  outline:none;transition:border-color var(--dur);
-}
-.search-input:focus{ border-color:var(--stone); }
-.filter-select{
-  padding:9px 10px;font-size:12px;font-family:var(--f-sans);
-  background:var(--white);color:var(--ink);
-  border:1.5px solid var(--sand-3);border-radius:var(--r);
-  outline:none;cursor:pointer;
-}
-
-.hist-list{ padding:0 14px; }
-.group-label{
-  font-size:11px;font-weight:700;color:var(--ink-3);
-  text-transform:uppercase;letter-spacing:.08em;
-  padding:14px 4px 8px;
-}
-
-.op-card{
-  background:var(--white);border-radius:var(--r-lg);
-  box-shadow:var(--sh-sm);padding:13px 15px;margin-bottom:8px;
-  display:flex;align-items:flex-start;gap:11px;
-  transition:opacity .2s;
-}
-.op-icon{
-  width:36px;height:36px;border-radius:50%;flex-shrink:0;
-  display:flex;align-items:center;justify-content:center;font-size:15px;
-}
-.op-icon.buy{ background:var(--green-bg); }
-.op-icon.sell{ background:var(--red-bg); }
-.op-body{ flex:1;min-width:0; }
-.op-type{ font-size:13px;font-weight:700;color:var(--ink); }
-.op-meta{ font-size:11px;color:var(--ink-3);margin-top:2px;line-height:1.6; }
-.op-note{
-  display:inline-flex;align-items:center;gap:4px;
-  margin-top:5px;padding:2px 8px;border-radius:20px;
-  background:var(--sand);font-size:11px;color:var(--ink-3);
-  max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-}
-.op-right{ text-align:right;flex-shrink:0; }
-.op-amount{ font-size:14px;font-weight:700;letter-spacing:-.3px; }
-.op-amount.buy{ color:var(--green); }
-.op-amount.sell{ color:var(--red); }
-.op-result-lbl{ font-size:11px;color:var(--ink-3);margin-top:2px; }
-.op-actions{ display:flex;flex-direction:column;gap:4px;align-self:center;flex-shrink:0; }
-.op-btn{
-  background:none;border:none;cursor:pointer;
-  color:var(--stone);font-size:13px;padding:3px 5px;
-  border-radius:6px;transition:all .15s;line-height:1;
-}
-.op-btn:hover.del{ background:var(--red-bg);color:var(--red); }
-.op-btn:hover.edit{ background:var(--sand-2);color:var(--ink-2); }
-
-.empty-state{
-  text-align:center;padding:56px 24px;color:var(--ink-3);
-}
-.empty-icon{ font-size:40px;margin-bottom:12px;opacity:.6; }
-.empty-text{ font-size:14px;line-height:1.7; }
-
-/* Paginación historial */
-.load-more-wrap{ padding:8px 14px 16px;text-align:center; }
-.btn-load-more{
-  padding:9px 22px;border-radius:var(--r-lg);
-  background:var(--white);border:1.5px solid var(--sand-3);
-  font-size:13px;font-weight:600;color:var(--ink-2);
-  cursor:pointer;transition:all .15s;box-shadow:var(--sh-sm);
-}
-.btn-load-more:hover{ background:var(--sand-2); }
-
-/* ══════════════════════════════════════════════
-   OPERACIONES CERRADAS
-══════════════════════════════════════════════ */
-.cerrada-card{
-  background:var(--white);border-radius:var(--r-lg);
-  box-shadow:var(--sh-sm);margin:0 14px 10px;
-  overflow:hidden;
-}
-.cerrada-header{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:14px 16px 12px;border-bottom:1px solid var(--sand-2);
-}
-.cerrada-pair{ display:flex;align-items:center;gap:8px; }
-.cerrada-badge{
-  display:inline-flex;align-items:center;padding:3px 9px;
-  border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.03em;
-}
-.cerrada-badge.win{ background:var(--green-bg);color:var(--green); }
-.cerrada-badge.loss{ background:var(--red-bg);color:var(--red); }
-.cerrada-pnl{
-  font-family:var(--f-serif);font-size:22px;letter-spacing:-.5px;
-}
-.cerrada-pnl.win{ color:var(--green); }
-.cerrada-pnl.loss{ color:var(--red); }
-.cerrada-pnl-sub{ font-size:11px;color:var(--ink-3);text-align:right; }
-.cerrada-details{
-  display:grid;grid-template-columns:1fr 1fr;gap:0;
-  padding:12px 16px;
-}
-.cerrada-field{ padding:5px 0; }
-.cerrada-field-label{ font-size:10px;color:var(--ink-3);font-weight:600;text-transform:uppercase;letter-spacing:.05em; }
-.cerrada-field-value{ font-size:13px;color:var(--ink);font-weight:600;margin-top:2px; }
-
-/* ══════════════════════════════════════════════
-   EVOLUCIÓN
-══════════════════════════════════════════════ */
-.evol-stats{
-  display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;
-  padding:0 14px 14px;
-}
-.evol-stat{
-  background:var(--white);border-radius:var(--r-lg);
-  padding:14px 13px;box-shadow:var(--sh-sm);text-align:center;
-}
-.evol-stat-label{
-  font-size:10px;color:var(--ink-3);font-weight:700;
-  text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;
-}
-.evol-stat-value{
-  font-family:var(--f-serif);font-size:18px;
-  letter-spacing:-.3px;color:var(--ink);
-}
-.evol-stat-value.pos{ color:var(--green); }
-.evol-stat-value.neg{ color:var(--red); }
-
-/* ══════════════════════════════════════════════
-   BUTTONS
-══════════════════════════════════════════════ */
-.btn-icon{
-  width:34px;height:34px;border-radius:10px;
-  background:var(--white);border:1px solid var(--sand-3);
-  display:flex;align-items:center;justify-content:center;
-  font-size:14px;cursor:pointer;
-  box-shadow:var(--sh-sm);transition:all .15s;
-}
-.btn-icon:hover{ background:var(--sand-2); }
-
-.export-row{
-  display:flex;gap:8px;flex-wrap:wrap;padding:0 14px 16px;
-}
-.export-btn{
-  flex:1;min-width:100px;padding:10px 8px;
-  border:1.5px solid var(--sand-3);border-radius:var(--r);
-  background:var(--white);font-size:12px;font-weight:600;color:var(--ink-2);
-  cursor:pointer;display:flex;align-items:center;justify-content:center;
-  gap:5px;transition:all .15s;box-shadow:var(--sh-sm);
-}
-.export-btn:hover{ background:var(--sand-2);border-color:var(--stone); }
-
-/* ══════════════════════════════════════════════
-   MODAL
-══════════════════════════════════════════════ */
-.modal-backdrop{
-  position:fixed;inset:0;background:rgba(28,27,24,.55);
-  z-index:200;display:flex;align-items:flex-end;justify-content:center;
-  padding:0;opacity:0;pointer-events:none;
-  transition:opacity .2s var(--ease);
-}
-.modal-backdrop.on{ opacity:1;pointer-events:all; }
-.modal-sheet{
-  width:100%;max-width:480px;
-  background:var(--white);
-  border-radius:var(--r-2xl) var(--r-2xl) 0 0;
-  padding:24px 22px max(24px,env(safe-area-inset-bottom));
-  transform:translateY(32px);
-  transition:transform .25s var(--ease);
-}
-.modal-backdrop.on .modal-sheet{ transform:translateY(0); }
-.modal-handle{
-  width:36px;height:4px;border-radius:2px;
-  background:var(--sand-3);margin:0 auto 20px;
-}
-.modal-title{
-  font-family:var(--f-serif);font-size:20px;
-  letter-spacing:-.3px;color:var(--ink);margin-bottom:16px;
-}
-.modal-actions{ display:flex;gap:8px;margin-top:16px; }
-.btn-confirm{
-  flex:1;padding:13px;
-  background:var(--ink);color:var(--white);
-  border:none;border-radius:var(--r-lg);
-  font-size:14px;font-weight:700;font-family:var(--f-sans);
-  cursor:pointer;transition:opacity .15s;
-}
-.btn-confirm:hover{ opacity:.85; }
-.btn-cancel{
-  padding:13px 18px;
-  background:var(--sand-2);color:var(--ink-2);
-  border:none;border-radius:var(--r-lg);
-  font-size:14px;font-weight:600;font-family:var(--f-sans);
-  cursor:pointer;transition:background .15s;
-}
-.btn-cancel:hover{ background:var(--sand-3); }
-
-.confirm-modal{
-  position:fixed;inset:0;background:rgba(28,27,24,.55);
-  z-index:300;display:flex;align-items:center;justify-content:center;
-  padding:24px;opacity:0;pointer-events:none;
-  transition:opacity .2s;
-}
-.confirm-modal.on{ opacity:1;pointer-events:all; }
-.confirm-box{
-  background:var(--white);border-radius:var(--r-xl);
-  padding:26px 24px;max-width:320px;width:100%;
-  box-shadow:0 20px 60px rgba(0,0,0,.18);
-  transform:scale(.95);transition:transform .2s var(--ease);
-}
-.confirm-modal.on .confirm-box{ transform:scale(1); }
-.confirm-title{ font-size:17px;font-weight:700;color:var(--ink);margin-bottom:8px; }
-.confirm-text{ font-size:14px;color:var(--ink-2);line-height:1.6;margin-bottom:20px; }
-.confirm-btns{ display:flex;gap:8px; }
-.btn-danger{
-  flex:1;padding:12px;
-  background:var(--red);color:var(--white);
-  border:none;border-radius:var(--r-lg);
-  font-size:14px;font-weight:700;cursor:pointer;
-  transition:opacity .15s;
-}
-.btn-danger:hover{ opacity:.85; }
-
-/* CAPITAL INICIAL NOTIFICATION */
-.capital-setup-notice{
-  margin:0 14px 12px;
-  background:var(--amber-bg);border-radius:var(--r-lg);
-  padding:14px 16px;display:flex;align-items:center;gap:12px;
-}
-.capital-setup-icon{ font-size:20px;flex-shrink:0; }
-.capital-setup-text{ flex:1;font-size:13px;color:var(--amber);line-height:1.5; }
-.capital-setup-text strong{ font-weight:700; }
-.btn-setup-capital{
-  padding:8px 14px;background:var(--amber);color:var(--white);
-  border:none;border-radius:var(--r);font-size:12px;font-weight:700;
-  cursor:pointer;white-space:nowrap;flex-shrink:0;
-  transition:opacity .15s;
-}
-.btn-setup-capital:hover{ opacity:.85; }
-
-/* ══════════════════════════════════════════════
-   TAB BAR
-══════════════════════════════════════════════ */
-.tab-bar{
-  position:fixed;bottom:0;left:0;right:0;z-index:100;
-  background:rgba(245,242,236,.94);
-  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
-  border-top:1px solid var(--sand-3);
-  padding:10px 0 max(12px,env(safe-area-inset-bottom));
-}
-.tab-bar-inner{
-  display:flex;max-width:480px;margin:0 auto;
-  padding:0 10px;gap:2px;
-}
-.tab-item{
-  flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
-  padding:6px 6px;border:none;background:transparent;cursor:pointer;
-  border-radius:var(--r);transition:background .15s;
-  font-family:var(--f-sans);
-}
-.tab-item:hover{ background:var(--sand-2); }
-.tab-icon{ font-size:19px;line-height:1;transition:transform .18s var(--ease); }
-.tab-label{ font-size:10px;color:var(--ink-3);font-weight:500;letter-spacing:.02em; }
-.tab-item.on .tab-label{ color:var(--ink);font-weight:700; }
-.tab-item.on .tab-icon{ transform:scale(1.1); }
-
-@media(min-width:600px){
-  .hero-grid{ grid-template-columns:1fr 1fr; }
-  .evol-stats{ grid-template-columns:repeat(3,1fr); }
-}
-
-/* DATE FILTERS */
-.hist-date-filters{ padding:0 14px 12px; }
-.date-filter-label{ font-size:10px;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px; }
-.date-filter-row{ display:flex;align-items:center;gap:6px; }
-.date-input{ flex:1;padding:8px 10px;font-size:12px;font-family:var(--f-sans);background:var(--white);color:var(--ink);border:1.5px solid var(--sand-3);border-radius:var(--r);outline:none;transition:border-color var(--dur);min-width:0; }
-.date-input:focus{ border-color:var(--stone); }
-.date-sep{ font-size:12px;color:var(--stone);flex-shrink:0; }
-.btn-clear-dates{ width:30px;height:30px;border-radius:var(--r-sm);background:var(--sand-2);border:none;color:var(--ink-3);font-size:12px;cursor:pointer;flex-shrink:0;transition:all .15s; }
-.btn-clear-dates:hover{ background:var(--red-bg);color:var(--red); }
-
-.btn-header-action{ display:flex;align-items:center;gap:5px;padding:6px 10px;border-radius:var(--r);background:var(--sand-2);border:1px solid var(--sand-3);font-size:11px;font-weight:700;color:var(--ink-2);cursor:pointer;transition:all .15s; }
-.btn-header-action:hover{ background:var(--sand-3);color:var(--ink); }
-
-.hist-stats-strip{ display:flex;gap:8px;padding:0 14px 10px; }
-.hist-stat-chip{ flex:1;padding:10px 12px;background:var(--white);border-radius:var(--r-lg);box-shadow:var(--sh-sm);text-align:center; }
-.hist-stat-chip .lbl{ font-size:10px;color:var(--ink-3);font-weight:700;text-transform:uppercase;letter-spacing:.06em; }
-.hist-stat-chip .val{ font-size:14px;font-weight:700;color:var(--ink);margin-top:3px; }
-.hist-stat-chip .val.pos{ color:var(--green); }
-.hist-stat-chip .val.neg{ color:var(--red); }
-
-.hidden{ display:none!important; }
-.text-green{ color:var(--green); }
-.text-red{ color:var(--red); }
-.text-muted{ color:var(--ink-3); }
+/* TABS */
+.tab-bar{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(245,242,236,.94);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--sand-3);padding:10px 0 max(12px,env(safe-area-inset-bottom))}
+.tab-bar-inner{display:flex;max-width:480px;margin:0 auto;padding:0 10px;gap:2px}
+.tab-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px;border:none;background:transparent;cursor:pointer;border-radius:var(--r);font-family:var(--f-sans)}
+.tab-icon{font-size:19px;line-height:1}
+.tab-label{font-size:10px;color:var(--ink-3);font-weight:500}
+.tab-item.on .tab-label{color:var(--ink);font-weight:700}
+.hidden{display:none!important}
 </style>
 
-<!-- Firebase SDKs (compat v10) -->
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
-<!-- Sync status bar -->
-<div id="sync-bar">
-  <div class="sync-dot"></div>
-  <span id="sync-msg">Guardando...</span>
-</div>
+<div id="sync-bar"><span id="sync-msg">Guardando...</span></div>
+<div id="auth-loading"><div class="spinner"></div></div>
 
-<!-- Pantalla de carga -->
-<div id="auth-loading">
-  <div class="spinner"></div>
-</div>
-
-<!-- Login -->
 <div id="login-screen" class="hidden">
   <div class="login-logo-mark">💵</div>
   <div class="login-title">Libro de Dólares</div>
-  <div class="login-sub">Tu registro personal de operaciones<br>USD/PEN siempre sincronizado.</div>
+  <div class="login-sub">Registra tus ciclos de venta y recompra<br>y mira cuántos dólares ganas en cada uno.</div>
   <button class="btn-google" id="btn-login-google">
-    <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
-      <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/>
-      <path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
-      <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
-    </svg>
+    <svg width="18" height="18" viewBox="0 0 18 18"><path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/><path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/><path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/></svg>
     Continuar con Google
   </button>
   <div class="login-notice">Solo tú verás tus datos.<br>Funciona en cualquier dispositivo.</div>
 </div>
 
-<!-- App principal -->
 <div class="shell" id="app-shell">
 
-  <!-- DASHBOARD -->
-  <div id="v-dashboard" class="view on">
+  <!-- ═══════════ RESUMEN ═══════════ -->
+  <div id="v-resumen" class="view on">
     <header class="app-header">
-      <div class="app-logo">
-        <div class="app-logo-mark">💵</div>
-        <span class="app-logo-name">Libro de Dólares</span>
-      </div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <span class="app-date" id="hdr-date">—</span>
-        <button class="btn-header-action" onclick="abrirModalCapital()" title="Configurar capital inicial">⚙️ Capital</button>
-        <div class="user-chip">
-          <div class="user-avatar" id="user-avatar-wrap">
-            <img id="user-avatar-img" src="" alt="" style="display:none">
-          </div>
-          <button class="btn-signout" id="btn-signout" onclick="cerrarSesion()">Salir</button>
-        </div>
+      <div class="app-logo"><div class="app-logo-mark">💵</div><span class="app-logo-name">Libro de Dólares</span></div>
+      <div class="hdr-right">
+        <button class="btn-small" onclick="abrirModalCapital()">⚙️ Capital</button>
+        <div class="user-avatar"><img id="user-avatar-img" src="" alt="" style="display:none"></div>
+        <button class="btn-small" onclick="cerrarSesion()">Salir</button>
       </div>
     </header>
 
-    <div id="notice-capital" class="capital-setup-notice hidden">
-      <span class="capital-setup-icon">⚙️</span>
-      <div class="capital-setup-text"><strong>Configura tu capital inicial</strong> para ver tu rentabilidad real.</div>
-      <button class="btn-setup-capital" onclick="abrirModalCapital()">Configurar</button>
+    <div id="notice-migrar" class="notice hidden">
+      <strong>Tienes <span id="migrar-n">0</span> operaciones del formato anterior.</strong><br>
+      Puedo convertirlas en ciclos (cada venta con la recompra que le sigue). Tus operaciones originales no se borran.
+      <div class="notice-actions">
+        <button class="btn-amber" onclick="migrarOps()">Convertir a ciclos</button>
+        <button class="btn-ghost" onclick="omitirMigracion()">Omitir</button>
+      </div>
+    </div>
+
+    <div id="notice-capital" class="notice hidden">
+      <strong>Configura tu capital inicial</strong> para ver cuánto has ganado sobre lo que empezaste.
+      <div class="notice-actions"><button class="btn-amber" onclick="abrirModalCapital()">Configurar</button></div>
     </div>
 
     <div class="hero-card">
-      <div class="hero-eyebrow">Capital actual</div>
-      <div class="hero-capital" id="dash-capital-actual">US$0.00</div>
-      <div class="hero-gain-pill neu" id="dash-gain-pill">Cargando...</div>
+      <div class="hero-eyebrow">Capital actual (ciclos cerrados)</div>
+      <div class="hero-capital" id="r-capital">US$0.00</div>
+      <div class="hero-pill z" id="r-pill">Sin ciclos cerrados</div>
       <div class="hero-grid">
-        <div class="hero-tile">
-          <div class="hero-tile-label">Capital inicial</div>
-          <div class="hero-tile-value" id="dash-capital-inicial">US$0.00</div>
-        </div>
-        <div class="hero-tile">
-          <div class="hero-tile-label">Ganancia USD</div>
-          <div class="hero-tile-value" id="dash-ganancia-usd">US$0.00</div>
-        </div>
-        <div class="hero-tile">
-          <div class="hero-tile-label">Ganancia PEN</div>
-          <div class="hero-tile-value" id="dash-ganancia-pen">S/ 0.00</div>
-        </div>
-        <div class="hero-tile">
-          <div class="hero-tile-label">Operaciones</div>
-          <div class="hero-tile-value" id="dash-num-ops">0</div>
-        </div>
+        <div class="hero-tile"><div class="hero-tile-label">Capital inicial</div><div class="hero-tile-value" id="r-ci">—</div></div>
+        <div class="hero-tile"><div class="hero-tile-label">Ganancia total</div><div class="hero-tile-value" id="r-gan">—</div></div>
+        <div class="hero-tile"><div class="hero-tile-label">Ciclos cerrados</div><div class="hero-tile-value" id="r-n">0</div></div>
+        <div class="hero-tile"><div class="hero-tile-label">Tasa de acierto</div><div class="hero-tile-value" id="r-acierto">—</div></div>
       </div>
+    </div>
+
+    <!-- Estado: en soles (ciclo abierto) -->
+    <div id="st-soles" class="status-card soles hidden">
+      <div class="st-eyebrow">Ciclo abierto · estás en soles</div>
+      <div class="st-big" id="st-pen">S/ 0.00</div>
+      <div class="st-text" id="st-venta-info"></div>
+      <div class="st-eq">Para no perder, recompra a <strong id="st-eq">—</strong> o menos.<br><span id="st-eq-ej"></span></div>
+      <div class="field-label">TC de hoy (para simular)</div>
+      <input type="number" id="st-tc" class="field-input serif" placeholder="3.4000" step="0.0001" inputmode="decimal">
+      <div class="st-sim" id="st-sim">Escribe el TC de hoy para ver cuánto ganarías o perderías si recompras ahora.</div>
+      <div class="st-btn"><button class="btn-primary amber" onclick="setTab('operar')">Registrar recompra</button></div>
+    </div>
+
+    <!-- Estado: en dólares -->
+    <div id="st-usd" class="status-card usd hidden">
+      <div class="st-eyebrow">Sin ciclo abierto · estás en dólares</div>
+      <div class="st-big" id="st-usd-cap">US$0.00</div>
+      <div class="st-text">Cuando vendas dólares se abrirá un ciclo nuevo. Se cierra al recomprar.</div>
+      <div class="st-btn"><button class="btn-primary green" onclick="setTab('operar')">Registrar venta</button></div>
+    </div>
+
+    <!-- Simulador (solo en dólares) -->
+    <div id="sim-card" class="card hidden">
+      <div class="card-inner" style="padding-bottom:4px"><div class="card-title">Simulador de ciclo</div></div>
+      <div class="field-group"><div class="field-label">Dólares a vender</div>
+        <input type="number" id="sim-usd" class="field-input" placeholder="10000" step="0.01" inputmode="decimal"></div>
+      <div class="field-row">
+        <div class="field-group"><div class="field-label">TC venta</div><input type="number" id="sim-tcv" class="field-input" placeholder="3.5000" step="0.0001" inputmode="decimal"></div>
+        <div class="field-group"><div class="field-label">TC recompra</div><input type="number" id="sim-tcc" class="field-input" placeholder="3.4000" step="0.0001" inputmode="decimal"></div>
+      </div>
+      <div class="field-group"><div class="sim-res" id="sim-res">Completa los tres campos para ver el resultado.</div></div>
     </div>
 
     <div class="card">
       <div class="card-inner">
-        <div class="card-title">Indicadores clave</div>
-        <div class="info-row"><span class="info-label">Rentabilidad acumulada</span><span class="info-value" id="dash-rentab">—</span></div>
-        <div class="info-row"><span class="info-label">Rentabilidad anualizada</span><span class="info-value" id="dash-rentab-anual">—</span></div>
-        <div class="info-row"><span class="info-label">Promedio por operación</span><span class="info-value" id="dash-prom-op">—</span></div>
-        <div class="info-row"><span class="info-label">Mejor operación</span><span class="info-value" id="dash-mejor-op">—</span></div>
-        <div class="info-row"><span class="info-label">Peor operación</span><span class="info-value" id="dash-peor-op">—</span></div>
-        <div class="info-row"><span class="info-label">Máximo histórico</span><span class="info-value" id="dash-max-hist">—</span></div>
-        <div class="info-row"><span class="info-label">Mínimo histórico</span><span class="info-value" id="dash-min-hist">—</span></div>
+        <div class="card-title">Indicadores</div>
+        <div class="info-row"><span class="info-label">Rentabilidad sobre capital inicial</span><span class="info-value" id="k-rent">—</span></div>
+        <div class="info-row"><span class="info-label">Ganancia promedio por ciclo</span><span class="info-value" id="k-prom">—</span></div>
+        <div class="info-row"><span class="info-label">Diferencial promedio</span><span class="info-value" id="k-dif">—</span></div>
+        <div class="info-row"><span class="info-label">Duración promedio</span><span class="info-value" id="k-dias">—</span></div>
+        <div class="info-row"><span class="info-label">Costos acumulados</span><span class="info-value" id="k-costos">—</span></div>
+        <div class="info-row"><span class="info-label">Mejor ciclo</span><span class="info-value" id="k-mejor">—</span></div>
+        <div class="info-row"><span class="info-label">Peor ciclo</span><span class="info-value" id="k-peor">—</span></div>
       </div>
     </div>
 
     <div class="export-row">
-      <button class="export-btn" onclick="exportarJSON()">⬇ Exportar JSON</button>
-      <button class="export-btn" onclick="document.getElementById('import-file').click()">⬆ Importar JSON</button>
-      <button class="export-btn" onclick="exportarExcel()">📊 Excel</button>
+      <button class="export-btn" onclick="exportarJSON()">⬇ Respaldo JSON</button>
+      <button class="export-btn" onclick="$('import-file').click()">⬆ Importar JSON</button>
+      <button class="export-btn" onclick="exportarCSV()">📊 Excel (CSV)</button>
       <input type="file" id="import-file" accept=".json" style="display:none" onchange="importarJSON(event)">
     </div>
   </div>
 
-  <!-- REGISTRAR -->
-  <div id="v-registrar" class="view">
-    <header class="app-header">
-      <div class="app-logo"><div class="app-logo-mark">💵</div><span class="app-logo-name">Registrar operación</span></div>
-      <span class="app-date" id="hdr-date-reg">—</span>
-    </header>
+  <!-- ═══════════ OPERAR ═══════════ -->
+  <div id="v-operar" class="view">
+    <div class="page-header"><div class="page-title" id="op-title">Vender dólares</div></div>
 
-    <div class="card" style="margin-top:16px">
-      <div class="type-row">
-        <button class="type-btn active-buy" id="btn-buy" onclick="setTipo('buy')">
-          <div class="tb-icon">🟢</div><span class="tb-label">Compra USD</span><span class="tb-sub">Entrego soles</span>
-        </button>
-        <button class="type-btn" id="btn-sell" onclick="setTipo('sell')">
-          <div class="tb-icon">🔴</div><span class="tb-label">Venta USD</span><span class="tb-sub">Recibo soles</span>
-        </button>
-      </div>
-      <div class="divider"></div>
-      <div class="field-group" style="padding-top:14px">
-        <div class="field-label">Fecha de operación</div>
-        <input type="date" id="form-fecha" class="field-input">
-      </div>
-      <div class="field-row">
-        <div class="field-group">
-          <div class="field-label" id="form-monto-label">Soles entregados (PEN)</div>
-          <input type="number" id="form-monto" class="field-input field-input-serif" placeholder="0.00" step="0.01" min="0" inputmode="decimal">
-          <div class="field-error" id="err-monto">Ingresa un monto válido mayor a 0</div>
+    <!-- Paso 1: vender -->
+    <div id="op-venta">
+      <div class="page-sub">Paso 1 de 2. Vendes dólares y recibes soles. El ciclo queda abierto hasta que recompres.</div>
+      <div class="card">
+        <div class="form-head"><div class="form-head-icon" style="background:var(--red-bg)">🔴</div>
+          <div><div class="form-head-title">Venta de dólares</div><div class="form-head-sub">Entrego USD, recibo soles</div></div></div>
+        <div class="divider"></div>
+        <div class="field-group"><div class="field-label">Fecha</div><input type="date" id="fv-fecha" class="field-input"></div>
+        <div class="field-row">
+          <div class="field-group"><div class="field-label">Dólares a vender</div>
+            <input type="number" id="fv-usd" class="field-input serif" placeholder="0.00" step="0.01" min="0" inputmode="decimal">
+            <div class="field-error" id="fv-usd-err">Ingresa un monto mayor a 0</div></div>
+          <div class="field-group"><div class="field-label">TC de venta</div>
+            <input type="number" id="fv-tc" class="field-input serif" placeholder="3.5000" step="0.0001" inputmode="decimal">
+            <div class="field-error" id="fv-tc-err">El TC debe estar entre 2.50 y 6.00</div></div>
         </div>
-        <div class="field-group">
-          <div class="field-label">Tipo de cambio</div>
-          <input type="number" id="form-tc" class="field-input field-input-serif" placeholder="3.7500" step="0.0001" min="2.5" max="6" inputmode="decimal">
-          <div class="field-error" id="err-tc">TC debe estar entre 2.50 y 6.00</div>
+        <div class="field-group"><div class="field-label">Nota (opcional)</div><input type="text" id="fv-nota" class="field-input" placeholder="Casa de cambio, banco…" maxlength="200"></div>
+      </div>
+      <div class="result-box">
+        <div class="result-label">Soles que recibes</div>
+        <div class="result-value" id="fv-res">—</div>
+        <div class="field-hint" id="fv-hint"></div>
+      </div>
+      <div class="save-wrap"><button class="btn-primary" id="fv-btn" onclick="abrirCiclo()">Registrar venta y abrir ciclo</button></div>
+    </div>
+
+    <!-- Paso 2: recomprar -->
+    <div id="op-compra" class="hidden">
+      <div class="page-sub">Paso 2 de 2. Con todos los soles del ciclo vuelves a comprar dólares. Aquí se calcula tu ganancia.</div>
+      <div class="status-card soles">
+        <div class="st-eyebrow">Venta registrada</div>
+        <div class="st-text" id="fc-resumen"></div>
+      </div>
+      <div class="card">
+        <div class="form-head"><div class="form-head-icon" style="background:var(--green-bg)">🟢</div>
+          <div><div class="form-head-title">Recompra de dólares</div><div class="form-head-sub">Entrego soles, recibo USD</div></div></div>
+        <div class="divider"></div>
+        <div class="field-group"><div class="field-label">Fecha</div><input type="date" id="fc-fecha" class="field-input">
+          <div class="field-error" id="fc-fecha-err">No puede ser anterior a la fecha de venta</div></div>
+        <div class="field-row">
+          <div class="field-group"><div class="field-label">TC de recompra</div>
+            <input type="number" id="fc-tc" class="field-input serif" placeholder="3.4000" step="0.0001" inputmode="decimal">
+            <div class="field-error" id="fc-tc-err">El TC debe estar entre 2.50 y 6.00</div></div>
+          <div class="field-group"><div class="field-label">Costos S/ (opcional)</div>
+            <input type="number" id="fc-costo" class="field-input serif" placeholder="0.00" step="0.01" min="0" inputmode="decimal">
+            <div class="field-error" id="fc-costo-err">Monto inválido</div></div>
         </div>
+        <div class="field-group" style="margin-top:-6px"><div class="field-hint">Costos: comisiones, transferencias interbancarias o cualquier gasto del ciclo, en soles.</div></div>
+        <div class="field-group"><div class="field-label">Nota (opcional)</div><input type="text" id="fc-nota" class="field-input" maxlength="200"></div>
       </div>
-      <div class="field-group">
-        <div class="field-label">Notas <span class="text-muted">(opcional)</span></div>
-        <input type="text" id="form-nota" class="field-input" placeholder="Ej: Casa de cambio, banco…" maxlength="200">
+      <div class="result-box">
+        <div class="result-label">Dólares que recibes</div>
+        <div class="result-value" id="fc-res">—</div>
+        <div class="result-sub" id="fc-gan"></div>
+        <div class="field-hint" id="fc-hint"></div>
       </div>
-    </div>
-
-    <div class="result-box" id="result-box">
-      <div class="result-box-label" id="result-label">USD que recibirás</div>
-      <div class="result-box-value empty" id="result-value">—</div>
-      <div class="field-hint" id="result-hint"></div>
-    </div>
-
-    <div class="save-wrap">
-      <button class="btn-primary" id="btn-guardar" onclick="guardarOperacion()"><span>💾</span> Guardar operación</button>
-      <div class="save-feedback" id="save-feedback"></div>
+      <div class="save-wrap"><button class="btn-primary" id="fc-btn" onclick="cerrarCiclo()">Registrar recompra y cerrar ciclo</button></div>
     </div>
   </div>
 
-  <!-- HISTORIAL -->
-  <div id="v-historial" class="view">
-    <div class="page-header">
-      <div class="page-title">Historial</div>
-      <div class="page-actions"><button class="btn-icon" title="Eliminar todo" onclick="confirmarEliminarTodo()">🗑</button></div>
+  <!-- ═══════════ CICLOS ═══════════ -->
+  <div id="v-ciclos" class="view">
+    <div class="page-header"><div class="page-title">Ciclos</div>
+      <button class="btn-small" onclick="confirmarEliminarTodo()">🗑 Borrar todo</button></div>
+    <div class="page-sub">Cada ciclo es una venta de dólares y su recompra. La ganancia es la diferencia en dólares, ya descontados los costos.</div>
+    <div class="strip">
+      <div class="chip"><div class="lbl">Cerrados</div><div class="val" id="c-n">0</div></div>
+      <div class="chip"><div class="lbl">Acierto</div><div class="val" id="c-acierto">—</div></div>
+      <div class="chip"><div class="lbl">Ganancia</div><div class="val" id="c-gan">—</div></div>
     </div>
-    <div class="hist-filters">
-      <input type="search" id="hist-search" class="search-input" placeholder="Buscar…" oninput="renderHistorial()">
-      <select id="hist-filter" class="filter-select" onchange="renderHistorial()">
-        <option value="all">Todas</option><option value="buy">Compras</option><option value="sell">Ventas</option>
-      </select>
-    </div>
-    <div class="hist-date-filters">
-      <div class="date-filter-label">Filtrar por fecha</div>
-      <div class="date-filter-row">
-        <input type="date" id="hist-desde" class="date-input" onchange="renderHistorial()"><span class="date-sep">→</span>
-        <input type="date" id="hist-hasta" class="date-input" onchange="renderHistorial()">
-        <button class="btn-clear-dates" onclick="limpiarFiltroFechas()">✕</button>
-      </div>
-    </div>
-    <div class="hist-stats-strip" id="hist-stats-strip">
-      <div class="hist-stat-chip"><div class="lbl">Compras</div><div class="val" id="hstat-compras">0</div></div>
-      <div class="hist-stat-chip"><div class="lbl">Ventas</div><div class="val" id="hstat-ventas">0</div></div>
-      <div class="hist-stat-chip"><div class="lbl">USD neto</div><div class="val" id="hstat-neto">+US$0.00</div></div>
-    </div>
-    <div class="hist-list" id="hist-list"></div>
-    <div class="load-more-wrap hidden" id="load-more-wrap">
-      <button class="btn-load-more" onclick="cargarMas()">Cargar más operaciones</button>
-    </div>
+    <div id="ciclos-list"></div>
   </div>
 
-  <!-- CICLOS CERRADOS -->
-  <div id="v-cerradas" class="view">
-    <div class="page-header"><div class="page-title">Ciclos cerrados</div></div>
-    <div style="padding:0 14px 8px">
-      <div class="info-row" style="padding:8px 0 12px; border:none">
-        <span class="info-label" style="font-size:13px; color:var(--ink-3); line-height:1.5">Cada ciclo empareja una compra con su venta posterior FIFO, mostrando la ganancia real.</span>
-      </div>
-    </div>
-    <div id="cerradas-list"></div>
-    <div class="empty-state hidden" id="cerradas-empty">
-      <div class="empty-icon">⚖️</div><div class="empty-text">Aún no hay ciclos cerrados.</div>
-    </div>
-  </div>
-
-  <!-- EVOLUCIÓN -->
+  <!-- ═══════════ EVOLUCIÓN ═══════════ -->
   <div id="v-evolucion" class="view">
     <div class="page-header"><div class="page-title">Evolución</div></div>
     <div class="evol-stats">
-      <div class="evol-stat"><div class="evol-stat-label">Crecimiento</div><div class="evol-stat-value" id="evol-crec">—</div></div>
-      <div class="evol-stat"><div class="evol-stat-label">Rentab.</div><div class="evol-stat-value" id="evol-rentab">—</div></div>
-      <div class="evol-stat"><div class="evol-stat-label">Anualiz.</div><div class="evol-stat-value" id="evol-anual">—</div></div>
+      <div class="evol-stat"><div class="evol-stat-label">Crecimiento</div><div class="evol-stat-value" id="e-crec">—</div></div>
+      <div class="evol-stat"><div class="evol-stat-label">Rentab.</div><div class="evol-stat-value" id="e-rent">—</div></div>
+      <div class="evol-stat"><div class="evol-stat-label">Días</div><div class="evol-stat-value" id="e-dias">—</div></div>
     </div>
-    <div class="card"><div class="card-inner"><div class="card-title">Puntos de capital</div><div id="evol-table"></div></div></div>
-  </div>
-
-</div><!-- /shell -->
-
-<nav class="tab-bar">
-  <div class="tab-bar-inner">
-    <button class="tab-item on" id="tab-dashboard" onclick="setTab('dashboard',this)"><span class="tab-icon">📊</span><span class="tab-label">Resumen</span></button>
-    <button class="tab-item" id="tab-registrar" onclick="setTab('registrar',this)"><span class="tab-icon">➕</span><span class="tab-label">Registrar</span></button>
-    <button class="tab-item" id="tab-historial" onclick="setTab('historial',this)"><span class="tab-icon">📋</span><span class="tab-label">Historial</span></button>
-    <button class="tab-item" id="tab-cerradas" onclick="setTab('cerradas',this)"><span class="tab-icon">⚖️</span><span class="tab-label">Ciclos</span></button>
-    <button class="tab-item" id="tab-evolucion" onclick="setTab('evolucion',this)"><span class="tab-icon">📈</span><span class="tab-label">Evolución</span></button>
-  </div>
-</nav>
-
-<!-- MODALES -->
-<div class="modal-backdrop" id="modal-editar" onclick="cerrarModalEditar(event)">
-  <div class="modal-sheet">
-    <div class="modal-handle"></div><div class="modal-title">Editar operación</div>
-    <div class="field-group" style="padding:0 0 12px"><div class="field-label">Tipo</div><select id="edit-tipo" class="field-input" onchange="calcularEdit()"><option value="buy">Compra USD</option><option value="sell">Venta USD</option></select></div>
-    <div class="field-group" style="padding:0 0 12px"><div class="field-label">Fecha</div><input type="date" id="edit-fecha" class="field-input"></div>
-    <div class="field-row" style="padding:0"><div class="field-group" style="padding:0 0 12px"><div class="field-label" id="edit-monto-label">Monto</div><input type="number" id="edit-monto" class="field-input" step="0.01" oninput="calcularEdit()"></div><div class="field-group" style="padding:0 0 12px"><div class="field-label">Tipo de cambio</div><input type="number" id="edit-tc" class="field-input" step="0.0001" oninput="calcularEdit()"></div></div>
-    <div class="field-group" style="padding:0 0 12px"><div class="field-label">Calculado</div><div id="edit-result" style="font-size:15px;font-weight:600;color:var(--ink-2);">—</div></div>
-    <div class="field-group" style="padding:0"><div class="field-label">Notas</div><input type="text" id="edit-nota" class="field-input" maxlength="200"></div>
-    <div class="modal-actions"><button class="btn-cancel" onclick="cerrarModalEditar()">Cancelar</button><button class="btn-confirm" onclick="guardarEdicion()">Guardar</button></div>
+    <div class="card"><div class="card-inner"><div class="card-title">Capital en dólares por ciclo cerrado</div><div class="chart" id="e-chart"></div></div></div>
+    <div class="card"><div class="card-inner"><div class="card-title">Detalle</div><div id="e-table"></div></div></div>
   </div>
 </div>
 
-<div class="modal-backdrop" id="modal-capital" onclick="cerrarModalCapital(event)">
+<nav class="tab-bar"><div class="tab-bar-inner">
+  <button class="tab-item on" data-tab="resumen" onclick="setTab('resumen')"><span class="tab-icon">📊</span><span class="tab-label">Resumen</span></button>
+  <button class="tab-item" data-tab="operar" onclick="setTab('operar')"><span class="tab-icon">➕</span><span class="tab-label">Operar</span></button>
+  <button class="tab-item" data-tab="ciclos" onclick="setTab('ciclos')"><span class="tab-icon">⚖️</span><span class="tab-label">Ciclos</span></button>
+  <button class="tab-item" data-tab="evolucion" onclick="setTab('evolucion')"><span class="tab-icon">📈</span><span class="tab-label">Evolución</span></button>
+</div></nav>
+
+<!-- MODAL EDITAR -->
+<div class="modal-backdrop" id="modal-editar" onclick="if(event.target===this)cerrarModalEditar()">
   <div class="modal-sheet">
-    <div class="modal-handle"></div><div class="modal-title">Capital inicial</div>
-    <p style="font-size:14px;color:var(--ink-2);margin-bottom:16px">¿Con cuántos dólares comenzaste?</p>
-    <div class="field-group" style="padding:0"><input type="number" id="capital-input" class="field-input field-input-serif" placeholder="0.00" step="0.01" min="0"></div>
+    <div class="modal-handle"></div>
+    <div class="modal-title">Editar ciclo</div>
+    <div class="modal-sec">🔴 Venta</div>
+    <div class="field-group"><div class="field-label">Fecha</div><input type="date" id="ed-fv" class="field-input"></div>
+    <div class="field-row">
+      <div class="field-group"><div class="field-label">Dólares vendidos</div><input type="number" id="ed-usd" class="field-input" step="0.01" oninput="calcEdit()"></div>
+      <div class="field-group"><div class="field-label">TC venta</div><input type="number" id="ed-tcv" class="field-input" step="0.0001" oninput="calcEdit()"></div>
+    </div>
+    <div class="field-group"><div class="field-label">Nota venta</div><input type="text" id="ed-nota" class="field-input" maxlength="200"></div>
+    <div id="ed-compra">
+      <div class="modal-sec">🟢 Recompra</div>
+      <div class="field-group"><div class="field-label">Fecha</div><input type="date" id="ed-fc" class="field-input"></div>
+      <div class="field-row">
+        <div class="field-group"><div class="field-label">TC recompra</div><input type="number" id="ed-tcc" class="field-input" step="0.0001" oninput="calcEdit()"></div>
+        <div class="field-group"><div class="field-label">Costos S/</div><input type="number" id="ed-costo" class="field-input" step="0.01" oninput="calcEdit()"></div>
+      </div>
+      <div class="field-group"><div class="field-label">Nota recompra</div><input type="text" id="ed-notac" class="field-input" maxlength="200"></div>
+    </div>
+    <div class="field-group"><div class="sim-res" id="ed-res">—</div></div>
+    <div class="modal-actions"><button class="btn-cancel" onclick="cerrarModalEditar()">Cancelar</button><button class="btn-confirm" onclick="guardarEdicion()">Guardar</button></div>
+    <button class="btn-link hidden" id="ed-reabrir" onclick="reabrirCiclo()">Anular la recompra y dejar el ciclo abierto</button>
+  </div>
+</div>
+
+<!-- MODAL CAPITAL -->
+<div class="modal-backdrop" id="modal-capital" onclick="if(event.target===this)cerrarModalCapital()">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Capital inicial</div>
+    <div class="field-group"><div class="field-hint" style="font-size:14px;margin-bottom:10px">¿Con cuántos dólares empezaste? Es la base para medir tu ganancia.</div>
+      <input type="number" id="capital-input" class="field-input serif" placeholder="10000.00" step="0.01" min="0"></div>
     <div class="modal-actions"><button class="btn-cancel" onclick="cerrarModalCapital()">Cancelar</button><button class="btn-confirm" onclick="guardarCapital()">Guardar</button></div>
   </div>
 </div>
 
+<!-- CONFIRM -->
 <div class="confirm-modal" id="modal-confirm">
   <div class="confirm-box">
-    <div class="confirm-title" id="confirm-title">¿Eliminar?</div><div class="confirm-text" id="confirm-text">Esta acción no se puede deshacer.</div>
-    <div class="confirm-btns"><button class="btn-cancel" style="flex:1" onclick="cerrarConfirm()">Cancelar</button><button class="btn-danger" id="confirm-ok-btn">Eliminar</button></div>
+    <div class="confirm-title" id="confirm-title">¿Eliminar?</div>
+    <div class="confirm-text" id="confirm-text">Esta acción no se puede deshacer.</div>
+    <div class="confirm-btns"><button class="btn-cancel" style="flex:1" onclick="cerrarConfirm()">Cancelar</button><button class="btn-danger" id="confirm-ok">Eliminar</button></div>
   </div>
 </div>
 
 <script>
 /* ══════════════════════════════════════════════
-   ① PEGA TUS CREDENCIALES DE FIREBASE AQUÍ
+   FIREBASE
 ══════════════════════════════════════════════ */
-const firebaseConfig = {
+var firebaseConfig = {
   apiKey:            "AIzaSyBJt47-8m9jZy-12cqagxLYSbS270AD4Fw",
   authDomain:        "dollars-familia.firebaseapp.com",
   projectId:         "dollars-familia",
@@ -940,883 +482,704 @@ const firebaseConfig = {
   messagingSenderId: "605144845585",
   appId:             "1:605144845585:web:0248aec153dff875bf50b0"
 };
-
-/* ══════════════════════════════════════════════
-   FIREBASE INIT
-══════════════════════════════════════════════ */
 firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db   = firebase.firestore();
-
-// Persistencia offline nativa de Firestore
-db.enablePersistence({ synchronizeTabs: true }).catch(function(err) {
-  if (err.code === 'failed-precondition') {
-    console.warn('Persistencia offline: múltiples pestañas abiertas.');
-  } else if (err.code === 'unimplemented') {
-    console.warn('Persistencia offline no soportada en este navegador.');
-  }
-});
-
-const googleProvider = new firebase.auth.GoogleAuthProvider();
+var auth = firebase.auth();
+var db   = firebase.firestore();
+db.enablePersistence({ synchronizeTabs: true }).catch(function(e){ console.warn('Persistencia offline:', e.code); });
+var provider = new firebase.auth.GoogleAuthProvider();
 
 /* ══════════════════════════════════════════════
-   ESCAPE XSS — SIEMPRE usar para contenido de usuario
+   ESTADO
+   Modelo: librodolares_usuarios/{uid}              perfil (capitalInicial, tcReferencia, migracionCiclos)
+           librodolares_usuarios/{uid}/ciclos/{id}  un ciclo = venta USD + recompra USD
+           librodolares_usuarios/{uid}/ops/{id}     formato anterior (solo lectura, para migrar)
 ══════════════════════════════════════════════ */
-function esc(str) {
-  if (!str) return '';
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
-/* ══════════════════════════════════════════════
-   STATE GLOBAL
-══════════════════════════════════════════════ */
-var STATE = {
-  ops: [],                    // array en memoria, cargado desde subcolección
-  capitalInicial: 0,
-  tipo: 'buy',
-  editId: null,
-  confirmCallback: null,
-  currentUser: null,
-  unsubOps: null,             // listener de subcolección de ops
-  unsubPerfil: null,          // listener de doc de perfil (capital inicial)
-  histPageSize: 30,
-  histPage: 1,
-  isOnline: navigator.onLine
+var S = {
+  user: null, ciclos: [], capitalInicial: 0, tcRef: null,
+  migrado: true, migracionRevisada: false, opsLegacy: [],
+  tab: 'resumen', editId: null, confirmCb: null, unsubs: []
 };
+var MINUS = '\u2212';
+var TC_MIN = 2.5, TC_MAX = 6;
+
+function $(id){ return document.getElementById(id); }
+function perfilRef(){ return db.collection('librodolares_usuarios').doc(S.user.uid); }
+function ciclosRef(){ return perfilRef().collection('ciclos'); }
+function opsRef(){ return perfilRef().collection('ops'); }
 
 /* ══════════════════════════════════════════════
-   RUTAS FIRESTORE
-   
-   NUEVA ESTRUCTURA (subcolecciones):
-   librodolares_usuarios/{uid}               ← doc perfil (solo capitalInicial, meta)
-   librodolares_usuarios/{uid}/ops/{opId}    ← una op por doc (sin límite de 1MB)
+   UTILIDADES
 ══════════════════════════════════════════════ */
-function getPerfilRef(uid) {
-  return db.collection('librodolares_usuarios').doc(uid);
-}
-function getOpsRef(uid) {
-  return db.collection('librodolares_usuarios').doc(uid).collection('ops');
-}
+function esc(s){ if(s===null||s===undefined) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+function fmt(n,d){ if(n===null||n===undefined||isNaN(n)) return '—'; return Number(n).toLocaleString('es-PE',{minimumFractionDigits:d,maximumFractionDigits:d}); }
+function usd(n,d){ return 'US$' + fmt(n, d===undefined?2:d); }
+function pen(n,d){ return 'S/ ' + fmt(n, d===undefined?2:d); }
+function sUSD(n,d){ if(n===null||n===undefined||isNaN(n)) return '—'; return (n>=0?'+':MINUS) + usd(Math.abs(n),d); }
+function sPct(n){ if(n===null||n===undefined||isNaN(n)) return '—'; return (n>=0?'+':MINUS) + fmt(Math.abs(n),2) + '%'; }
+function tc4(n){ return (n===null||n===undefined||isNaN(n)) ? '—' : Number(n).toFixed(4); }
+function pad(n){ return String(n).padStart(2,'0'); }
+function isoLocal(ts){ var d=new Date(ts); return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+function hoyISO(){ return isoLocal(Date.now()); }
+function tsDe(iso){ return new Date(iso+'T12:00:00').getTime(); }
+function fFecha(ts){ return new Date(ts).toLocaleDateString('es-PE',{day:'numeric',month:'short',year:'numeric'}); }
+function fCorta(ts){ return new Date(ts).toLocaleDateString('es-PE',{day:'numeric',month:'short'}); }
+function num(id){ var v=parseFloat($(id).value); return isNaN(v)?null:v; }
+function tcValido(v){ return v!==null && v>=TC_MIN && v<=TC_MAX; }
+function clsSigno(n){ return n>=0 ? 'pos' : 'neg'; }
+function setErr(inputId, errId, on){ $(inputId).classList.toggle('error', on); $(errId).style.display = on ? 'block' : 'none'; }
 
 /* ══════════════════════════════════════════════
-   SYNC STATUS BAR
+   SYNC BAR
 ══════════════════════════════════════════════ */
-var syncTimer = null;
-function showSync(type, msg) {
-  var bar = document.getElementById('sync-bar');
-  var txt = document.getElementById('sync-msg');
-  clearTimeout(syncTimer);
-  bar.className = 'show ' + type;
-  txt.textContent = msg;
-  if (type === 'saved' || type === 'offline') {
-    syncTimer = setTimeout(function() { bar.classList.remove('show'); }, 2500);
+var syncTimer=null;
+function showSync(type,msg){
+  var bar=$('sync-bar'); clearTimeout(syncTimer);
+  bar.className='show '+type; $('sync-msg').textContent=msg;
+  if(type==='saved'||type==='offline') syncTimer=setTimeout(function(){ bar.classList.remove('show'); },2500);
+}
+window.addEventListener('online', function(){ showSync('saved','🟢 Conexión restaurada'); });
+window.addEventListener('offline',function(){ showSync('offline','🟡 Sin conexión. Los cambios se sincronizarán después'); });
+
+/* ══════════════════════════════════════════════
+   CÁLCULOS
+   Ciclo completo: vendo U dólares a TCv → recibo S = U × TCv soles
+                   recompro con S soles a TCc → recibo S / TCc dólares
+   Ganancia USD = S / TCc − U − costos/TCc
+   TC de equilibrio = (S − costos) / U
+══════════════════════════════════════════════ */
+function derivar(c){
+  var r = { pen: c.usdVendidos * c.tcVenta };
+  if(c.estado==='cerrado' && c.tcCompra>0){
+    r.usdRec  = r.pen / c.tcCompra;
+    r.costoUSD= (c.costoPEN||0) / c.tcCompra;
+    r.gan     = r.usdRec - c.usdVendidos - r.costoUSD;
+    r.pct     = r.gan / c.usdVendidos * 100;
+    r.dif     = (c.tcVenta - c.tcCompra) * 100;
+    r.dias    = Math.max(0, Math.round((c.fechaCompra - c.fechaVenta)/864e5));
   }
+  return r;
 }
+function simular(usdVend, tcv, tcc, costoPEN){
+  var s = usdVend * tcv, costo = costoPEN||0;
+  var usdRec = s / tcc, gan = usdRec - usdVend - costo/tcc;
+  return { pen:s, usdRec:usdRec, gan:gan, pct:gan/usdVend*100, eq:(s-costo)/usdVend, dif:(tcv-tcc)*100 };
+}
+function cicloAbierto(){ for(var i=0;i<S.ciclos.length;i++){ if(S.ciclos[i].estado==='abierto') return S.ciclos[i]; } return null; }
 
-/* ══════════════════════════════════════════════
-   DETECCIÓN ONLINE / OFFLINE
-══════════════════════════════════════════════ */
-window.addEventListener('online', function() {
-  STATE.isOnline = true;
-  showSync('saved', '🟢 Conexión restaurada');
-});
-window.addEventListener('offline', function() {
-  STATE.isOnline = false;
-  showSync('offline', '🟡 Sin conexión — los cambios se sincronizarán después');
-});
-
-/* ══════════════════════════════════════════════
-   AUTENTICACIÓN
-══════════════════════════════════════════════ */
-document.getElementById('btn-login-google').addEventListener('click', function() {
-  auth.signInWithPopup(googleProvider).catch(function(err) {
-    console.error('Error al iniciar sesión:', err);
-    alert('No se pudo iniciar sesión. Intenta de nuevo.');
+function metricas(){
+  var ci = S.capitalInicial;
+  var cerr = S.ciclos.filter(function(c){ return c.estado==='cerrado'; })
+                     .sort(function(a,b){ return a.fechaCompra-b.fechaCompra || a.fechaVenta-b.fechaVenta; });
+  var m = { ci:ci, cerr:cerr, n:cerr.length, gan:0, wins:0, difSum:0, diasSum:0, costos:0, mejor:null, peor:null, puntos:[] };
+  var cap = ci;
+  m.puntos.push({ ts:null, cap:cap });
+  cerr.forEach(function(c, i){
+    var d = derivar(c);
+    m.gan += d.gan; if(d.gan>0) m.wins++;
+    m.difSum += d.dif; m.diasSum += d.dias; m.costos += d.costoUSD;
+    if(!m.mejor || d.gan > m.mejor.d.gan) m.mejor = { c:c, d:d };
+    if(!m.peor  || d.gan < m.peor.d.gan)  m.peor  = { c:c, d:d };
+    cap += d.gan;
+    m.puntos.push({ ts:c.fechaCompra, cap:cap, gan:d.gan, num:i+1 });
   });
+  m.capital = ci + m.gan;
+  m.acierto = m.n ? m.wins/m.n*100 : null;
+  m.prom    = m.n ? m.gan/m.n : null;
+  m.difProm = m.n ? m.difSum/m.n : null;
+  m.diasProm= m.n ? m.diasSum/m.n : null;
+  m.rent    = ci>0 && m.n ? m.gan/ci*100 : null;
+  m.abierto = cicloAbierto();
+  return m;
+}
+
+/* ══════════════════════════════════════════════
+   AUTENTICACIÓN Y LISTENERS
+══════════════════════════════════════════════ */
+$('btn-login-google').addEventListener('click', function(){
+  auth.signInWithPopup(provider).catch(function(e){ console.error(e); alert('No se pudo iniciar sesión. Intenta de nuevo.'); });
 });
+function cerrarSesion(){ detener(); auth.signOut(); }
+function detener(){ S.unsubs.forEach(function(u){ u(); }); S.unsubs=[]; }
 
-function cerrarSesion() {
-  detenerListeners();
-  auth.signOut();
-}
-
-function detenerListeners() {
-  if (STATE.unsubOps)    { STATE.unsubOps();    STATE.unsubOps    = null; }
-  if (STATE.unsubPerfil) { STATE.unsubPerfil(); STATE.unsubPerfil = null; }
-}
-
-auth.onAuthStateChanged(function(user) {
-  var loading  = document.getElementById('auth-loading');
-  var loginScr = document.getElementById('login-screen');
-  var shell    = document.getElementById('app-shell');
-
-  if (user) {
-    STATE.currentUser = user;
-
-    var img = document.getElementById('user-avatar-img');
-    if (user.photoURL) { img.src = user.photoURL; img.style.display = 'block'; }
-
-    loading.classList.add('hidden');
-    loginScr.classList.add('hidden');
-    shell.classList.add('visible');
-
-    iniciarListeners(user.uid);
+auth.onAuthStateChanged(function(user){
+  $('auth-loading').classList.add('hidden');
+  if(user){
+    S.user=user;
+    var img=$('user-avatar-img'); if(user.photoURL){ img.src=user.photoURL; img.style.display='block'; }
+    $('login-screen').classList.add('hidden'); $('app-shell').classList.add('visible');
+    iniciar();
   } else {
-    STATE.currentUser = null;
-    STATE.ops = [];
-    STATE.capitalInicial = 0;
-    detenerListeners();
-
-    loading.classList.add('hidden');
-    loginScr.classList.remove('hidden');
-    shell.classList.remove('visible');
+    detener();
+    S.user=null; S.ciclos=[]; S.capitalInicial=0; S.tcRef=null; S.opsLegacy=[]; S.migracionRevisada=false;
+    $('login-screen').classList.remove('hidden'); $('app-shell').classList.remove('visible');
   }
 });
 
-/* ══════════════════════════════════════════════
-   LISTENERS EN TIEMPO REAL
-   
-   - Perfil: escucha capitalInicial
-   - Ops: escucha subcolección completa, ordena por ts desc
-══════════════════════════════════════════════ */
-function iniciarListeners(uid) {
-  detenerListeners();
+function iniciar(){
+  detener();
+  S.unsubs.push(perfilRef().onSnapshot(function(doc){
+    var d = doc.exists ? doc.data() : {};
+    S.capitalInicial = Number(d.capitalInicial)||0;
+    S.tcRef = d.tcReferencia ? Number(d.tcReferencia) : null;
+    S.migrado = d.migracionCiclos === true;
+    if(!S.migrado && !S.migracionRevisada){
+      S.migracionRevisada = true;
+      opsRef().get().then(function(snap){
+        S.opsLegacy=[];
+        snap.forEach(function(o){ var x=o.data(); S.opsLegacy.push({ id:o.id, ts:x.ts, tipo:x.tipo, usd:x.usd, pen:x.pen, tc:x.tc, nota:x.nota||'' }); });
+        renderAll();
+      }).catch(function(e){ console.warn('No se pudieron leer ops anteriores:', e); });
+    }
+    renderAll();
+  }, function(e){ console.error(e); }));
 
-  // Listener 1: doc de perfil (capitalInicial)
-  STATE.unsubPerfil = getPerfilRef(uid).onSnapshot(function(doc) {
-    if (doc.exists) {
-      STATE.capitalInicial = doc.data().capitalInicial || 0;
+  S.unsubs.push(ciclosRef().orderBy('fechaVenta','desc').onSnapshot(function(snap){
+    S.ciclos=[];
+    snap.forEach(function(doc){
+      var d=doc.data();
+      S.ciclos.push({ id:doc.id, estado:d.estado, fechaVenta:d.fechaVenta, usdVendidos:Number(d.usdVendidos), tcVenta:Number(d.tcVenta),
+        fechaCompra:d.fechaCompra||null, tcCompra:d.tcCompra?Number(d.tcCompra):null, costoPEN:Number(d.costoPEN)||0,
+        nota:d.nota||'', notaCompra:d.notaCompra||'' });
+    });
+    renderAll();
+  }, function(e){ console.error(e); showSync('error','⚠ Error al cargar datos'); }));
+}
+
+/* ══════════════════════════════════════════════
+   RENDER: RESUMEN
+══════════════════════════════════════════════ */
+function renderResumen(){
+  var m = metricas(), ci = m.ci;
+
+  $('r-capital').textContent = usd(m.capital);
+  var pill = $('r-pill');
+  if(!m.n){ pill.className='hero-pill z'; pill.textContent='Sin ciclos cerrados'; }
+  else {
+    pill.className = 'hero-pill ' + (m.gan>=0?'p':'n');
+    pill.textContent = sUSD(m.gan) + (ci>0 ? ' (' + sPct(m.gan/ci*100) + ')' : '');
+  }
+  $('r-ci').textContent = ci>0 ? usd(ci) : '—';
+  var g=$('r-gan'); g.textContent = m.n ? sUSD(m.gan) : '—'; g.className='hero-tile-value' + (m.n ? (m.gan>=0?' pl':' nl') : '');
+  $('r-n').textContent = m.n;
+  $('r-acierto').textContent = m.acierto===null ? '—' : fmt(m.acierto,0)+'%';
+
+  $('notice-capital').classList.toggle('hidden', ci>0);
+  var nLeg = S.opsLegacy.length;
+  $('notice-migrar').classList.toggle('hidden', S.migrado || !nLeg);
+  $('migrar-n').textContent = nLeg;
+
+  var a = m.abierto;
+  $('st-soles').classList.toggle('hidden', !a);
+  $('st-usd').classList.toggle('hidden', !!a);
+  $('sim-card').classList.toggle('hidden', !!a);
+
+  if(a){
+    var s = a.usdVendidos * a.tcVenta;
+    $('st-pen').textContent = pen(s);
+    $('st-venta-info').textContent = 'Vendiste ' + usd(a.usdVendidos) + ' a ' + tc4(a.tcVenta) + ' el ' + fFecha(a.fechaVenta) + '.';
+    $('st-eq').textContent = tc4(a.tcVenta);
+    var ej = a.tcVenta - 0.05;
+    $('st-eq-ej').textContent = 'Ejemplo: recomprando a ' + tc4(ej) + ' ganarías ' + sUSD(simular(a.usdVendidos,a.tcVenta,ej,0).gan) + '.';
+    var inp=$('st-tc');
+    if(document.activeElement!==inp && !inp.value && S.tcRef) inp.value = tc4(S.tcRef);
+    simHoy();
+  } else {
+    $('st-usd-cap').textContent = usd(m.capital);
+    var su=$('sim-usd');
+    if(document.activeElement!==su && !su.value && m.capital>0) su.value = m.capital.toFixed(2);
+    simCiclo();
+  }
+
+  var r=$('k-rent'); r.textContent = sPct(m.rent); r.className='info-value'+(m.rent!==null?' '+clsSigno(m.rent):'');
+  var p=$('k-prom'); p.textContent = m.prom===null?'—':sUSD(m.prom); p.className='info-value'+(m.prom!==null?' '+clsSigno(m.prom):'');
+  $('k-dif').textContent  = m.difProm===null ? '—' : fmt(m.difProm,1) + ' céntimos';
+  $('k-dias').textContent = m.diasProm===null ? '—' : fmt(m.diasProm,1) + ' días';
+  $('k-costos').textContent = m.n ? usd(m.costos) : '—';
+  var mj=$('k-mejor'), pr=$('k-peor');
+  mj.textContent = m.mejor ? sUSD(m.mejor.d.gan) + ' · ' + fCorta(m.mejor.c.fechaCompra) : '—';
+  mj.className = 'info-value' + (m.mejor ? ' '+clsSigno(m.mejor.d.gan) : '');
+  pr.textContent = m.peor ? sUSD(m.peor.d.gan) + ' · ' + fCorta(m.peor.c.fechaCompra) : '—';
+  pr.className = 'info-value' + (m.peor ? ' '+clsSigno(m.peor.d.gan) : '');
+}
+
+var tcRefTimer=null;
+function simHoy(){
+  var a=cicloAbierto(), box=$('st-sim'); if(!a) return;
+  var tc=num('st-tc');
+  if(!tcValido(tc)){ box.innerHTML='Escribe el TC de hoy para ver cuánto ganarías o perderías si recompras ahora.'; return; }
+  var r=simular(a.usdVendidos,a.tcVenta,tc,0), m=metricas();
+  box.innerHTML = 'Si recompras hoy a ' + esc(tc4(tc)) + ' recibes ' + esc(usd(r.usdRec)) + '.' +
+    '<span class="big ' + clsSigno(r.gan) + '">' + esc(sUSD(r.gan)) + ' (' + esc(sPct(r.pct)) + ')</span>' +
+    'Resultado aún no realizado. Capital valorizado hoy: <strong>' + esc(usd(m.capital + r.gan)) + '</strong>';
+}
+function onTcHoy(){
+  simHoy();
+  var tc=num('st-tc'); clearTimeout(tcRefTimer);
+  if(tcValido(tc) && S.user) tcRefTimer=setTimeout(function(){ perfilRef().set({ tcReferencia: tc }, { merge:true }).catch(function(){}); }, 900);
+}
+function simCiclo(){
+  var u=num('sim-usd'), v=num('sim-tcv'), c=num('sim-tcc'), box=$('sim-res');
+  if(!(u>0) || !tcValido(v) || !tcValido(c)){ box.innerHTML='Completa los tres campos para ver el resultado.'; return; }
+  var r=simular(u,v,c,0);
+  box.innerHTML = 'Vendes y recibes ' + esc(pen(r.pen)) + '. Recompras y recibes ' + esc(usd(r.usdRec)) + '.' +
+    '<span class="big ' + clsSigno(r.gan) + '">' + esc(sUSD(r.gan)) + ' (' + esc(sPct(r.pct)) + ')</span>' +
+    'Diferencial: ' + esc(fmt(r.dif,1)) + ' céntimos. Equilibrio: recomprar a ' + esc(tc4(v)) + ' o menos.';
+}
+
+/* ══════════════════════════════════════════════
+   RENDER: OPERAR
+══════════════════════════════════════════════ */
+function renderOperar(){
+  var a=cicloAbierto();
+  $('op-venta').classList.toggle('hidden', !!a);
+  $('op-compra').classList.toggle('hidden', !a);
+  $('op-title').textContent = a ? 'Recomprar dólares' : 'Vender dólares';
+  if(a){
+    var s=a.usdVendidos*a.tcVenta;
+    $('fc-resumen').innerHTML = esc(fFecha(a.fechaVenta)) + ': vendiste <strong>' + esc(usd(a.usdVendidos)) + '</strong> a ' + esc(tc4(a.tcVenta)) +
+      ' y recibiste <strong>' + esc(pen(s)) + '</strong>.<br>Para ganar, recompra a menos de <strong>' + esc(tc4(a.tcVenta)) + '</strong>.';
+    calcCompra();
+  } else calcVenta();
+}
+function prefillOperar(){
+  var a=cicloAbierto(), m=metricas();
+  if(!a){
+    if(!$('fv-fecha').value) $('fv-fecha').value=hoyISO();
+    if(!$('fv-usd').value && m.capital>0) $('fv-usd').value=m.capital.toFixed(2);
+    calcVenta();
+  } else {
+    if(!$('fc-fecha').value) $('fc-fecha').value=hoyISO();
+    if(!$('fc-tc').value && S.tcRef) $('fc-tc').value=tc4(S.tcRef);
+    calcCompra();
+  }
+}
+function calcVenta(){
+  var u=num('fv-usd'), tc=num('fv-tc'), el=$('fv-res'), h=$('fv-hint');
+  if(!(u>0) || !tcValido(tc)){ el.textContent='—'; el.style.color='var(--stone)'; h.textContent=''; return; }
+  var s=u*tc; el.textContent=pen(s); el.style.color='var(--ink)';
+  var ej=tc-0.05;
+  h.textContent = usd(u) + ' × ' + tc4(tc) + ' = ' + pen(s,4) + '. Para ganar deberás recomprar a menos de ' + tc4(tc) +
+    '; a ' + tc4(ej) + ' ganarías ' + sUSD(simular(u,tc,ej,0).gan) + '.';
+}
+function calcCompra(){
+  var a=cicloAbierto(); if(!a) return;
+  var tc=num('fc-tc'), costo=num('fc-costo')||0, el=$('fc-res'), g=$('fc-gan'), h=$('fc-hint');
+  if(!tcValido(tc)){ el.textContent='—'; el.style.color='var(--stone)'; g.textContent=''; h.textContent=''; return; }
+  var r=simular(a.usdVendidos,a.tcVenta,tc,costo);
+  el.textContent=usd(r.usdRec); el.style.color='var(--ink)';
+  g.textContent = 'Ganancia neta: ' + sUSD(r.gan) + ' (' + sPct(r.pct) + ')'; g.className='result-sub '+clsSigno(r.gan);
+  h.textContent = pen(r.pen) + ' ÷ ' + tc4(tc) + ' = ' + usd(r.usdRec,4) +
+    (costo>0 ? '. Costos: ' + pen(costo) + ' = ' + usd(costo/tc) + '. Equilibrio con costos: ' + tc4(r.eq) : '') + '.';
+}
+
+/* ══════════════════════════════════════════════
+   GUARDAR: ABRIR / CERRAR CICLO
+══════════════════════════════════════════════ */
+function abrirCiclo(){
+  if(cicloAbierto()){ alert('Ya tienes un ciclo abierto. Ciérralo antes de abrir otro.'); return; }
+  var fecha=$('fv-fecha').value, u=num('fv-usd'), tc=num('fv-tc'), nota=$('fv-nota').value.trim().slice(0,200);
+  var okU = u>0, okT = tcValido(tc);
+  setErr('fv-usd','fv-usd-err',!okU); setErr('fv-tc','fv-tc-err',!okT);
+  if(!fecha){ $('fv-fecha').classList.add('error'); } else $('fv-fecha').classList.remove('error');
+  if(!okU||!okT||!fecha) return;
+  var cap=metricas().capital;
+  if(cap>0 && u>cap+0.01 && !confirm('Vas a vender ' + usd(u) + ', más que tu capital registrado (' + usd(cap) + '). ¿Continuar?')) return;
+
+  $('fv-btn').disabled=true; showSync('saving','Guardando...');
+  ciclosRef().doc().set({
+    estado:'abierto', fechaVenta:tsDe(fecha), usdVendidos:u, tcVenta:tc, nota:nota,
+    fechaCompra:null, tcCompra:null, costoPEN:0, notaCompra:'',
+    creadoEn:firebase.firestore.FieldValue.serverTimestamp()
+  }).then(function(){
+    showSync('saved','✓ Ciclo abierto');
+    $('fv-usd').value=''; $('fv-tc').value=''; $('fv-nota').value=''; $('fv-fecha').value='';
+    setTab('resumen');
+  }).catch(function(e){ console.error(e); showSync('error','⚠ Error al guardar'); })
+    .finally(function(){ $('fv-btn').disabled=false; });
+}
+function cerrarCiclo(){
+  var a=cicloAbierto(); if(!a) return;
+  var fecha=$('fc-fecha').value, tc=num('fc-tc'), costoRaw=$('fc-costo').value, costo=costoRaw===''?0:parseFloat(costoRaw);
+  var nota=$('fc-nota').value.trim().slice(0,200);
+  var okF = !!fecha && tsDe(fecha) >= a.fechaVenta, okT=tcValido(tc), okC = !isNaN(costo) && costo>=0;
+  setErr('fc-fecha','fc-fecha-err',!okF); setErr('fc-tc','fc-tc-err',!okT); setErr('fc-costo','fc-costo-err',!okC);
+  if(!okF||!okT||!okC) return;
+
+  $('fc-btn').disabled=true; showSync('saving','Guardando...');
+  ciclosRef().doc(a.id).update({
+    estado:'cerrado', fechaCompra:tsDe(fecha), tcCompra:tc, costoPEN:costo, notaCompra:nota,
+    actualizadoEn:firebase.firestore.FieldValue.serverTimestamp()
+  }).then(function(){
+    var r=simular(a.usdVendidos,a.tcVenta,tc,costo);
+    showSync('saved','✓ Ciclo cerrado: ' + sUSD(r.gan));
+    $('fc-tc').value=''; $('fc-costo').value=''; $('fc-nota').value=''; $('fc-fecha').value='';
+    setTab('ciclos');
+  }).catch(function(e){ console.error(e); showSync('error','⚠ Error al guardar'); })
+    .finally(function(){ $('fc-btn').disabled=false; });
+}
+
+/* ══════════════════════════════════════════════
+   RENDER: CICLOS
+══════════════════════════════════════════════ */
+function renderCiclos(){
+  var m=metricas(), list=$('ciclos-list');
+  $('c-n').textContent=m.n;
+  $('c-acierto').textContent = m.acierto===null?'—':fmt(m.acierto,0)+'%';
+  var cg=$('c-gan'); cg.textContent = m.n?sUSD(m.gan):'—'; cg.className='val'+(m.n?' '+clsSigno(m.gan):'');
+
+  if(!S.ciclos.length){
+    list.innerHTML='<div class="empty-state"><div class="empty-icon">⚖️</div>Aún no hay ciclos.<br>Empieza registrando una venta de dólares en Operar.</div>';
+    return;
+  }
+  var numero={}; m.cerr.forEach(function(c,i){ numero[c.id]=i+1; });
+  var orden = S.ciclos.slice().sort(function(a,b){
+    if(a.estado!==b.estado) return a.estado==='abierto'?-1:1;
+    return (b.fechaCompra||0)-(a.fechaCompra||0);
+  });
+  var html='';
+  orden.forEach(function(c){
+    var d=derivar(c), abierto=c.estado==='abierto';
+    var notas=[c.nota,c.notaCompra].filter(Boolean).join(' · ');
+    if(abierto){
+      html += '<div class="ciclo open"><div class="ciclo-head"><div><span class="badge open">Abierto</span></div>' +
+        '<div><div class="ciclo-pnl" style="color:var(--amber)">' + esc(pen(d.pen)) + '</div><div class="ciclo-pct">en soles, pendiente de recompra</div></div></div>' +
+        '<div class="ciclo-body">' +
+          cf('Venta', fFecha(c.fechaVenta)) + cf('TC venta', tc4(c.tcVenta)) +
+          cf('Dólares vendidos', usd(c.usdVendidos)) + cf('Equilibrio', '≤ ' + tc4(c.tcVenta)) +
+        '</div>';
     } else {
-      STATE.capitalInicial = 0;
+      var win=d.gan>=0;
+      html += '<div class="ciclo"><div class="ciclo-head"><div><span class="badge ' + (win?'win':'loss') + '">' + (win?'Ganancia':'Pérdida') + '</span><span class="ciclo-num">Ciclo ' + numero[c.id] + '</span></div>' +
+        '<div><div class="ciclo-pnl ' + clsSigno(d.gan) + '">' + esc(sUSD(d.gan)) + '</div><div class="ciclo-pct">' + esc(sPct(d.pct)) + ' · ' + d.dias + (d.dias===1?' día':' días') + '</div></div></div>' +
+        '<div class="ciclo-body">' +
+          cf('Venta · ' + fCorta(c.fechaVenta), usd(c.usdVendidos) + ' a ' + tc4(c.tcVenta)) +
+          cf('Recompra · ' + fCorta(c.fechaCompra), usd(d.usdRec) + ' a ' + tc4(c.tcCompra)) +
+          cf('Soles del ciclo', pen(d.pen)) +
+          cf('Diferencial', fmt(d.dif,1) + ' cént.' + (c.costoPEN>0 ? ' · costos ' + pen(c.costoPEN) : '')) +
+        '</div>';
     }
-    renderDashboard();
-    if (CURRENT_TAB === 'evolucion') renderEvolucion();
-  }, function(err) {
-    console.error('Error listener perfil:', err);
+    html += '<div class="ciclo-foot"><div class="ciclo-note">' + (notas ? '💬 ' + esc(notas) : '') + '</div>' +
+      '<div class="ciclo-actions"><button class="op-btn" onclick="abrirModalEditar(\'' + c.id + '\')">✏️</button>' +
+      '<button class="op-btn" onclick="confirmarEliminar(\'' + c.id + '\')">🗑</button></div></div></div>';
   });
+  list.innerHTML=html;
+}
+function cf(l,v){ return '<div class="cf"><div class="cf-l">' + esc(l) + '</div><div class="cf-v">' + esc(v) + '</div></div>'; }
 
-  // Listener 2: subcolección de ops
-  STATE.unsubOps = getOpsRef(uid)
-    .orderBy('ts', 'desc')
-    .onSnapshot(function(snapshot) {
-      STATE.ops = [];
-      snapshot.forEach(function(doc) {
-        var d = doc.data();
-        STATE.ops.push({
-          id:   doc.id,
-          ts:   d.ts,
-          tipo: d.tipo,
-          usd:  d.usd,
-          pen:  d.pen,
-          tc:   d.tc,
-          nota: d.nota || ''
-        });
-      });
-      renderAll();
-    }, function(err) {
-      console.error('Error listener ops:', err);
-      showSync('error', '⚠ Error al cargar datos');
-    });
+/* ══════════════════════════════════════════════
+   RENDER: EVOLUCIÓN
+══════════════════════════════════════════════ */
+function renderEvolucion(){
+  var m=metricas();
+  var ec=$('e-crec'); ec.textContent = m.n?sUSD(m.gan):'—'; ec.className='evol-stat-value'+(m.n?' '+clsSigno(m.gan):'');
+  var er=$('e-rent'); er.textContent = sPct(m.rent); er.className='evol-stat-value'+(m.rent!==null?' '+clsSigno(m.rent):'');
+  if(S.ciclos.length){
+    var first=Math.min.apply(null,S.ciclos.map(function(c){ return c.fechaVenta; }));
+    $('e-dias').textContent = fmt(Math.max(0,Math.round((Date.now()-first)/864e5)),0);
+  } else $('e-dias').textContent='—';
+
+  $('e-chart').innerHTML = grafico(m.puntos, m.ci);
+
+  var html='';
+  m.puntos.forEach(function(p){
+    html += '<div class="info-row"><span class="info-label">' + (p.ts ? 'Ciclo ' + p.num + ' · ' + esc(fFecha(p.ts)) : 'Capital inicial') + '</span>' +
+      '<span class="info-value">' + esc(usd(p.cap)) + (p.ts ? ' <span class="' + clsSigno(p.gan) + '" style="font-size:12px">(' + esc(sUSD(p.gan)) + ')</span>' : '') + '</span></div>';
+  });
+  $('e-table').innerHTML = html || '<div class="text-muted">Sin datos.</div>';
+}
+function grafico(pts, ci){
+  if(pts.length<2) return '<div class="empty-state" style="padding:28px 10px">Cierra al menos un ciclo para ver la curva.</div>';
+  var W=320,H=180,pl=6,pr=6,pt=22,pb=22, n=pts.length;
+  var vals=pts.map(function(p){ return p.cap; });
+  var mn=Math.min.apply(null,vals), mx=Math.max.apply(null,vals);
+  if(mx-mn<1e-6){ mx+=1; mn-=1; }
+  var padv=(mx-mn)*0.15; mn-=padv; mx+=padv;
+  function X(i){ return pl+(W-pl-pr)*(i/(n-1)); }
+  function Y(v){ return pt+(H-pt-pb)*(1-(v-mn)/(mx-mn)); }
+  var line=pts.map(function(p,i){ return (i?'L':'M')+X(i).toFixed(1)+' '+Y(p.cap).toFixed(1); }).join(' ');
+  var area=line+' L'+X(n-1).toFixed(1)+' '+(H-pb)+' L'+X(0).toFixed(1)+' '+(H-pb)+' Z';
+  var yb=Y(ci).toFixed(1);
+  var dots=pts.map(function(p,i){
+    var col = i===0 ? '#8A8780' : (p.gan>=0 ? '#1A6B49' : '#B83327');
+    return '<circle cx="'+X(i).toFixed(1)+'" cy="'+Y(p.cap).toFixed(1)+'" r="3.5" fill="'+col+'" stroke="#fff" stroke-width="1.5"/>';
+  }).join('');
+  var last=pts[n-1];
+  var anchor = n>1 ? 'end' : 'start';
+  return '<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Capital por ciclo">' +
+    '<defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2E9E6E" stop-opacity=".22"/><stop offset="1" stop-color="#2E9E6E" stop-opacity="0"/></linearGradient></defs>' +
+    '<path d="'+area+'" fill="url(#ga)"/>' +
+    '<line x1="'+pl+'" x2="'+(W-pr)+'" y1="'+yb+'" y2="'+yb+'" stroke="#BFBAB0" stroke-dasharray="4 4" stroke-width="1"/>' +
+    '<text x="'+pl+'" y="'+(Number(yb)-5)+'" font-size="9" fill="#8A8780">Inicial '+esc(usd(ci,0))+'</text>' +
+    '<path d="'+line+'" fill="none" stroke="#1C1B18" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>' +
+    dots +
+    '<text x="'+X(n-1).toFixed(1)+'" y="'+(Y(last.cap)-9).toFixed(1)+'" font-size="11" font-weight="700" fill="#1C1B18" text-anchor="'+anchor+'">'+esc(usd(last.cap))+'</text>' +
+    '<text x="'+pl+'" y="'+(H-6)+'" font-size="9" fill="#8A8780">Inicio</text>' +
+    '<text x="'+(W-pr)+'" y="'+(H-6)+'" font-size="9" fill="#8A8780" text-anchor="end">Ciclo '+(n-1)+'</text>' +
+  '</svg>';
 }
 
 /* ══════════════════════════════════════════════
-   GUARDAR / EDITAR / ELIMINAR UNA OP
-   Ahora cada op es un documento individual
+   EDITAR / REABRIR / ELIMINAR
 ══════════════════════════════════════════════ */
-function guardarOpEnFirestore(op) {
-  if (!STATE.currentUser) return Promise.reject('Sin usuario');
-  showSync('saving', 'Guardando...');
-  return getOpsRef(STATE.currentUser.uid).doc(op.id).set({
-    ts:   op.ts,
-    tipo: op.tipo,
-    usd:  op.usd,
-    pen:  op.pen,
-    tc:   op.tc,
-    nota: op.nota,
-    creadoEn: firebase.firestore.FieldValue.serverTimestamp()
-  }).then(function() {
-    showSync('saved', '✓ Guardado');
-  }).catch(function(e) {
-    console.error('Error guardando op:', e);
-    showSync('error', '⚠ Error al guardar');
-    throw e;
-  });
+function buscar(id){ for(var i=0;i<S.ciclos.length;i++) if(S.ciclos[i].id===id) return S.ciclos[i]; return null; }
+function abrirModalEditar(id){
+  var c=buscar(id); if(!c) return; S.editId=id;
+  var cerrado=c.estado==='cerrado';
+  $('ed-fv').value=isoLocal(c.fechaVenta); $('ed-usd').value=c.usdVendidos.toFixed(2); $('ed-tcv').value=tc4(c.tcVenta); $('ed-nota').value=c.nota||'';
+  $('ed-compra').classList.toggle('hidden', !cerrado);
+  $('ed-reabrir').classList.toggle('hidden', !cerrado);
+  if(cerrado){ $('ed-fc').value=isoLocal(c.fechaCompra); $('ed-tcc').value=tc4(c.tcCompra); $('ed-costo').value=c.costoPEN?c.costoPEN.toFixed(2):''; $('ed-notac').value=c.notaCompra||''; }
+  calcEdit();
+  $('modal-editar').classList.add('on');
 }
-
-function eliminarOpEnFirestore(id) {
-  if (!STATE.currentUser) return Promise.reject('Sin usuario');
-  showSync('saving', 'Eliminando...');
-  return getOpsRef(STATE.currentUser.uid).doc(id).delete()
-    .then(function() { showSync('saved', '✓ Eliminado'); })
-    .catch(function(e) {
-      console.error('Error eliminando op:', e);
-      showSync('error', '⚠ Error al eliminar');
-      throw e;
-    });
+function cerrarModalEditar(){ $('modal-editar').classList.remove('on'); S.editId=null; }
+function calcEdit(){
+  var c=buscar(S.editId); if(!c) return;
+  var u=num('ed-usd'), v=num('ed-tcv'), box=$('ed-res');
+  if(!(u>0)||!tcValido(v)){ box.textContent='Revisa los datos de la venta.'; return; }
+  if(c.estado!=='cerrado'){ box.textContent='Soles recibidos: ' + pen(u*v) + '. Equilibrio: ' + tc4(v) + '.'; return; }
+  var t=num('ed-tcc'), k=num('ed-costo')||0;
+  if(!tcValido(t)){ box.textContent='Revisa el TC de recompra.'; return; }
+  var r=simular(u,v,t,k);
+  box.innerHTML='Recibes ' + esc(usd(r.usdRec)) + '<span class="big ' + clsSigno(r.gan) + '">' + esc(sUSD(r.gan)) + ' (' + esc(sPct(r.pct)) + ')</span>';
 }
-
-function guardarPerfilEnFirestore() {
-  if (!STATE.currentUser) return;
-  showSync('saving', 'Guardando...');
-  getPerfilRef(STATE.currentUser.uid).set({
-    capitalInicial: STATE.capitalInicial,
-    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-  }, { merge: true })
-    .then(function() { showSync('saved', '✓ Capital guardado'); })
-    .catch(function(e) {
-      console.error('Error guardando perfil:', e);
-      showSync('error', '⚠ Error al guardar');
-    });
-}
-
-/* ══════════════════════════════════════════════
-   HELPERS
-══════════════════════════════════════════════ */
-function fmt(n, dec) {
-  if (n === null || n === undefined || isNaN(n)) return '—';
-  return n.toLocaleString('es-PE', { minimumFractionDigits: dec, maximumFractionDigits: dec });
-}
-function fmtUSD(n, dec) { return 'US$' + fmt(n, dec === undefined ? 2 : dec); }
-function fmtPEN(n, dec) { return 'S/ ' + fmt(n, dec === undefined ? 2 : dec); }
-function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
-function todayISO() { var d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()); }
-function pad(n) { return String(n).padStart(2,'0'); }
-function fmtFecha(ts) { return new Date(ts).toLocaleDateString('es-PE', { day:'numeric', month:'short', year:'numeric' }); }
-function fmtFechaShort(ts) { return new Date(ts).toLocaleDateString('es-PE', { day:'numeric', month:'short' }); }
-
-/* ══════════════════════════════════════════════
-   VALIDACIÓN DE INPUTS
-══════════════════════════════════════════════ */
-function validarFormulario() {
-  var fecha  = document.getElementById('form-fecha').value;
-  var monto  = parseFloat(document.getElementById('form-monto').value);
-  var tc     = parseFloat(document.getElementById('form-tc').value);
-  var valido = true;
-
-  // Reset errores
-  ['form-monto','form-tc'].forEach(function(id) {
-    document.getElementById(id).classList.remove('error');
-  });
-  ['err-monto','err-tc'].forEach(function(id) {
-    document.getElementById(id).style.display = 'none';
-  });
-
-  if (!fecha) { valido = false; }
-
-  if (isNaN(monto) || monto <= 0) {
-    document.getElementById('form-monto').classList.add('error');
-    document.getElementById('err-monto').style.display = 'block';
-    valido = false;
+function guardarEdicion(){
+  var c=buscar(S.editId); if(!c) return;
+  var fv=$('ed-fv').value, u=num('ed-usd'), v=num('ed-tcv');
+  if(!fv || !(u>0) || !tcValido(v)){ alert('Revisa la fecha, el monto y el TC de la venta.'); return; }
+  var data={ fechaVenta:tsDe(fv), usdVendidos:u, tcVenta:v, nota:$('ed-nota').value.trim().slice(0,200), actualizadoEn:firebase.firestore.FieldValue.serverTimestamp() };
+  if(c.estado==='cerrado'){
+    var fc=$('ed-fc').value, t=num('ed-tcc'), k=$('ed-costo').value===''?0:parseFloat($('ed-costo').value);
+    if(!fc || tsDe(fc)<tsDe(fv) || !tcValido(t) || isNaN(k) || k<0){ alert('Revisa la recompra: fecha posterior a la venta, TC entre 2.50 y 6.00 y costos válidos.'); return; }
+    data.fechaCompra=tsDe(fc); data.tcCompra=t; data.costoPEN=k; data.notaCompra=$('ed-notac').value.trim().slice(0,200);
   }
-  if (isNaN(tc) || tc < 2.5 || tc > 6) {
-    document.getElementById('form-tc').classList.add('error');
-    document.getElementById('err-tc').style.display = 'block';
-    valido = false;
-  }
-  return valido;
+  showSync('saving','Guardando...');
+  ciclosRef().doc(c.id).update(data).then(function(){ showSync('saved','✓ Ciclo actualizado'); })
+    .catch(function(e){ console.error(e); showSync('error','⚠ Error al guardar'); });
+  cerrarModalEditar();
 }
+function reabrirCiclo(){
+  var c=buscar(S.editId); if(!c) return;
+  if(cicloAbierto()){ alert('Ya hay otro ciclo abierto. Ciérralo o elimínalo primero.'); return; }
+  if(!confirm('Se anulará la recompra de este ciclo y quedará abierto de nuevo. ¿Continuar?')) return;
+  ciclosRef().doc(c.id).update({ estado:'abierto', fechaCompra:null, tcCompra:null, costoPEN:0, notaCompra:'', actualizadoEn:firebase.firestore.FieldValue.serverTimestamp() })
+    .then(function(){ showSync('saved','✓ Ciclo reabierto'); })
+    .catch(function(e){ console.error(e); showSync('error','⚠ Error al guardar'); });
+  cerrarModalEditar();
+}
+function pedirConfirm(titulo, texto, cb){
+  $('confirm-title').textContent=titulo; $('confirm-text').textContent=texto; S.confirmCb=cb;
+  $('modal-confirm').classList.add('on');
+}
+function cerrarConfirm(){ $('modal-confirm').classList.remove('on'); S.confirmCb=null; }
+$('confirm-ok').addEventListener('click', function(){ var cb=S.confirmCb; cerrarConfirm(); if(cb) cb(); });
 
-/* ══════════════════════════════════════════════
-   LÓGICA DE NEGOCIO
-══════════════════════════════════════════════ */
-function calcularCapital() {
-  var ops = STATE.ops.slice().sort(function(a,b) { return a.ts - b.ts; });
-  var capitalUSD = STATE.capitalInicial;
-  var capitalPEN = 0;
-  var puntos = [];
-
-  if (STATE.capitalInicial > 0) {
-    puntos.push({ ts: ops.length > 0 ? ops[0].ts - 1 : Date.now(), usd: STATE.capitalInicial, label: 'Inicio' });
-  }
-  ops.forEach(function(op) {
-    if (op.tipo === 'sell') { capitalUSD -= op.usd; capitalPEN += op.pen; }
-    else { capitalUSD += op.usd; capitalPEN -= op.pen; }
-    puntos.push({ ts: op.ts, usd: capitalUSD, penCaja: capitalPEN, label: fmtFechaShort(op.ts) });
+function confirmarEliminar(id){
+  pedirConfirm('¿Eliminar este ciclo?','Se borra la venta y la recompra. No se puede deshacer.', function(){
+    showSync('saving','Eliminando...');
+    ciclosRef().doc(id).delete().then(function(){ showSync('saved','✓ Eliminado'); })
+      .catch(function(e){ console.error(e); showSync('error','⚠ Error al eliminar'); });
   });
-  return { capitalUSD: capitalUSD, capitalPEN: capitalPEN, puntos: puntos };
 }
-
-function calcularCiclos() {
-  var ops = STATE.ops.slice().sort(function(a,b) { return a.ts - b.ts; });
-  var compras = ops.filter(function(o) { return o.tipo === 'buy'; }).slice();
-  var ventas  = ops.filter(function(o) { return o.tipo === 'sell'; });
-  var ciclos  = [];
-
-  ventas.forEach(function(venta) {
-    var usdPendiente = venta.usd;
-    while (usdPendiente > 0.00001 && compras.length > 0) {
-      var compra = compras[0];
-      var usdUsado = Math.min(compra.usd, usdPendiente);
-      var fraccion = usdUsado / compra.usd;
-      var gananciaPEN = usdUsado * (venta.tc - compra.tc);
-      var gananciaUSD2 = gananciaPEN / venta.tc;
-      var rentab = (venta.tc / compra.tc - 1) * 100;
-      ciclos.push({
-        compraTc: compra.tc, ventaTc: venta.tc, usd: usdUsado,
-        gananciaPEN: gananciaPEN, gananciaUSD: gananciaUSD2, rentab: rentab,
-        compraFecha: compra.ts, ventaFecha: venta.ts
-      });
-      usdPendiente -= usdUsado;
-      if (usdUsado >= compra.usd - 0.00001) compras.shift();
-      else compras[0] = Object.assign({}, compra, { usd: compra.usd - usdUsado, pen: compra.pen * (1 - fraccion) });
+function confirmarEliminarTodo(){
+  if(!S.ciclos.length) return;
+  pedirConfirm('¿Borrar todos los ciclos?','Se eliminarán ' + S.ciclos.length + ' ciclos. Descarga un respaldo JSON antes si lo necesitas.', function(){
+    showSync('saving','Eliminando todo...');
+    var ids=S.ciclos.map(function(c){ return c.id; }), proms=[];
+    for(var i=0;i<ids.length;i+=400){
+      var b=db.batch(); ids.slice(i,i+400).forEach(function(id){ b.delete(ciclosRef().doc(id)); }); proms.push(b.commit());
     }
+    Promise.all(proms).then(function(){ showSync('saved','✓ Historial eliminado'); })
+      .catch(function(e){ console.error(e); showSync('error','⚠ Error al eliminar'); });
   });
-  return ciclos;
 }
 
 /* ══════════════════════════════════════════════
-   GUARDAR OPERACIÓN
+   CAPITAL
 ══════════════════════════════════════════════ */
-function guardarOperacion() {
-  if (!validarFormulario()) { return; }
-
-  var fecha = document.getElementById('form-fecha').value;
-  var monto = parseFloat(document.getElementById('form-monto').value);
-  var tc    = parseFloat(document.getElementById('form-tc').value);
-  var nota  = document.getElementById('form-nota').value.trim().slice(0, 200);
-
-  var tipo = STATE.tipo;
-  var usd  = (tipo === 'buy') ? monto / tc : monto;
-  var pen  = (tipo === 'buy') ? monto : monto * tc;
-  var ts   = new Date(fecha + 'T12:00:00').getTime();
-  var id   = genId();
-
-  var op = { id: id, ts: ts, tipo: tipo, usd: usd, pen: pen, tc: tc, nota: nota };
-
-  document.getElementById('btn-guardar').disabled = true;
-  guardarOpEnFirestore(op).then(function() {
-    flashFeedback('✓ Guardado en la nube', 'var(--green)');
-    document.getElementById('form-monto').value = '';
-    document.getElementById('form-nota').value  = '';
-    document.getElementById('result-value').textContent = '—';
-    document.getElementById('result-value').className = 'result-box-value empty';
-    document.getElementById('result-hint').textContent = '';
-    document.getElementById('form-fecha').value = todayISO();
-  }).catch(function() {
-    flashFeedback('⚠ Error al guardar. Intenta de nuevo.', 'var(--red)');
-  }).finally(function() {
-    document.getElementById('btn-guardar').disabled = false;
-  });
-}
-
-function flashFeedback(msg, color) {
-  var el = document.getElementById('save-feedback');
-  el.textContent = msg; el.style.color = color; el.style.opacity = '1';
-  setTimeout(function() { el.style.opacity = '0'; }, 2500);
-}
-
-function calcularFormulario() {
-  var monto  = parseFloat(document.getElementById('form-monto').value);
-  var tc     = parseFloat(document.getElementById('form-tc').value);
-  var tipo   = STATE.tipo;
-  var valEl  = document.getElementById('result-value');
-  var hintEl = document.getElementById('result-hint');
-  var labelEl = document.getElementById('result-label');
-
-  if (isNaN(monto) || isNaN(tc) || monto <= 0 || tc <= 0) {
-    valEl.textContent = '—'; valEl.className = 'result-box-value empty'; hintEl.textContent = ''; return;
-  }
-  if (tipo === 'buy') {
-    var usd = monto / tc; labelEl.textContent = 'USD que recibirás';
-    valEl.textContent = fmtUSD(usd, 2); valEl.className = 'result-box-value buy';
-    hintEl.textContent = fmtPEN(monto, 2) + ' ÷ ' + tc.toFixed(4) + ' = ' + fmtUSD(usd, 4);
-  } else {
-    var pen = monto * tc; labelEl.textContent = 'Soles que recibirás';
-    valEl.textContent = fmtPEN(pen, 2); valEl.className = 'result-box-value sell';
-    hintEl.textContent = fmtUSD(monto, 2) + ' × ' + tc.toFixed(4) + ' = ' + fmtPEN(pen, 4);
-  }
-}
-
-function setTipo(t) {
-  STATE.tipo = t;
-  document.getElementById('btn-buy').className  = t === 'buy'  ? 'type-btn active-buy'  : 'type-btn';
-  document.getElementById('btn-sell').className = t === 'sell' ? 'type-btn active-sell' : 'type-btn';
-  document.getElementById('form-monto-label').textContent = t === 'buy' ? 'Soles entregados (PEN)' : 'USD a vender';
-  calcularFormulario();
+function abrirModalCapital(){ $('capital-input').value = S.capitalInicial>0 ? S.capitalInicial : ''; $('modal-capital').classList.add('on'); }
+function cerrarModalCapital(){ $('modal-capital').classList.remove('on'); }
+function guardarCapital(){
+  var v=parseFloat($('capital-input').value); if(isNaN(v)||v<0) return;
+  showSync('saving','Guardando...');
+  perfilRef().set({ capitalInicial:v, updatedAt:firebase.firestore.FieldValue.serverTimestamp() }, { merge:true })
+    .then(function(){ showSync('saved','✓ Capital guardado'); })
+    .catch(function(e){ console.error(e); showSync('error','⚠ Error al guardar'); });
+  cerrarModalCapital();
 }
 
 /* ══════════════════════════════════════════════
-   RENDERIZADO
+   MIGRACIÓN DESDE EL FORMATO ANTERIOR (ops)
+   Empareja cada venta con la compra siguiente.
+   La recompra se recalcula con todos los soles de la venta (ciclos completos).
 ══════════════════════════════════════════════ */
-function renderDashboard() {
-  var ci = STATE.capitalInicial;
-  var pos = calcularCapital();
-  var capitalActual = pos.capitalUSD;
-  var gananciaUSD   = capitalActual - ci;
-  var numOps = STATE.ops.length;
-
-  document.getElementById('dash-capital-inicial').textContent = ci > 0 ? fmtUSD(ci, 2) : '—';
-  document.getElementById('dash-capital-actual').textContent  = fmtUSD(capitalActual, 2);
-
-  var pill = document.getElementById('dash-gain-pill');
-  if (ci <= 0 || numOps === 0) {
-    pill.className = 'hero-gain-pill neu'; pill.textContent = 'Sin operaciones';
-  } else {
-    var rentab = (gananciaUSD / ci * 100);
-    pill.className = 'hero-gain-pill ' + (gananciaUSD >= 0 ? 'pos' : 'neg');
-    pill.textContent = (gananciaUSD >= 0 ? '+' : '') + fmtUSD(gananciaUSD, 2) + ' (' + (gananciaUSD >= 0 ? '+' : '') + fmt(rentab, 2) + '%)';
-  }
-
-  var gUsdEl = document.getElementById('dash-ganancia-usd');
-  gUsdEl.textContent = ci > 0 ? ((gananciaUSD >= 0 ? '+' : '') + fmtUSD(gananciaUSD, 2)) : '—';
-  gUsdEl.className = 'hero-tile-value ' + (gananciaUSD >= 0 ? 'pos-light' : 'neg-light');
-
-  var ciclos = calcularCiclos();
-  var totalGanPEN = ciclos.reduce(function(s,c) { return s + c.gananciaPEN; }, 0);
-  var gPenEl = document.getElementById('dash-ganancia-pen');
-  gPenEl.textContent = ci > 0 ? ((totalGanPEN >= 0 ? '+' : '') + fmtPEN(totalGanPEN, 2)) : '—';
-  gPenEl.className = 'hero-tile-value ' + (totalGanPEN >= 0 ? 'pos-light' : 'neg-light');
-  document.getElementById('dash-num-ops').textContent = numOps;
-
-  var rentab = ci > 0 && numOps > 0 ? (gananciaUSD / ci * 100) : null;
-  var rentabAnual = null;
-  if (ci > 0 && numOps > 0) {
-    var firstTs = STATE.ops.reduce(function(m,o) { return Math.min(m,o.ts); }, Infinity);
-    var diasTrans = Math.max(1, (Date.now() - firstTs) / 86400000);
-    rentabAnual = (Math.pow(1 + gananciaUSD / ci, 365 / diasTrans) - 1) * 100;
-  }
-  var promOp = numOps > 0 && ci > 0 ? gananciaUSD / numOps : null;
-  var mejorCiclo = null, peorCiclo = null;
-  ciclos.forEach(function(c) {
-    if (!mejorCiclo || c.gananciaUSD > mejorCiclo.gananciaUSD) mejorCiclo = c;
-    if (!peorCiclo  || c.gananciaUSD < peorCiclo.gananciaUSD)  peorCiclo  = c;
+function opsACiclos(ops){
+  var arr=ops.slice().sort(function(a,b){ return a.ts-b.ts; }), out=[], pend=null, omit=0;
+  arr.forEach(function(o){
+    if(!(o.usd>0) || !(o.tc>0) || !o.ts){ omit++; return; }
+    if(o.tipo==='sell'){ if(pend) omit++; pend=o; }
+    else if(o.tipo==='buy'){
+      if(!pend){ omit++; return; }
+      out.push({ estado:'cerrado', fechaVenta:pend.ts, usdVendidos:pend.usd, tcVenta:pend.tc, nota:pend.nota||'',
+                 fechaCompra:o.ts, tcCompra:o.tc, costoPEN:0, notaCompra:o.nota||'' });
+      pend=null;
+    } else omit++;
   });
-  var maxHist = null, minHist = null;
-  pos.puntos.forEach(function(p) {
-    if (!maxHist || p.usd > maxHist.usd) maxHist = p;
-    if (!minHist || p.usd < minHist.usd) minHist = p;
-  });
-
-  setInfoRow('dash-rentab', rentab !== null ? ((rentab >= 0 ? '+' : '') + fmt(rentab,2) + '%') : '—', rentab !== null && rentab >= 0 ? 'pos' : 'neg');
-  setInfoRow('dash-rentab-anual', rentabAnual !== null ? ((rentabAnual >= 0 ? '+' : '') + fmt(rentabAnual,2) + '%/año') : '—', rentabAnual !== null && rentabAnual >= 0 ? 'pos' : 'neg');
-  setInfoRow('dash-prom-op', promOp !== null ? ((promOp >= 0 ? '+' : '') + fmtUSD(promOp,2) + ' / op.') : '—', '');
-  setInfoRow('dash-mejor-op', mejorCiclo ? ('+' + fmtUSD(mejorCiclo.gananciaUSD,2)) : '—', 'pos');
-  setInfoRow('dash-peor-op',  peorCiclo  ? ((peorCiclo.gananciaUSD>=0?'+':'') + fmtUSD(peorCiclo.gananciaUSD,2)) : '—', peorCiclo && peorCiclo.gananciaUSD < 0 ? 'neg' : '');
-  setInfoRow('dash-max-hist', maxHist && maxHist.ts ? fmtUSD(maxHist.usd,2) + ' · ' + fmtFecha(maxHist.ts) : '—', '');
-  setInfoRow('dash-min-hist', minHist && minHist.ts ? fmtUSD(minHist.usd,2) + ' · ' + fmtFecha(minHist.ts) : '—', '');
-
-  var notice = document.getElementById('notice-capital');
-  if (ci <= 0) notice.classList.remove('hidden'); else notice.classList.add('hidden');
+  if(pend) out.push({ estado:'abierto', fechaVenta:pend.ts, usdVendidos:pend.usd, tcVenta:pend.tc, nota:pend.nota||'', fechaCompra:null, tcCompra:null, costoPEN:0, notaCompra:'' });
+  return { ciclos:out, omitidas:omit };
 }
-
-function setInfoRow(id, text, cls) {
-  var el = document.getElementById(id); if (!el) return;
-  el.textContent = text; el.className = 'info-value' + (cls ? ' ' + cls : '');
-}
-
-/* Renderizado de historial con paginación */
-function renderHistorial() {
-  STATE.histPage = 1; // reset paginación al re-renderizar con filtros
-  _renderHistorialInner();
-}
-
-function cargarMas() {
-  STATE.histPage++;
-  _renderHistorialInner(true);
-}
-
-function _renderHistorialInner(append) {
-  var list   = document.getElementById('hist-list');
-  var search = (document.getElementById('hist-search').value || '').toLowerCase();
-  var filter = document.getElementById('hist-filter').value;
-  var desde  = document.getElementById('hist-desde').value;
-  var hasta  = document.getElementById('hist-hasta').value;
-
-  var tsDesde = desde ? new Date(desde + 'T00:00:00').getTime() : 0;
-  var tsHasta = hasta ? new Date(hasta + 'T23:59:59').getTime() : Infinity;
-
-  // STATE.ops ya viene ordenado desc por ts desde el listener
-  var ops = STATE.ops.filter(function(op) {
-    if (filter !== 'all' && op.tipo !== filter) return false;
-    if (op.ts < tsDesde || op.ts > tsHasta) return false;
-    if (search) {
-      var hay = fmtFecha(op.ts).toLowerCase() + ' ' + (op.nota||'').toLowerCase();
-      if (!hay.includes(search)) return false;
-    }
-    return true;
-  });
-
-  // Stats strip (sobre todas las ops filtradas)
-  var strip = document.getElementById('hist-stats-strip');
-  if (ops.length > 0) {
-    strip.style.display = 'flex';
-    var numCompras  = ops.filter(function(o) { return o.tipo==='buy'; }).length;
-    var numVentas   = ops.filter(function(o) { return o.tipo==='sell'; }).length;
-    var usdComprado = ops.filter(function(o) { return o.tipo==='buy'; }).reduce(function(s,o) { return s+o.usd; }, 0);
-    var usdVendido  = ops.filter(function(o) { return o.tipo==='sell'; }).reduce(function(s,o) { return s+o.usd; }, 0);
-    var usdNeto = usdComprado - usdVendido;
-    document.getElementById('hstat-compras').textContent = numCompras;
-    document.getElementById('hstat-ventas').textContent  = numVentas;
-    var netoEl = document.getElementById('hstat-neto');
-    netoEl.textContent = (usdNeto >= 0 ? '+' : '') + fmtUSD(usdNeto, 2);
-    netoEl.className = 'val' + (usdNeto >= 0 ? ' pos' : ' neg');
-  } else { strip.style.display = 'none'; }
-
-  if (!ops.length) {
-    list.innerHTML = '<div class="empty-state"><div class="empty-text">No se encontraron operaciones.</div></div>';
-    document.getElementById('load-more-wrap').classList.add('hidden');
-    return;
-  }
-
-  // Paginación
-  var pageSize = STATE.histPageSize;
-  var total    = ops.length;
-  var shown    = Math.min(STATE.histPage * pageSize, total);
-  var opsPagina = ops.slice(0, shown);
-
-  // Agrupación por mes
-  var groups = {};
-  opsPagina.forEach(function(op) {
-    var d = new Date(op.ts); var key = d.getFullYear() + '-' + pad(d.getMonth()+1);
-    var lbl = d.toLocaleDateString('es-PE', { month:'long', year:'numeric' });
-    lbl = lbl.charAt(0).toUpperCase() + lbl.slice(1);
-    if (!groups[key]) groups[key] = { label: lbl, ops: [] };
-    groups[key].ops.push(op);
-  });
-
-  var html = '';
-  Object.keys(groups).sort().reverse().forEach(function(key) {
-    var g = groups[key];
-    html += '<div class="group-label">' + esc(g.label) + '</div>';
-    g.ops.forEach(function(op) {
-      var esBuy = op.tipo === 'buy';
-      // XSS-safe: todos los valores dinámicos pasan por esc()
-      html += '<div class="op-card">' +
-        '<div class="op-icon ' + op.tipo + '">' + (esBuy ? '🟢' : '🔴') + '</div>' +
-        '<div class="op-body">' +
-          '<div class="op-type">' + (esBuy ? 'Compra' : 'Venta') + ' · ' + esc(fmtFecha(op.ts)) + '</div>' +
-          '<div class="op-meta">TC: ' + esc(op.tc.toFixed(4)) + ' · ' + esc(esBuy ? fmtPEN(op.pen,2) : fmtUSD(op.usd,2)) + ' → ' + esc(esBuy ? fmtUSD(op.usd,2) : fmtPEN(op.pen,2)) + '</div>' +
-          (op.nota ? '<div class="op-note">💬 ' + esc(op.nota) + '</div>' : '') +
-        '</div>' +
-        '<div class="op-right"><div class="op-amount ' + op.tipo + '">' + esc(esBuy ? fmtUSD(op.usd,2) : fmtPEN(op.pen,2)) + '</div></div>' +
-        '<div class="op-actions">' +
-          '<button class="op-btn edit" onclick="abrirModalEditar(\'' + op.id + '\')">✏️</button>' +
-          '<button class="op-btn del" onclick="confirmarEliminar(\'' + op.id + '\')">🗑</button>' +
-        '</div>' +
-      '</div>';
+function escribirCiclos(lista){
+  var proms=[];
+  for(var i=0;i<lista.length;i+=400){
+    var b=db.batch();
+    lista.slice(i,i+400).forEach(function(c){
+      b.set(ciclosRef().doc(), Object.assign({}, c, { creadoEn:firebase.firestore.FieldValue.serverTimestamp() }));
     });
-  });
-
-  if (append) {
-    list.innerHTML = html; // re-render completo al cargar más (grupos pueden cambiar)
-  } else {
-    list.innerHTML = html;
+    proms.push(b.commit());
   }
-
-  // Mostrar/ocultar botón "Cargar más"
-  var loadMoreWrap = document.getElementById('load-more-wrap');
-  if (shown < total) {
-    loadMoreWrap.classList.remove('hidden');
-    loadMoreWrap.querySelector('.btn-load-more').textContent =
-      'Cargar más (' + (total - shown) + ' restantes)';
-  } else {
-    loadMoreWrap.classList.add('hidden');
-  }
+  return Promise.all(proms);
 }
-
-function renderCerradas() {
-  var ciclos = calcularCiclos();
-  var list  = document.getElementById('cerradas-list');
-  var empty = document.getElementById('cerradas-empty');
-
-  if (!ciclos.length) { list.innerHTML = ''; empty.classList.remove('hidden'); return; }
-  empty.classList.add('hidden');
-
-  var html = '';
-  ciclos.slice().reverse().forEach(function(c) {
-    var isWin = c.gananciaPEN >= 0; var cls = isWin ? 'win' : 'loss';
-    html += '<div class="cerrada-card">' +
-      '<div class="cerrada-header">' +
-        '<div class="cerrada-pair"><span class="cerrada-badge ' + cls + '">' + (isWin ? '✓ Ganancia' : '✗ Pérdida') + '</span><span style="font-size:12px;color:var(--ink-3)">' + esc(fmt(c.usd, 2)) + ' USD</span></div>' +
-        '<div><div class="cerrada-pnl ' + cls + '">' + (isWin ? '+' : '') + esc(fmtPEN(c.gananciaPEN, 2)) + '</div></div>' +
-      '</div>' +
-      '<div class="cerrada-details">' +
-        '<div class="cerrada-field"><div class="cerrada-field-label">Compra</div><div class="cerrada-field-value">' + esc(fmtFecha(c.compraFecha)) + ' (TC: ' + esc(c.compraTc.toFixed(4)) + ')</div></div>' +
-        '<div class="cerrada-field"><div class="cerrada-field-label">Venta</div><div class="cerrada-field-value">' + esc(fmtFecha(c.ventaFecha)) + ' (TC: ' + esc(c.ventaTc.toFixed(4)) + ')</div></div>' +
-      '</div>' +
-    '</div>';
+function filtrarAbiertos(lista){
+  var hayAbierto=!!cicloAbierto(), descartados=0, res=[];
+  lista.forEach(function(c){
+    if(c.estado==='abierto'){ if(hayAbierto){ descartados++; return; } hayAbierto=true; }
+    res.push(c);
   });
-  list.innerHTML = html;
+  return { lista:res, descartados:descartados };
 }
-
-function renderEvolucion() {
-  var pos = calcularCapital(); var ci = STATE.capitalInicial; var puntos = pos.puntos;
-  var gananciaUSD = pos.capitalUSD - ci; var rentab = ci > 0 ? gananciaUSD / ci * 100 : 0;
-  var evAnual = '—';
-  if (ci > 0 && STATE.ops.length > 0) {
-    var firstTs2 = STATE.ops.reduce(function(m,o) { return Math.min(m,o.ts); }, Infinity);
-    var dias = Math.max(1, (Date.now() - firstTs2) / 86400000);
-    evAnual = fmt((Math.pow(1 + gananciaUSD / ci, 365 / dias) - 1) * 100, 2) + '%';
-  }
-
-  document.getElementById('evol-crec').textContent = fmtUSD(gananciaUSD, 2);
-  document.getElementById('evol-rentab').textContent = fmt(rentab, 2) + '%';
-  document.getElementById('evol-anual').textContent = evAnual;
-
-  var tableEl = document.getElementById('evol-table');
-  var html = '';
-  puntos.forEach(function(p) {
-    html += '<div class="info-row">' +
-      '<span class="info-label">' + esc(p.ts ? fmtFecha(p.ts) : 'Inicio') + '</span>' +
-      '<span class="info-value">' + esc(fmtUSD(p.usd, 2)) + '</span>' +
-    '</div>';
-  });
-  tableEl.innerHTML = html;
+function migrarOps(){
+  var r=opsACiclos(S.opsLegacy), f=filtrarAbiertos(r.ciclos);
+  var msg='Se crearán ' + f.lista.length + ' ciclos.';
+  if(r.omitidas) msg+='\n' + r.omitidas + ' operaciones no tienen pareja (por ejemplo, una compra sin venta previa) y no se convertirán.';
+  if(f.descartados) msg+='\nSe omitirá ' + f.descartados + ' ciclo abierto porque ya tienes uno abierto.';
+  msg+='\n\nNota: la ganancia se recalcula asumiendo que cada recompra usó todos los soles de la venta.\n¿Continuar?';
+  if(!confirm(msg)) return;
+  showSync('saving','Convirtiendo...');
+  escribirCiclos(f.lista).then(function(){
+    return perfilRef().set({ migracionCiclos:true }, { merge:true });
+  }).then(function(){ S.opsLegacy=[]; showSync('saved','✓ ' + f.lista.length + ' ciclos creados'); })
+    .catch(function(e){ console.error(e); showSync('error','⚠ Error en la conversión'); });
 }
-
-function limpiarFiltroFechas() {
-  document.getElementById('hist-desde').value = '';
-  document.getElementById('hist-hasta').value = '';
-  renderHistorial();
+function omitirMigracion(){
+  perfilRef().set({ migracionCiclos:true }, { merge:true }).then(function(){ S.opsLegacy=[]; renderAll(); });
 }
 
 /* ══════════════════════════════════════════════
-   MODALES
+   EXPORTAR / IMPORTAR
 ══════════════════════════════════════════════ */
-function abrirModalEditar(id) {
-  var op = STATE.ops.find(function(o) { return o.id === id; }); if (!op) return;
-  STATE.editId = id;
-  document.getElementById('edit-tipo').value  = op.tipo;
-  document.getElementById('edit-fecha').value = new Date(op.ts).toISOString().slice(0,10);
-  document.getElementById('edit-monto').value = op.tipo === 'buy' ? op.pen.toFixed(2) : op.usd.toFixed(2);
-  document.getElementById('edit-tc').value    = op.tc.toFixed(4);
-  document.getElementById('edit-nota').value  = op.nota || '';
-  calcularEdit();
-  document.getElementById('modal-editar').classList.add('on');
+function descargar(contenido, tipo, nombre){
+  var blob=new Blob([contenido],{type:tipo}), url=URL.createObjectURL(blob);
+  var a=document.createElement('a'); a.href=url; a.download=nombre; a.click();
+  setTimeout(function(){ URL.revokeObjectURL(url); },1000);
 }
-function cerrarModalEditar(e) {
-  if (e && e.target !== document.getElementById('modal-editar')) return;
-  document.getElementById('modal-editar').classList.remove('on');
-  STATE.editId = null;
+function exportarJSON(){
+  var ciclos=S.ciclos.map(function(c){ return { estado:c.estado, fechaVenta:c.fechaVenta, usdVendidos:c.usdVendidos, tcVenta:c.tcVenta, nota:c.nota,
+    fechaCompra:c.fechaCompra, tcCompra:c.tcCompra, costoPEN:c.costoPEN, notaCompra:c.notaCompra }; });
+  descargar(JSON.stringify({ version:2, exportado:new Date().toISOString(), capitalInicial:S.capitalInicial, ciclos:ciclos }, null, 2),
+    'application/json', 'libro-dolares-' + hoyISO() + '.json');
 }
-function calcularEdit() {
-  var tipo  = document.getElementById('edit-tipo').value;
-  var monto = parseFloat(document.getElementById('edit-monto').value);
-  var tc    = parseFloat(document.getElementById('edit-tc').value);
-  var el    = document.getElementById('edit-result');
-  if (!isNaN(monto) && !isNaN(tc) && monto > 0 && tc > 0) {
-    el.textContent = (tipo === 'buy') ? fmtUSD(monto / tc, 2) + ' obtenidos' : fmtPEN(monto * tc, 2) + ' recibidos';
-  } else el.textContent = '—';
-}
-function guardarEdicion() {
-  var id    = STATE.editId; if (!id) return;
-  var tipo  = document.getElementById('edit-tipo').value;
-  var fecha = document.getElementById('edit-fecha').value;
-  var monto = parseFloat(document.getElementById('edit-monto').value);
-  var tc    = parseFloat(document.getElementById('edit-tc').value);
-  var nota  = document.getElementById('edit-nota').value.trim().slice(0, 200);
-
-  if (!fecha || isNaN(monto) || monto <= 0 || isNaN(tc) || tc < 2.5 || tc > 6) {
-    alert('Completa todos los campos correctamente.');
-    return;
-  }
-
-  var usd = (tipo === 'buy') ? monto / tc : monto;
-  var pen = (tipo === 'buy') ? monto : monto * tc;
-  var op  = { id: id, ts: new Date(fecha + 'T12:00:00').getTime(), tipo: tipo, usd: usd, pen: pen, tc: tc, nota: nota };
-
-  guardarOpEnFirestore(op).catch(function() {
-    alert('Error al guardar. Intenta de nuevo.');
+function exportarCSV(){
+  var q=function(s){ return '"' + String(s||'').replace(/"/g,'""') + '"'; };
+  var csv='Ciclo,Estado,Fecha venta,USD vendidos,TC venta,Soles,Fecha recompra,TC recompra,USD recibidos,Costos S/,Ganancia USD,Ganancia %,Dias,Notas\n';
+  var m=metricas(), numero={}; m.cerr.forEach(function(c,i){ numero[c.id]=i+1; });
+  S.ciclos.slice().sort(function(a,b){ return a.fechaVenta-b.fechaVenta; }).forEach(function(c){
+    var d=derivar(c), cer=c.estado==='cerrado';
+    csv += [ cer?numero[c.id]:'', cer?'Cerrado':'Abierto', isoLocal(c.fechaVenta), c.usdVendidos.toFixed(2), c.tcVenta.toFixed(4), d.pen.toFixed(2),
+      cer?isoLocal(c.fechaCompra):'', cer?c.tcCompra.toFixed(4):'', cer?d.usdRec.toFixed(2):'', cer?c.costoPEN.toFixed(2):'',
+      cer?d.gan.toFixed(2):'', cer?d.pct.toFixed(2):'', cer?d.dias:'', q([c.nota,c.notaCompra].filter(Boolean).join(' / ')) ].join(',') + '\n';
   });
-  document.getElementById('modal-editar').classList.remove('on');
-  STATE.editId = null;
+  descargar('\uFEFF'+csv, 'text/csv;charset=utf-8;', 'libro-dolares-' + hoyISO() + '.csv');
 }
-
-function abrirModalCapital() {
-  document.getElementById('capital-input').value = STATE.capitalInicial > 0 ? STATE.capitalInicial : '';
-  document.getElementById('modal-capital').classList.add('on');
-}
-function cerrarModalCapital(e) {
-  if (e && e.target !== document.getElementById('modal-capital')) return;
-  document.getElementById('modal-capital').classList.remove('on');
-}
-function guardarCapital() {
-  var v = parseFloat(document.getElementById('capital-input').value);
-  if (isNaN(v) || v < 0) return;
-  STATE.capitalInicial = v;
-  guardarPerfilEnFirestore();
-  document.getElementById('modal-capital').classList.remove('on');
-}
-
-function confirmarEliminar(id) {
-  STATE.confirmCallback = function() {
-    eliminarOpEnFirestore(id).catch(function() {
-      alert('Error al eliminar. Intenta de nuevo.');
-    });
-  };
-  document.getElementById('modal-confirm').classList.add('on');
-}
-
-function confirmarEliminarTodo() {
-  STATE.confirmCallback = function() {
-    if (!STATE.currentUser) return;
-    showSync('saving', 'Eliminando todo...');
-    var batch = db.batch();
-    STATE.ops.forEach(function(op) {
-      batch.delete(getOpsRef(STATE.currentUser.uid).doc(op.id));
-    });
-    batch.commit()
-      .then(function() { showSync('saved', '✓ Historial eliminado'); })
-      .catch(function(e) {
-        console.error('Error eliminando todo:', e);
-        showSync('error', '⚠ Error al eliminar');
+function importarJSON(ev){
+  var file=ev.target.files[0]; ev.target.value=''; if(!file) return;
+  if(!S.user){ alert('Debes iniciar sesión primero.'); return; }
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var data;
+    try{ data=JSON.parse(e.target.result); } catch(err){ alert('El archivo no es un JSON válido.'); return; }
+    var lista=[], invalidos=0;
+    if(Array.isArray(data.ciclos)){
+      data.ciclos.forEach(function(c){
+        var u=Number(c.usdVendidos), v=Number(c.tcVenta), fv=Number(c.fechaVenta), cer=c.estado==='cerrado';
+        var t=Number(c.tcCompra), fc=Number(c.fechaCompra), k=Number(c.costoPEN)||0;
+        if(!(u>0) || !tcValido(v) || !fv || (cer && (!tcValido(t) || !fc || fc<fv))){ invalidos++; return; }
+        lista.push({ estado:cer?'cerrado':'abierto', fechaVenta:fv, usdVendidos:u, tcVenta:v, nota:String(c.nota||'').slice(0,200),
+          fechaCompra:cer?fc:null, tcCompra:cer?t:null, costoPEN:cer?Math.max(0,k):0, notaCompra:cer?String(c.notaCompra||'').slice(0,200):'' });
       });
-  };
-  document.getElementById('modal-confirm').classList.add('on');
-}
+    } else if(Array.isArray(data.ops)){
+      var r=opsACiclos(data.ops.map(function(o){ return { ts:Number(o.ts), tipo:o.tipo, usd:Number(o.usd), pen:Number(o.pen), tc:Number(o.tc), nota:o.nota||'' }; }));
+      lista=r.ciclos; invalidos=r.omitidas;
+    } else { alert('Formato de archivo no reconocido.'); return; }
 
-function cerrarConfirm() { document.getElementById('modal-confirm').classList.remove('on'); }
+    var f=filtrarAbiertos(lista);
+    var msg='Se importarán ' + f.lista.length + ' ciclos (se agregan a los que ya tienes).';
+    if(invalidos) msg+='\n' + invalidos + ' registros inválidos se omitirán.';
+    if(f.descartados) msg+='\n' + f.descartados + ' ciclo(s) abierto(s) se omitirán porque solo puede haber uno abierto.';
+    if(!confirm(msg + '\n¿Continuar?')) return;
 
-document.getElementById('confirm-ok-btn').addEventListener('click', function() {
-  if (STATE.confirmCallback) STATE.confirmCallback();
-  cerrarConfirm();
-});
-
-/* ══════════════════════════════════════════════
-   NAVEGACIÓN
-══════════════════════════════════════════════ */
-var CURRENT_TAB = 'dashboard';
-function setTab(tab, btn) {
-  document.querySelectorAll('.tab-item').forEach(function(b) { b.classList.remove('on'); });
-  if (btn) btn.classList.add('on');
-  document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('on'); });
-  document.getElementById('v-' + tab).classList.add('on');
-  CURRENT_TAB = tab;
-  renderAll();
-}
-
-function renderAll() {
-  renderDashboard();
-  if (CURRENT_TAB === 'historial') renderHistorial();
-  if (CURRENT_TAB === 'cerradas')  renderCerradas();
-  if (CURRENT_TAB === 'evolucion') renderEvolucion();
-}
-
-/* ══════════════════════════════════════════════
-   EXPORT / IMPORT
-   Import: sube ops a subcolecciones, no reemplaza el array completo
-══════════════════════════════════════════════ */
-function exportarJSON() {
-  var payload = JSON.stringify({ capitalInicial: STATE.capitalInicial, ops: STATE.ops }, null, 2);
-  var blob = new Blob([payload], { type: 'application/json' });
-  var url  = URL.createObjectURL(blob);
-  var a = document.createElement('a'); a.href = url; a.download = 'libro-dolares.json'; a.click();
-  setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
-}
-
-function importarJSON(event) {
-  var file = event.target.files[0]; if (!file) return;
-  if (!STATE.currentUser) { alert('Debes iniciar sesión primero.'); return; }
-
-  var reader = new FileReader();
-  reader.onload = function(e) {
-    try {
-      var data = JSON.parse(e.target.result);
-      if (!Array.isArray(data.ops)) { alert('Formato de archivo inválido.'); return; }
-
-      var confirmado = confirm(
-        'Se importarán ' + data.ops.length + ' operaciones.\n' +
-        'Las operaciones existentes con el mismo ID serán sobreescritas.\n¿Continuar?'
-      );
-      if (!confirmado) return;
-
-      showSync('saving', 'Importando ' + data.ops.length + ' operaciones...');
-
-      // Usar batches de máx 500 ops (límite de Firestore)
-      var opsRef = getOpsRef(STATE.currentUser.uid);
-      var batches = [];
-      var currentBatch = db.batch();
-      var count = 0;
-
-      data.ops.forEach(function(op) {
-        if (!op.id || !op.ts || !op.tipo || !op.usd || !op.pen || !op.tc) return;
-        var docRef = opsRef.doc(String(op.id));
-        currentBatch.set(docRef, {
-          ts:   Number(op.ts),
-          tipo: String(op.tipo),
-          usd:  Number(op.usd),
-          pen:  Number(op.pen),
-          tc:   Number(op.tc),
-          nota: String(op.nota || '').slice(0, 200),
-          creadoEn: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        count++;
-        if (count % 400 === 0) {
-          batches.push(currentBatch.commit());
-          currentBatch = db.batch();
-        }
-      });
-      batches.push(currentBatch.commit());
-
-      if (data.capitalInicial !== undefined) {
-        STATE.capitalInicial = Number(data.capitalInicial);
-        guardarPerfilEnFirestore();
-      }
-
-      Promise.all(batches)
-        .then(function() { showSync('saved', '✓ Importación completada'); })
-        .catch(function(err) {
-          console.error('Error en importación:', err);
-          showSync('error', '⚠ Error al importar');
-        });
-
-    } catch(err) {
-      alert('Error al leer el archivo. Asegúrate de que es un JSON válido.');
+    showSync('saving','Importando...');
+    var p=escribirCiclos(f.lista);
+    if(data.capitalInicial!==undefined && Number(data.capitalInicial)>0 && S.capitalInicial<=0){
+      p=p.then(function(){ return perfilRef().set({ capitalInicial:Number(data.capitalInicial) }, { merge:true }); });
     }
+    p.then(function(){ showSync('saved','✓ Importación completada'); })
+     .catch(function(err){ console.error(err); showSync('error','⚠ Error al importar'); });
   };
   reader.readAsText(file);
-  event.target.value = ''; // reset para poder importar el mismo archivo de nuevo
-}
-
-function exportarExcel() {
-  var csv = 'Fecha,Tipo,USD,PEN,TC,Notas\n';
-  STATE.ops.slice().sort(function(a,b) { return a.ts - b.ts; }).forEach(function(o) {
-    var nota = (o.nota || '').replace(/,/g, ';'); // evitar que las comas rompan el CSV
-    csv += fmtFecha(o.ts) + ',' + (o.tipo==='buy'?'Compra':'Venta') + ',' +
-           o.usd.toFixed(2) + ',' + o.pen.toFixed(2) + ',' +
-           o.tc.toFixed(4) + ',' + nota + '\n';
-  });
-  var blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
-  var url  = URL.createObjectURL(blob);
-  var a = document.createElement('a'); a.href = url; a.download = 'libro-dolares.csv'; a.click();
-  setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
 }
 
 /* ══════════════════════════════════════════════
-   INIT
+   NAVEGACIÓN E INIT
 ══════════════════════════════════════════════ */
-document.getElementById('form-monto').addEventListener('input', calcularFormulario);
-document.getElementById('form-tc').addEventListener('input', calcularFormulario);
+function setTab(tab){
+  S.tab=tab;
+  document.querySelectorAll('.tab-item').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-tab')===tab); });
+  document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('on'); });
+  $('v-'+tab).classList.add('on');
+  window.scrollTo(0,0);
+  renderAll();
+  if(tab==='operar') prefillOperar();
+}
+function renderAll(){
+  renderResumen();
+  renderOperar();
+  if(S.tab==='ciclos') renderCiclos();
+  if(S.tab==='evolucion') renderEvolucion();
+}
 
-(function init() {
-  var d = new Date();
-  var dateStr = d.toLocaleDateString('es-PE', { weekday:'short', day:'numeric', month:'short' });
-  document.getElementById('hdr-date').textContent     = dateStr;
-  document.getElementById('hdr-date-reg').textContent = dateStr;
-  document.getElementById('form-fecha').value = todayISO();
-})();
+$('st-tc').addEventListener('input', onTcHoy);
+['sim-usd','sim-tcv','sim-tcc'].forEach(function(id){ $(id).addEventListener('input', simCiclo); });
+['fv-usd','fv-tc'].forEach(function(id){ $(id).addEventListener('input', calcVenta); });
+['fc-tc','fc-costo'].forEach(function(id){ $(id).addEventListener('input', calcCompra); });
 </script>
 
 <!--
+════════════════════════════════════════════════════════════
+  CONFIGURACIÓN FIREBASE (v2, modelo por ciclos)
 
+  IMPORTANTE: actualiza las reglas de Firestore para permitir
+  la nueva subcolección "ciclos":
 
-CAMBIOS RESPECTO A v1:
-  - Cada operación es un documento individual en subcolección /ops
-    (elimina el límite de 1MB por usuario)
-  - Persistencia offline nativa de Firestore activada
-  - Barra de estado de sincronización visible
-  - Detección online/offline con feedback
-  - Escape XSS en todo el contenido generado por usuario
-  - Validación de inputs con mensajes de error visibles
-  - Paginación en historial (30 ops por página)
-  - Import con batch writes (soporta miles de ops)
-  - URLs de blob revocadas correctamente
-  - Notas limitadas a 200 caracteres (modelo y UI)
+    rules_version = '2';
+    service cloud.firestore {
+      match /databases/{database}/documents {
+        match /librodolares_usuarios/{userId} {
+          allow read, write: if request.auth != null && request.auth.uid == userId;
+          match /{sub}/{docId} {
+            allow read, write: if request.auth != null && request.auth.uid == userId;
+          }
+        }
+      }
+    }
+
+  Opcional: limitar a tu correo agregando
+    && request.auth.token.email == 'tu@gmail.com'
+
+  Estructura:
+    librodolares_usuarios/{uid}              capitalInicial, tcReferencia, migracionCiclos
+    librodolares_usuarios/{uid}/ciclos/{id}  estado, fechaVenta, usdVendidos, tcVenta, nota,
+                                             fechaCompra, tcCompra, costoPEN, notaCompra
+    librodolares_usuarios/{uid}/ops/{id}     formato anterior; se conserva, no se borra
 ════════════════════════════════════════════════════════════
 -->
 </body>
